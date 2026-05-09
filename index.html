@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wayhhow — Developer Portfolio</title>
+  <meta name="description" content="Weihao Wu (Wayhhow) — Developer, builder of tools for accessibility, automation, and hardware.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="https://avatars.githubusercontent.com/u/129638819?v=4">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #0f1117;
+      --surface-border: #1a1a2e;
+      --cyan: #00f5ff;
+      --pink: #ff2d78;
+      --green: #39ff14;
+      --yellow: #ffe600;
+      --purple: #a855f7;
+      --text: #e0e0e0;
+      --muted: #8b8b9e;
+      --card-glow: rgba(0, 245, 255, 0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    canvas#particles {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .cursor-glow {
+      position: fixed;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,245,255,0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+      transform: translate(-50%, -50%);
+      transition: left 0.15s ease-out, top 0.15s ease-out;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 5%;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ─── HERO ─────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 5%;
+      gap: 28px;
+    }
+
+    .avatar-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    .avatar-ring {
+      width: 130px; height: 130px;
+      border-radius: 50%;
+      padding: 4px;
+      background: conic-gradient(var(--cyan), var(--pink), var(--purple), var(--green), var(--cyan));
+      animation: ring-spin 4s linear infinite;
+      box-shadow: 0 0 30px rgba(0,245,255,0.4), 0 0 60px rgba(0,245,255,0.15);
+    }
+
+    @keyframes ring-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .avatar-ring img {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      display: block;
+      border: 3px solid var(--bg);
+    }
+
+    .hero-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 2px;
+      text-shadow: 0 0 20px rgba(0,245,255,0.5), 0 0 40px rgba(0,245,255,0.2);
+      line-height: 1.1;
+    }
+
+    .hero-handle {
+      font-size: 1.1rem;
+      color: var(--cyan);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(168,85,247,0.15);
+      border: 1px solid rgba(168,85,247,0.4);
+      color: var(--purple);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      animation: badge-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes badge-pulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(168,85,247,0.3); }
+      50% { box-shadow: 0 0 20px rgba(168,85,247,0.6); }
+    }
+
+    .typewriter {
+      font-size: clamp(0.9rem, 2.5vw, 1.15rem);
+      color: var(--muted);
+      min-height: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .typewriter .prefix { color: var(--pink); }
+    .typewriter .cursor { color: var(--cyan); animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .hero-links {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border: 1px solid rgba(0,245,255,0.35);
+      border-radius: 8px;
+      color: var(--cyan);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      background: rgba(0,245,255,0.05);
+      transition: all 0.25s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(0,245,255,0.12);
+      border-color: var(--cyan);
+      box-shadow: 0 0 20px rgba(0,245,255,0.3), 0 0 40px rgba(0,245,255,0.1);
+      transform: translateY(-2px);
+    }
+
+    .btn-pink {
+      border-color: rgba(255,45,120,0.35);
+      color: var(--pink);
+      background: rgba(255,45,120,0.05);
+    }
+
+    .btn-pink:hover {
+      background: rgba(255,45,120,0.12);
+      border-color: var(--pink);
+      box-shadow: 0 0 20px rgba(255,45,120,0.3), 0 0 40px rgba(255,45,120,0.1);
+      transform: translateY(-2px);
+    }
+
+    /* ─── SCROLL INDICATOR ──────────────────────── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.6;
+      animation: float 2s ease-in-out infinite;
+    }
+
+    .scroll-hint svg { animation: bounce 2s ease-in-out infinite; }
+
+    @keyframes float {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+
+    /* ─── STATS BAR ────────────────────────────── */
+    .stats-bar {
+      padding: 0 0 60px;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 50px;
+      backdrop-filter: blur(12px);
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .stat-pill:hover {
+      border-color: rgba(0,245,255,0.3);
+      background: rgba(0,245,255,0.05);
+      box-shadow: 0 0 16px rgba(0,245,255,0.15);
+    }
+
+    .stat-num {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .stat-num.cyan { color: var(--cyan); }
+    .stat-num.green { color: var(--green); }
+    .stat-num.purple { color: var(--purple); }
+
+    /* ─── SECTION BASE ─────────────────────────── */
+    section {
+      padding: 80px 0;
+    }
+
+    .section-heading {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 48px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .section-heading::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(0,245,255,0.4), transparent);
+    }
+
+    .section-heading .hash { color: var(--cyan); opacity: 0.6; }
+
+    /* ─── PROJECTS ─────────────────────────────── */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 14px;
+      padding: 24px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(0,245,255,0.0), rgba(255,45,120,0.0));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      transition: background 0.3s ease;
+    }
+
+    .project-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 40px rgba(0,245,255,0.12), 0 0 0 1px rgba(0,245,255,0.2);
+    }
+
+    .project-card:hover::before {
+      background: linear-gradient(135deg, rgba(0,245,255,0.6), rgba(255,45,120,0.4));
+    }
+
+    .project-card.featured {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 28px;
+    }
+
+    .project-card.featured .proj-name {
+      font-size: 1.4rem;
+    }
+
+    .proj-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .proj-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--cyan);
+      transition: color 0.3s;
+    }
+
+    .project-card:hover .proj-name { color: #fff; }
+
+    .proj-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .proj-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .lang-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 500;
+    }
+
+    .lang-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+
+    .proj-stats {
+      display: flex;
+      gap: 12px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .proj-stats span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .proj-icon {
+      flex-shrink: 0;
+      color: var(--muted);
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: all 0.3s ease;
+    }
+
+    .project-card:hover .proj-icon {
+      opacity: 1;
+      transform: translateX(0);
+      color: var(--cyan);
+    }
+
+    /* ─── SKILLS ───────────────────────────────── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .skill-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .skill-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .skill-name {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .skill-track {
+      height: 6px;
+      background: var(--surface-border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .skill-fill {
+      height: 100%;
+      border-radius: 3px;
+      width: 0;
+      transition: width 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ─── FOOTER ───────────────────────────────── */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--surface-border);
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    footer a {
+      color: var(--cyan);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover { color: #fff; }
+
+    .footer-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .footer-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 6px var(--cyan);
+    }
+
+    /* ─── BACK TO TOP ──────────────────────────── */
+    .back-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: rgba(0,245,255,0.1);
+      border: 1px solid rgba(0,245,255,0.3);
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+
+    .back-top.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .back-top:hover {
+      background: rgba(0,245,255,0.2);
+      box-shadow: 0 0 20px rgba(0,245,255,0.3);
+    }
+
+    /* ─── REVEAL ANIMATION ─────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── RESPONSIVE ────────────────────────────── */
+    @media (max-width: 768px) {
+      .project-card.featured {
+        flex-direction: column;
+      }
+
+      .projects-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero { min-height: 90vh; }
+    }
+
+    @media (max-width: 480px) {
+      .avatar-ring { width: 100px; height: 100px; }
+      .hero-name { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+  <div class="grid-overlay"></div>
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- ── HERO ── -->
+  <div class="hero" id="hero">
+    <div class="avatar-wrap">
+      <div class="avatar-ring">
+        <img src="https://avatars.githubusercontent.com/u/129638819?v=4" alt="Wayhhow avatar" loading="eager">
+      </div>
+    </div>
+
+    <div>
+      <h1 class="hero-name">Weihao Wu</h1>
+      <div class="hero-handle">
+        <span>@wayhhow</span>
+        <span class="badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Pair Extraordinaire
+        </span>
+      </div>
+    </div>
+
+    <div class="typewriter" aria-live="polite">
+      <span class="prefix">// </span>
+      <span id="typewriterText"></span>
+      <span class="cursor">_</span>
+    </div>
+
+    <div class="hero-links">
+      <a href="https://github.com/Wayhhow" target="_blank" rel="noopener" class="btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub Profile
+      </a>
+      <a href="https://github.com/Wayhhow?tab=stars" target="_blank" rel="noopener" class="btn-ghost btn-pink">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        25 Stars
+      </a>
+    </div>
+
+    <div class="scroll-hint">
+      <span>scroll</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </div>
+
+  <!-- ── STATS ── -->
+  <div class="stats-bar">
+    <div class="container">
+      <div class="stats-row">
+        <div class="stat-pill">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffe600" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span class="stat-num yellow" id="statStars">25</span>
+          <span>Stars Earned</span>
+        </div>
+        <div class="stat-pill">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <span class="stat-num green">6</span>
+          <span>Projects</span>
+        </div>
+        <div class="stat-pill">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+          <span class="stat-num purple">1</span>
+          <span>Achievement</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROJECTS ── -->
+  <section id="projects">
+    <div class="container">
+      <h2 class="section-heading reveal">
+        <span class="hash">//</span> Featured Projects
+      </h2>
+      <div class="projects-grid" id="projectsGrid"></div>
+    </div>
+  </section>
+
+  <!-- ── SKILLS ── -->
+  <section id="skills">
+    <div class="container">
+      <h2 class="section-heading reveal">
+        <span class="hash">//</span> Tech Stack
+      </h2>
+      <div class="skills-grid reveal">
+        <div class="skill-item" data-lang="JavaScript" data-pct="35">
+          <div class="skill-label"><span class="skill-name">JavaScript</span><span>35%</span></div>
+          <div class="skill-track"><div class="skill-fill" style="background:#f7df1e;box-shadow:0 0 8px #f7df1e60;"></div></div>
+        </div>
+        <div class="skill-item" data-lang="Python" data-pct="28">
+          <div class="skill-label"><span class="skill-name">Python</span><span>28%</span></div>
+          <div class="skill-track"><div class="skill-fill" style="background:#3572A5;box-shadow:0 0 8px #3572A560;"></div></div>
+        </div>
+        <div class="skill-item" data-lang="Java" data-pct="20">
+          <div class="skill-label"><span class="skill-name">Java</span><span>20%</span></div>
+          <div class="skill-track"><div class="skill-fill" style="background:#b07219;box-shadow:0 0 8px #b0721960;"></div></div>
+        </div>
+        <div class="skill-item" data-lang="HTML" data-pct="10">
+          <div class="skill-label"><span class="skill-name">HTML / CSS</span><span>10%</span></div>
+          <div class="skill-track"><div class="skill-fill" style="background:#e34c26;box-shadow:0 0 8px #e34c2660;"></div></div>
+        </div>
+        <div class="skill-item" data-lang="Verilog" data-pct="7">
+          <div class="skill-label"><span class="skill-name">Verilog</span><span>7%</span></div>
+          <div class="skill-track"><div class="skill-fill" style="background:#717870;box-shadow:0 0 8px #71787060;"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="container">
+      <div class="footer-line">
+        <span>© 2025–2026</span>
+        <span class="footer-dot"></span>
+        <a href="https://github.com/Wayhhow" target="_blank" rel="noopener">Wayhhow</a>
+        <span class="footer-dot"></span>
+        <span>Built with neon &amp; code</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ── BACK TO TOP ── -->
+  <button class="back-top" id="backTop" aria-label="Back to top">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <script>
+    // ─── LANGUAGE CONFIG ───────────────────────
+    const LANG_COLORS = {
+      JavaScript: { bg: 'rgba(247,223,30,0.12)', color: '#f7df1e', dot: '#f7df1e' },
+      Python: { bg: 'rgba(53,114,165,0.12)', color: '#3572A5', dot: '#3572A5' },
+      Java: { bg: 'rgba(176,114,25,0.12)', color: '#b07219', dot: '#b07219' },
+      HTML: { bg: 'rgba(227,76,38,0.12)', color: '#e34c26', dot: '#e34c26' },
+      Verilog: { bg: 'rgba(113,120,112,0.12)', color: '#717870', dot: '#717870' },
+    };
+
+    // ─── PROJECTS DATA ─────────────────────────
+    const PROJECTS = [
+      {
+        name: 'survey-map',
+        desc: 'Accessibility Urban Visualization Platform — interactive mapping system for urban accessibility surveys, built with Leaflet.js and deployed on GitHub Pages.',
+        lang: 'JavaScript',
+        stars: 2,
+        url: 'https://github.com/Wayhhow/survey-map',
+        featured: true,
+      },
+      {
+        name: 'electric-bike-system-for-display',
+        desc: 'Smart Hardware Display Interface — front-end showcase system for electric vehicle hardware interactions and data visualization.',
+        lang: 'HTML',
+        stars: 1,
+        url: 'https://github.com/Wayhhow/electric-bike-system-for-display',
+        featured: false,
+      },
+      {
+        name: 'NewBingGoGo-MagicURL-java',
+        desc: 'AI Proxy Service Backend — Java implementation of a magic URL proxy service for AI-powered search, built on a forked foundation.',
+        lang: 'Java',
+        stars: 0,
+        url: 'https://github.com/Wayhhow/NewBingGoGo-MagicURL-java',
+        featured: false,
+      },
+      {
+        name: 'AutoNeteaseMusic',
+        desc: 'Music Platform Automation Tool — automated script for music streaming engagement and daily check-ins to level up your account.',
+        lang: 'Python',
+        stars: 0,
+        url: 'https://github.com/Wayhhow/AutoNeteaseMusic',
+        featured: false,
+      },
+      {
+        name: 'bing-auto-rewards',
+        desc: 'Automated Efficiency Scripts — Python script for automated Bing rewards points collection and daily check-in tasks.',
+        lang: 'Python',
+        stars: 0,
+        url: 'https://github.com/Wayhhow/bing-auto-rewards',
+        featured: false,
+      },
+      {
+        name: 'image_processing',
+        desc: 'FPGA Edge Detection System — Verilog-based image processing pipeline with Sobel edge detection, binarization, and projection algorithms.',
+        lang: 'Verilog',
+        stars: 0,
+        url: 'https://github.com/Wayhhow/image_processing',
+        featured: false,
+      },
+    ];
+
+    // ─── RENDER PROJECTS ────────────────────────
+    function renderProjects() {
+      const grid = document.getElementById('projectsGrid');
+      PROJECTS.forEach((p, i) => {
+        const lc = LANG_COLORS[p.lang] || LANG_COLORS['JavaScript'];
+        const card = document.createElement('a');
+        card.href = p.url;
+        card.target = '_blank';
+        card.rel = 'noopener';
+        card.className = 'project-card reveal' + (p.featured ? ' featured' : '');
+        card.style.transitionDelay = `${i * 80}ms`;
+        card.innerHTML = `
+          <div class="proj-top">
+            <div class="proj-name">${p.name}</div>
+            <svg class="proj-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+          </div>
+          <p class="proj-desc">${p.desc}</p>
+          <div class="proj-meta">
+            <span class="lang-pill" style="background:${lc.bg};color:${lc.color};">
+              <span class="lang-dot" style="background:${lc.dot};"></span>
+              ${p.lang}
+            </span>
+            <div class="proj-stats">
+              ${p.stars > 0 ? `<span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${p.stars}</span>` : ''}
+              <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>Code</span>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // ─── TYPEWRITER ────────────────────────────
+    const LINES = [
+      'Building tools for accessibility',
+      'Automating the mundane',
+      'Hardware meets software',
+      'Turning ideas into systems',
+    ];
+    let lineIdx = 0, charIdx = 0, deleting = false;
+    const el = document.getElementById('typewriterText');
+
+    function tick() {
+      const line = LINES[lineIdx];
+      if (!deleting) {
+        el.textContent = line.slice(0, ++charIdx);
+        if (charIdx === line.length) {
+          deleting = true;
+          setTimeout(tick, 2000);
+          return;
+        }
+        setTimeout(tick, 90);
+      } else {
+        el.textContent = line.slice(0, --charIdx);
+        if (charIdx === 0) {
+          deleting = false;
+          lineIdx = (lineIdx + 1) % LINES.length;
+          setTimeout(tick, 300);
+          return;
+        }
+        setTimeout(tick, 45);
+      }
+    }
+    setTimeout(tick, 600);
+
+    // ─── PARTICLES ─────────────────────────────
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let W, H, ps = [];
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    for (let i = 0; i < 60; i++) {
+      ps.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.5 + 0.5,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        alpha: Math.random() * 0.5 + 0.1,
+      });
+    }
+
+    function drawParticles() {
+      ctx.clearRect(0, 0, W, H);
+      ps.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = W;
+        if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H;
+        if (p.y > H) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0,245,255,${p.alpha})`;
+        ctx.fill();
+      });
+      for (let i = 0; i < ps.length; i++) {
+        for (let j = i + 1; j < ps.length; j++) {
+          const dx = ps[i].x - ps[j].x, dy = ps[i].y - ps[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(ps[i].x, ps[i].y);
+            ctx.lineTo(ps[j].x, ps[j].y);
+            ctx.strokeStyle = `rgba(0,245,255,${0.06 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+
+    // ─── CURSOR GLOW ───────────────────────────
+    const glow = document.getElementById('cursorGlow');
+    document.addEventListener('mousemove', e => {
+      glow.style.left = e.clientX + 'px';
+      glow.style.top = e.clientY + 'px';
+    });
+
+    // ─── SCROLL REVEAL ──────────────────────────
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          revealObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    revealEls.forEach(el => revealObs.observe(el));
+
+    // ─── SKILL BARS ─────────────────────────────
+    const skillObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const pct = entry.target.dataset.pct;
+          const fill = entry.target.querySelector('.skill-fill');
+          setTimeout(() => fill.style.width = pct + '%', 200);
+          skillObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.skill-item').forEach(el => skillObs.observe(el));
+
+    // ─── BACK TO TOP ────────────────────────────
+    const backTop = document.getElementById('backTop');
+    window.addEventListener('scroll', () => {
+      backTop.classList.toggle('visible', window.scrollY > 400);
+    }, { passive: true });
+    backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // ─── INIT ───────────────────────────────────
+    renderProjects();
+  </script>
+</body>
+</html>
