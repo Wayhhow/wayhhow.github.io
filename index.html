@@ -501,7 +501,6 @@
       border: 1px solid rgba(255,255,255,0.06);
       border-radius: 14px;
       padding: 28px;
-      overflow-x: auto;
       opacity: 0;
       transform: translateY(30px);
       transition: all 0.7s ease;
@@ -522,50 +521,63 @@
     .contrib-total { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: var(--green); text-shadow: var(--glow-green); }
     .contrib-total span { font-size: 0.75rem; color: var(--muted); font-family: 'Share Tech Mono', monospace; }
 
+    .contrib-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      width: 100%;
+    }
+
+    .contrib-scroll::-webkit-scrollbar { height: 4px; }
+    .contrib-scroll::-webkit-scrollbar-track { background: transparent; }
+    .contrib-scroll::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.3); border-radius: 2px; }
+
     #contrib-grid {
-      display: flex;
+      display: inline-flex;
       flex-direction: row;
       align-items: flex-end;
       gap: 3px;
-      overflow-x: auto;
-      padding-bottom: 8px;
     }
 
-    .contrib-month-labels {
+    .contrib-day-label-col {
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
       gap: 3px;
-      margin-bottom: 4px;
-      padding-left: 14px;
+      margin-right: 4px;
+      justify-content: flex-end;
     }
 
-    .contrib-month-label { font-size: 0.6rem; color: var(--muted); width: 14px; text-align: center; }
-
-    .contrib-week { display: flex; flex-direction: column; gap: 3px; }
-    .contrib-day {
-      width: 12px; height: 12px;
-      border-radius: 2px;
-      background: rgba(255,255,255,0.05);
-      transition: transform 0.1s;
-    }
-
-    .contrib-day:hover { transform: scale(1.5); z-index: 2; position: relative; }
-    .contrib-day[data-lv="0"] { background: rgba(255,255,255,0.05); }
-    .contrib-day[data-lv="1"] { background: rgba(57,255,20,0.2); }
-    .contrib-day[data-lv="2"] { background: rgba(57,255,20,0.4); }
-    .contrib-day[data-lv="3"] { background: rgba(57,255,20,0.65); }
-    .contrib-day[data-lv="4"] { background: var(--green); box-shadow: 0 0 4px var(--green); }
-
-    .contrib-day-label {
+    .contrib-day-label-col .day-lbl {
       font-size: 0.6rem;
       color: var(--muted);
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      margin-right: 4px;
-      letter-spacing: 1px;
+      height: 12px;
+      display: flex;
+      align-items: center;
+      width: 26px;
+      justify-content: flex-end;
     }
 
-    .contrib-days-row { display: flex; align-items: center; gap: 3px; }
+    .contrib-week-col {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex-shrink: 0;
+      width: 12px;
+    }
+
+    .contrib-cell {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      cursor: default;
+    }
+
+    .contrib-cell[data-level="0"] { background: rgba(255,255,255,0.05); }
+    .contrib-cell[data-level="1"] { background: rgba(57,255,20,0.2); }
+    .contrib-cell[data-level="2"] { background: rgba(57,255,20,0.4); }
+    .contrib-cell[data-level="3"] { background: rgba(57,255,20,0.65); }
+    .contrib-cell[data-level="4"] { background: #39ff14; box-shadow: 0 0 5px #39ff14; }
+    .contrib-cell:hover { transform: scale(1.4); z-index: 2; position: relative; }
 
     /* ─── TERMINAL ─────────────────────────── */
     .terminal-section { padding: 60px 5%; max-width: 1100px; margin: 0 auto; }
@@ -921,7 +933,9 @@
           <span class="contrib-title" id="contribTitle">GitHub contributions in the last year</span>
           <span class="contrib-total"><span id="contribTotal">0</span> <span>contributions</span></span>
         </div>
-        <div id="contribGrid"></div>
+        <div class="contrib-scroll">
+          <div id="contribGrid"></div>
+        </div>
       </div>
     </div>
 
@@ -1148,14 +1162,14 @@
           else if (rand > 0.15) lv = 1;
         }
         const dateStr = d.toISOString().split('T')[0];
-        contribs.push({ date: dateStr, level: lv, count: lv * (Math.floor(Math.random() * 5) + 1) });
-        total += lv * (Math.floor(Math.random() * 5) + 1);
+        const count = lv === 0 ? 0 : Math.floor(Math.random() * 5) + 1;
+        contribs.push({ date: dateStr, level: lv, count });
+        total += count;
       }
 
       document.getElementById('contribTotal').textContent = total;
       document.getElementById('contribTitle').textContent = `${githubData.user.login || GITHUB_USER}'s contribution activity`;
 
-      // Group into weeks (each week = array of 7 days, null-padded at start)
       const weeks = [];
       let week = [];
       const startDow = start.getDay();
@@ -1163,45 +1177,38 @@
       contribs.forEach(c => { week.push(c); if (week.length === 7) { weeks.push(week); week = []; } });
       if (week.length) { while (week.length < 7) week.push(null); weeks.push(week); }
 
-      // Grid: each column = one day of week (0=Sun..6=Sat), rows = weeks
-      // For each day index, create a column of cells
       const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const maxWeeks = weeks.length;
 
-      // Day-label column (left side)
+      // Day-label column (left side, fixed position)
       const labelCol = document.createElement('div');
-      labelCol.className = 'contrib-day-labels';
-      labelCol.style.cssText = 'display:flex;flex-direction:column;gap:3px;margin-right:4px;justify-content:flex-end;';
+      labelCol.className = 'contrib-day-label-col';
       const labelDummy = document.createElement('div');
-      labelDummy.style.cssText = 'height:12px;';
+      labelDummy.className = 'day-lbl';
+      labelDummy.textContent = '';
       labelCol.appendChild(labelDummy);
       dayNames.forEach(name => {
         const lbl = document.createElement('div');
+        lbl.className = 'day-lbl';
         lbl.textContent = name;
-        lbl.style.cssText = 'font-size:0.6rem;color:#4a5568;height:12px;display:flex;align-items:center;writing-mode:initial;';
         labelCol.appendChild(lbl);
       });
       grid.appendChild(labelCol);
 
-      // Week columns — each column = one week, days stacked vertically (flex-direction: column)
+      // Week columns — each column is a week, days stacked top-to-bottom
       for (let wi = 0; wi < maxWeeks; wi++) {
         const colEl = document.createElement('div');
-        colEl.style.cssText = 'display:flex;flex-direction:column;gap:3px;flex-shrink:0;width:12px;';
+        colEl.className = 'contrib-week-col';
         for (let di = 0; di < 7; di++) {
           const day = weeks[wi] ? weeks[wi][di] : null;
           const cell = document.createElement('div');
-          cell.style.cssText = 'width:12px;height:12px;border-radius:2px;transition:transform 0.1s;cursor:default;';
+          cell.className = 'contrib-cell';
           if (day) {
-            const lvl = day.level;
-            const colors = ['rgba(255,255,255,0.05)', 'rgba(57,255,20,0.2)', 'rgba(57,255,20,0.4)', 'rgba(57,255,20,0.65)', '#39ff14'];
-            cell.style.background = colors[lvl];
-            if (lvl === 4) cell.style.boxShadow = '0 0 4px #39ff14';
+            cell.dataset.level = day.level;
             cell.title = `${day.date}: ${day.count} contribution${day.count !== 1 ? 's' : ''}`;
           } else {
-            cell.style.background = 'rgba(255,255,255,0.03)';
+            cell.dataset.level = '0';
           }
-          cell.addEventListener('mouseover', function() { this.style.transform = 'scale(1.5)'; this.style.zIndex = '2'; this.style.position = 'relative'; });
-          cell.addEventListener('mouseout', function() { this.style.transform = ''; this.style.zIndex = ''; this.style.position = ''; });
           colEl.appendChild(cell);
         }
         grid.appendChild(colEl);
