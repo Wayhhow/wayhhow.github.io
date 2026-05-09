@@ -1343,7 +1343,7 @@
     function renderProjects() {
       try {
         const grid = document.getElementById('projGrid');
-        if (!grid) { console.error('projGrid element NOT FOUND'); return; }
+        if (!grid) return;
         PROJECTS.forEach((p, i) => {
           const lc = LANG_COLORS[p.lang] || { bg: 'rgba(0,245,255,0.1)', color: '#00f5ff', dot: '#00f5ff' };
           const card = document.createElement('a');
@@ -1368,9 +1368,7 @@
           `;
           grid.appendChild(card);
         });
-      } catch(e) {
-        console.error('renderProjects error:', e);
-      }
+      } catch(e) {}
     }
 
     function updateStats() {
@@ -1581,26 +1579,21 @@
     //  INIT
     // ══════════════════════════════════════════════
     function initAll() {
-      console.log('[initAll] starting...');
       fetchGitHubData()
         .then(() => {
-          console.log('[initAll] fetchGitHubData resolved');
           renderLangStats();
           renderContribGraph();
           renderProjects();
           updateStats();
         })
-        .catch((e) => {
-          console.error('[initAll] fetchGitHubData rejected:', e);
+        .catch(() => {
           renderLangStats();
           renderContribGraph();
           renderProjects();
           updateStats();
         })
         .finally(() => {
-          console.log('[initAll] done, setting up animations');
           setupScrollAnimations();
-          termInput.focus();
         });
     }
 

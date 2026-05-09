@@ -6,6 +6,36 @@ Corrections, insights, and knowledge gaps captured during development.
 
 ---
 
+## [LRN-20260509-002] correction
+
+**Logged**: 2026-05-09T08:10:00Z
+**Priority**: high
+**Status**: pending
+**Area**: frontend
+
+### Summary
+`element.focus()` 在页面加载后自动调用会导致浏览器滚动到该元素，覆盖 `scrollIntoView` 的效果。
+
+### Details
+`termInput.focus()` 在 boot 动画结束后（4秒后）自动执行，会让浏览器自动将视口滚动到 terminal 输入框位置，覆盖之前 `hero.scrollIntoView()` 保持的顶部效果。用户反映"有时候进入界面后没操作时，自己跳到 terminal 输入框"。
+
+**正确做法**：删除自动 `focus()`，只保留点击 terminal 时的聚焦：
+```javascript
+// ✓ 正确：只在用户点击时才聚焦
+document.getElementById('termEl').addEventListener('click', () => termInput.focus());
+// ✗ 错误：页面加载时自动聚焦，会覆盖 scrollIntoView
+termInput.focus(); // 不要在 initAll() 里调用
+```
+
+### Metadata
+- Source: user_feedback
+- Related Files: /workspace/index.html
+- Tags: javascript, focus, scroll, ui-bug
+- Pattern-Key: frontend.focus_scroll_conflict
+- Recurrence-Count: 1
+
+---
+
 ## [LRN-20260509-001] best_practice
 
 **Logged**: 2026-05-09T00:00:00Z
