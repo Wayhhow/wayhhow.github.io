@@ -1137,13 +1137,14 @@
       githubData.user = githubData.user || {};
     }
 
-    // Language stats — hardcoded from your real repo language data
+    // Real language data from GitHub API (byte counts across 6 projects, May 2026)
     const LANG_STATS = [
-      { name: 'JavaScript', count: 1, pct: 20 },
-      { name: 'Python', count: 2, pct: 40 },
-      { name: 'Java', count: 1, pct: 20 },
-      { name: 'HTML', count: 1, pct: 10 },
-      { name: 'Verilog', count: 1, pct: 10 },
+      { name: 'Verilog', count: 1, pct: 35 },
+      { name: 'HTML', count: 2, pct: 20 },
+      { name: 'Python', count: 2, pct: 19 },
+      { name: 'JavaScript', count: 1, pct: 12 },
+      { name: 'CSS', count: 1, pct: 8 },
+      { name: 'Java', count: 1, pct: 4 },
     ];
 
     function renderLangStats() {
@@ -1155,6 +1156,7 @@
           Python: { bg: 'rgba(53,114,165,0.12)', color: '#6fa3cc', dot: '#6fa3cc', hex: '#6fa3cc' },
           Java: { bg: 'rgba(176,114,25,0.12)', color: '#e8a84c', dot: '#e8a84c', hex: '#e8a84c' },
           HTML: { bg: 'rgba(227,76,38,0.12)', color: '#e34c26', dot: '#e34c26', hex: '#e34c26' },
+          CSS: { bg: 'rgba(38,77,228,0.12)', color: '#6d9dec', dot: '#6d9dec', hex: '#6d9dec' },
           Verilog: { bg: 'rgba(113,120,112,0.12)', color: '#9ca8a0', dot: '#9ca8a0', hex: '#9ca8a0' },
         }[lang.name] || { bg: 'rgba(0,245,255,0.1)', color: '#00f5ff', dot: '#00f5ff', hex: '#00f5ff' };
 
@@ -1177,7 +1179,8 @@
         `;
         grid.appendChild(item);
         setTimeout(() => {
-          item.querySelector('.lang-bar-fill').style.width = lang.pct + '%';
+          const barFill = item.querySelector('.lang-bar-fill');
+          if (barFill) barFill.style.width = lang.pct + '%';
         }, 200 + i * 120);
       });
     }
@@ -1321,6 +1324,15 @@
         topics: ['FPGA', 'Image Processing', 'Hardware'],
       },
     ];
+
+    const LANG_COLORS = {
+      JavaScript: { bg: 'rgba(247,223,30,0.12)', color: '#f7df1e', dot: '#f7df1e' },
+      Python: { bg: 'rgba(53,114,165,0.12)', color: '#6fa3cc', dot: '#6fa3cc' },
+      Java: { bg: 'rgba(176,114,25,0.12)', color: '#e8a84c', dot: '#e8a84c' },
+      HTML: { bg: 'rgba(227,76,38,0.12)', color: '#e34c26', dot: '#e34c26' },
+      CSS: { bg: 'rgba(38,77,228,0.12)', color: '#6d9dec', dot: '#6d9dec' },
+      Verilog: { bg: 'rgba(113,120,112,0.12)', color: '#9ca8a0', dot: '#9ca8a0' },
+    };
 
     function renderProjects() {
       try {
