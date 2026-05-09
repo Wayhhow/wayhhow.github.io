@@ -541,12 +541,17 @@
 
     /* ─── REVEAL ANIMATION ─────────────────────── */
     .reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal.fade-up {
       opacity: 0;
       transform: translateY(30px);
       transition: opacity 0.7s ease, transform 0.7s ease;
     }
 
-    .reveal.visible {
+    .reveal.fade-up.visible {
       opacity: 1;
       transform: translateY(0);
     }
@@ -770,8 +775,7 @@
         card.href = p.url;
         card.target = '_blank';
         card.rel = 'noopener';
-        card.className = 'project-card reveal' + (p.featured ? ' featured' : '');
-        card.style.transitionDelay = `${i * 80}ms`;
+        card.className = 'project-card' + (p.featured ? ' featured' : '');
         card.innerHTML = `
           <div class="proj-top">
             <div class="proj-name">${p.name}</div>
@@ -889,28 +893,20 @@
 
     // ─── SCROLL REVEAL ──────────────────────────
     const revealEls = document.querySelectorAll('.reveal');
-    const revealObs = new IntersectionObserver((entries) => {
-      entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('visible'), i * 80);
-          revealObs.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-    revealEls.forEach(el => revealObs.observe(el));
+    revealEls.forEach((el, i) => {
+      el.classList.add('fade-up');
+      setTimeout(() => {
+        el.classList.add('visible');
+      }, 300 + i * 100);
+    });
 
     // ─── SKILL BARS ─────────────────────────────
-    const skillObs = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const pct = entry.target.dataset.pct;
-          const fill = entry.target.querySelector('.skill-fill');
-          setTimeout(() => fill.style.width = pct + '%', 200);
-          skillObs.unobserve(entry.target);
-        }
+    setTimeout(() => {
+      document.querySelectorAll('.skill-item').forEach(el => {
+        const pct = el.dataset.pct;
+        el.querySelector('.skill-fill').style.width = pct + '%';
       });
-    }, { threshold: 0.5 });
-    document.querySelectorAll('.skill-item').forEach(el => skillObs.observe(el));
+    }, 600);
 
     // ─── BACK TO TOP ────────────────────────────
     const backTop = document.getElementById('backTop');
