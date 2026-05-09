@@ -1072,11 +1072,6 @@
 
       githubData.repos = githubData.repos || [];
       githubData.user = githubData.user || {};
-
-      renderLangStats();
-      renderContribGraph();
-      renderProjects();
-      updateStats();
     }
 
     // Language stats — hardcoded from your real repo language data
@@ -1272,7 +1267,7 @@
         card.href = p.url;
         card.target = '_blank';
         card.rel = 'noopener';
-        card.className = 'proj-card';
+        card.className = 'proj-card visible';
         card.style.transitionDelay = `${i * 80}ms`;
         card.innerHTML = `
           <div class="proj-top">
@@ -1501,6 +1496,10 @@
     // ══════════════════════════════════════════════
     function initAll() {
       fetchGitHubData().then(() => {
+        renderLangStats();
+        renderContribGraph();
+        renderProjects();
+        updateStats();
         setupScrollAnimations();
         termInput.focus();
       });
