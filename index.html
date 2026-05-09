@@ -1495,14 +1495,23 @@
     //  INIT
     // ══════════════════════════════════════════════
     function initAll() {
-      fetchGitHubData().then(() => {
-        renderLangStats();
-        renderContribGraph();
-        renderProjects();
-        updateStats();
-        setupScrollAnimations();
-        termInput.focus();
-      });
+      fetchGitHubData()
+        .then(() => {
+          renderLangStats();
+          renderContribGraph();
+          renderProjects();
+          updateStats();
+        })
+        .catch(() => {
+          renderLangStats();
+          renderContribGraph();
+          renderProjects();
+          updateStats();
+        })
+        .finally(() => {
+          setupScrollAnimations();
+          termInput.focus();
+        });
     }
 
     runBoot();
