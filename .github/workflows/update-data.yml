@@ -25,79 +25,93 @@ jobs:
       - name: Fetch & update portfolio data
         run: node << 'EOF'
         const GITHUB_USER = 'Wayhhow';
-        const REPOS = [
-          'survey-map',
-          'electric-bike-system-for-display',
-          'NewBingGoGo-MagicURL-java',
-          'AutoNeteaseMusic',
-          'bing-auto-rewards',
-          'image_processing',
-        ];
+        const PORTFOLIO_REPO = 'wayhhow.github.io';
+        const LANG_COLORS = {
+          JavaScript: { bg: 'rgba(247,223,30,0.12)', color: '#f7df1e', dot: '#f7df1e' },
+          Python: { bg: 'rgba(53,114,165,0.12)', color: '#6fa3cc', dot: '#6fa3cc' },
+          Java: { bg: 'rgba(176,114,25,0.12)', color: '#e8a84c', dot: '#e8a84c' },
+          HTML: { bg: 'rgba(227,76,38,0.12)', color: '#e34c26', dot: '#e34c26' },
+          CSS: { bg: 'rgba(38,77,228,0.12)', color: '#6d9dec', dot: '#6d9dec' },
+          Verilog: { bg: 'rgba(113,120,112,0.12)', color: '#9ca8a0', dot: '#9ca8a0' },
+        };
 
         async function fetchJSON(url) {
-          const res = await fetch(url, {
-            headers: { Accept: 'application/vnd.github+json' }
-          });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const res = await fetch(url, { headers: { Accept: 'application/vnd.github+json' } });
+          if (!res.ok) return null;
           return res.json();
         }
 
+        async function getAllRepos() {
+          let page = 1, all = [];
+          while (true) {
+            const repos = await fetchJSON(
+              `https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&page=${page}&sort=updated`
+            );
+            if (!repos || !repos.length) break;
+            all = all.concat(repos.filter(r => !r.fork && r.name !== PORTFOLIO_REPO));
+            if (repos.length < 100) break;
+            page++;
+          }
+          return all;
+        }
+
         (async () => {
-          const [user, ...repos] = await Promise.all([
+          const [user, allRepos] = await Promise.all([
             fetchJSON(`https://api.github.com/users/${GITHUB_USER}`),
-            ...REPOS.map(r => fetchJSON(`https://api.github.com/repos/${GITHUB_USER}/${r}`)),
-            ...REPOS.map(r => fetchJSON(`https://api.github.com/repos/${GITHUB_USER}/${r}/languages`)),
+            getAllRepos(),
           ]);
 
-          const repoData = repos.slice(0, REPOS.length);
-          const langData = repos.slice(REPOS.length);
-
-          const stars = repoData.reduce((s, r) => s + (r.stargazers_count || 0), 0);
+          const featured = allRepos.slice(0, 6);
+          const totalStars = allRepos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
           const publicRepos = user.public_repos;
-          const followers = user.followers;
 
-          const langTotals = {};
+          const langTotals = {}, langCounts = {};
           let grand = 0;
-          langData.forEach(langs => {
+          for (const repo of allRepos) {
+            const langs = await fetchJSON(repo.languages_url);
+            if (!langs) continue;
             Object.entries(langs).forEach(([lang, bytes]) => {
               langTotals[lang] = (langTotals[lang] || 0) + bytes;
+              langCounts[lang] = (langCounts[lang] || 0) + 1;
               grand += bytes;
             });
-          });
-
+          }
           const langStats = Object.entries(langTotals)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 6)
-            .map(([name, bytes]) => ({
-              name,
-              count: langData.filter(l => l[name]).length,
-              pct: Math.round(bytes / grand * 100)
-            }));
+            .sort((a, b) => b[1] - a[1]).slice(0, 6)
+            .map(([name, bytes]) => ({ name, count: langCounts[name], pct: Math.round(bytes / grand * 100) }));
 
           const updated = new Date().toISOString().split('T')[0];
-
-          console.log('=== PORTFOLIO DATA UPDATE ===');
-          console.log(`Updated: ${updated}`);
-          console.log(`Stars: ${stars}`);
-          console.log(`Public Repos: ${publicRepos}`);
-          console.log(`Followers: ${followers}`);
-          console.log('Languages:', JSON.stringify(langStats, null, 2));
+          console.log(`Updated: ${updated} | Stars: ${totalStars} | Repos: ${publicRepos} | Featured: ${featured.length}`);
 
           const fs = require('fs');
           let html = fs.readFileSync('index.html', 'utf8');
 
+          // Update LANG_STATS
           html = html.replace(
             /const LANG_STATS = \[[\s\S]*?\];/,
             `const LANG_STATS = ${JSON.stringify(langStats, null, 4)};`
           );
-
           html = html.replace(
             /\/\/ Real language data[\s\S]*?\*\//,
             `// Real language data from GitHub API (updated ${updated})`
           );
 
+          // Update PROJECTS array
+          const projectsArr = featured.map(r => ({
+            name: r.name,
+            desc: r.description || `${r.name} — a ${r.language || 'code'} project by ${GITHUB_USER}`,
+            lang: r.language || 'Code',
+            stars: r.stargazers_count || 0,
+            url: r.html_url,
+          }));
+          html = html.replace(
+            /\/\/ Featured Projects data[\s\S]*?\];/,
+            `// Featured Projects data from GitHub API (updated ${updated})\nconst PROJECTS = ${JSON.stringify(projectsArr, null, 4)};`
+          );
+
           fs.writeFileSync('index.html', html);
-          console.log('index.html updated successfully');
+          console.log('index.html updated — LANG_STATS + PROJECTS');
+          console.log('Featured repos:', featured.map(r => `${r.name} (${r.stargazers_count}★, ${r.language})`));
         })();
         EOF
 
