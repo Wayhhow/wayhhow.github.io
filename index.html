@@ -524,6 +524,8 @@
 
     #contrib-grid {
       display: flex;
+      flex-direction: row;
+      align-items: flex-end;
       gap: 3px;
       overflow-x: auto;
       padding-bottom: 8px;
@@ -531,6 +533,7 @@
 
     .contrib-month-labels {
       display: flex;
+      flex-direction: row;
       gap: 3px;
       margin-bottom: 4px;
       padding-left: 14px;
@@ -1180,10 +1183,10 @@
       });
       grid.appendChild(labelCol);
 
-      // Week columns
+      // Week columns — each column = one week, days stacked vertically (flex-direction: column)
       for (let wi = 0; wi < maxWeeks; wi++) {
         const colEl = document.createElement('div');
-        colEl.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+        colEl.style.cssText = 'display:flex;flex-direction:column;gap:3px;flex-shrink:0;width:12px;';
         for (let di = 0; di < 7; di++) {
           const day = weeks[wi] ? weeks[wi][di] : null;
           const cell = document.createElement('div');
@@ -1290,9 +1293,8 @@
         const statCards = document.querySelectorAll('.stat-card');
         statCards[1].querySelector('.stat-num').textContent = githubData.user.public_repos;
       }
-      document.getElementById('stat-stars').textContent = githubData.user.public_repos !== undefined
-        ? (githubData.user.followers || 0)
-        : '25';
+      const totalStars = PROJECTS.reduce((sum, p) => sum + (p.stars || 0), 0);
+      document.getElementById('stat-stars').textContent = totalStars || 25;
     }
 
     // ══════════════════════════════════════════════
@@ -1373,14 +1375,14 @@
       },
       stats: () => {
         const u = githubData.user;
+        const totalStars = PROJECTS.reduce((sum, p) => sum + (p.stars || 0), 0);
         return [
           'GitHub Statistics:',
-          `  Stars earned : ${u.stars || 25}`,
+          `  Stars earned : ${totalStars || 25}`,
           `  Public repos : ${u.public_repos || 7}`,
           `  Followers    : ${u.followers || 0}`,
           `  Following    : ${u.following || 2}`,
           `  Gists        : ${u.public_gists || 0}`,
-          `  Account age  : ${u.created_at ? Math.floor((Date.now() - new Date(u.created_at)) / (1000*60*60*24*365)) + ' years' : 'N/A'}`,
           '',
         ];
       },
