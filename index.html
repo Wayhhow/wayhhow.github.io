@@ -405,13 +405,9 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      transition: all 0.3s ease;
+      transition: opacity 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
       backdrop-filter: blur(10px);
-      opacity: 0;
-      transform: translateY(20px);
     }
-
-    .stat-card.visible { opacity: 1; transform: translateY(0); }
 
     .stat-card:hover {
       border-color: rgba(0,245,255,0.25);
@@ -459,12 +455,8 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      transition: all 0.3s ease;
-      opacity: 0;
-      transform: translateX(-20px);
+      transition: border-color 0.3s ease, background 0.3s ease;
     }
-
-    .lang-item.visible { opacity: 1; transform: translateX(0); }
 
     .lang-item:hover {
       border-color: var(--lang-color, rgba(0,245,255,0.3));
@@ -501,12 +493,7 @@
       border: 1px solid rgba(255,255,255,0.06);
       border-radius: 14px;
       padding: 28px;
-      opacity: 0;
-      transform: translateY(30px);
-      transition: all 0.7s ease;
     }
-
-    .contrib-wrapper.visible { opacity: 1; transform: translateY(0); }
 
     .contrib-header {
       display: flex;
@@ -573,12 +560,7 @@
       border-radius: 14px;
       overflow: hidden;
       box-shadow: 0 0 40px rgba(0,245,255,0.05), 0 20px 60px rgba(0,0,0,0.5);
-      opacity: 0;
-      transform: translateY(30px);
-      transition: all 0.7s ease;
     }
-
-    .terminal.visible { opacity: 1; transform: translateY(0); }
 
     .terminal-bar {
       background: rgba(255,255,255,0.03);
@@ -1540,27 +1522,7 @@
     // ══════════════════════════════════════════════
     //  SCROLL ANIMATIONS
     // ══════════════════════════════════════════════
-    function setupScrollAnimations() {
-      const obs = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            entry.target.querySelectorAll('.lang-bar-fill[data-pct]').forEach(bar => {
-              setTimeout(() => { bar.style.width = bar.dataset.pct + '%'; }, 100);
-            });
-          }
-        });
-      }, { threshold: 0.05 });
-
-      document.querySelectorAll('.stat-card, .lang-item, .proj-card, .contrib-wrapper, .terminal').forEach(el => {
-        obs.observe(el);
-      });
-
-      // Fallback: if IntersectionObserver misses (mobile issue), force visible after timeout
-      setTimeout(() => {
-        document.querySelectorAll('.proj-card:not(.visible)').forEach(el => el.classList.add('visible'));
-      }, 4000);
-    }
+    function setupScrollAnimations() {}
 
     // Nav visibility
     const nav = document.getElementById('nav');
