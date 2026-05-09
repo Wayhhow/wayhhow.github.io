@@ -531,53 +531,39 @@
     .contrib-scroll::-webkit-scrollbar-track { background: transparent; }
     .contrib-scroll::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.3); border-radius: 2px; }
 
-    #contrib-grid {
-      display: inline-flex;
-      flex-direction: row;
-      align-items: flex-end;
-      gap: 3px;
+    #contrib-table {
+      border-collapse: separate;
+      border-spacing: 3px;
+      table-layout: fixed;
     }
 
-    .contrib-day-label-col {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      margin-right: 4px;
-      justify-content: flex-end;
-    }
-
-    .contrib-day-label-col .day-lbl {
-      font-size: 0.6rem;
-      color: var(--muted);
-      height: 12px;
-      display: flex;
-      align-items: center;
-      width: 26px;
-      justify-content: flex-end;
-    }
-
-    .contrib-week-col {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      flex-shrink: 0;
-      width: 12px;
-    }
-
-    .contrib-cell {
+    #contrib-table td {
+      padding: 0;
       width: 12px;
       height: 12px;
       border-radius: 2px;
-      flex-shrink: 0;
       cursor: default;
     }
 
-    .contrib-cell[data-level="0"] { background: rgba(255,255,255,0.05); }
-    .contrib-cell[data-level="1"] { background: rgba(57,255,20,0.2); }
-    .contrib-cell[data-level="2"] { background: rgba(57,255,20,0.4); }
-    .contrib-cell[data-level="3"] { background: rgba(57,255,20,0.65); }
-    .contrib-cell[data-level="4"] { background: #39ff14; box-shadow: 0 0 5px #39ff14; }
-    .contrib-cell:hover { transform: scale(1.4); z-index: 2; position: relative; }
+    .contrib-label-col {
+      width: 28px;
+    }
+
+    .contrib-label {
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-align: right;
+      padding-right: 6px;
+      height: 15px;
+      line-height: 15px;
+    }
+
+    .cell-lv0 { background: rgba(255,255,255,0.05); }
+    .cell-lv1 { background: rgba(57,255,20,0.2); }
+    .cell-lv2 { background: rgba(57,255,20,0.4); }
+    .cell-lv3 { background: rgba(57,255,20,0.65); }
+    .cell-lv4 { background: #39ff14; box-shadow: 0 0 5px #39ff14; }
+    #contrib-table td:hover { transform: scale(1.5); z-index: 1; position: relative; }
 
     /* ─── TERMINAL ─────────────────────────── */
     .terminal-section { padding: 60px 5%; max-width: 1100px; margin: 0 auto; }
@@ -934,7 +920,7 @@
           <span class="contrib-total"><span id="contribTotal">0</span> <span>contributions</span></span>
         </div>
         <div class="contrib-scroll">
-          <div id="contribGrid"></div>
+          <table id="contrib-table"><tbody id="contrib-tbody"></tbody></table>
         </div>
       </div>
     </div>
@@ -1144,7 +1130,8 @@
 
     // Contribution Graph — GitHub style: weeks are columns, days are rows
     function renderContribGraph() {
-      const grid = document.getElementById('contribGrid');
+      const tbody = document.getElementById('contrib-tbody');
+      tbody.innerHTML = '';
       const now = new Date();
       const start = new Date(now);
       start.setDate(start.getDate() - 364);
@@ -1177,41 +1164,33 @@
       contribs.forEach(c => { week.push(c); if (week.length === 7) { weeks.push(week); week = []; } });
       if (week.length) { while (week.length < 7) week.push(null); weeks.push(week); }
 
-      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const dayNames = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
       const maxWeeks = weeks.length;
 
-      // Day-label column (left side, fixed position)
-      const labelCol = document.createElement('div');
-      labelCol.className = 'contrib-day-label-col';
-      const labelDummy = document.createElement('div');
-      labelDummy.className = 'day-lbl';
-      labelDummy.textContent = '';
-      labelCol.appendChild(labelDummy);
-      dayNames.forEach(name => {
-        const lbl = document.createElement('div');
-        lbl.className = 'day-lbl';
-        lbl.textContent = name;
-        labelCol.appendChild(lbl);
-      });
-      grid.appendChild(labelCol);
+      // Render one <tr> per day-of-week row (Sun=0, Mon=1, ... Sat=6)
+      for (let di = 0; di < 7; di++) {
+        const tr = document.createElement('tr');
 
-      // Week columns — each column is a week, days stacked top-to-bottom
-      for (let wi = 0; wi < maxWeeks; wi++) {
-        const colEl = document.createElement('div');
-        colEl.className = 'contrib-week-col';
-        for (let di = 0; di < 7; di++) {
-          const day = weeks[wi] ? weeks[wi][di] : null;
-          const cell = document.createElement('div');
-          cell.className = 'contrib-cell';
-          if (day) {
-            cell.dataset.level = day.level;
-            cell.title = `${day.date}: ${day.count} contribution${day.count !== 1 ? 's' : ''}`;
-          } else {
-            cell.dataset.level = '0';
-          }
-          colEl.appendChild(cell);
+        // Label cell (first column)
+        const labelTd = document.createElement('td');
+        labelTd.className = 'contrib-label-col';
+        if (dayNames[di]) {
+          labelTd.innerHTML = `<span class="contrib-label">${dayNames[di]}</span>`;
         }
-        grid.appendChild(colEl);
+        tr.appendChild(labelTd);
+
+        // One cell per week
+        for (let wi = 0; wi < maxWeeks; wi++) {
+          const day = weeks[wi][di];
+          const td = document.createElement('td');
+          td.className = 'cell-lv' + (day ? day.level : 0);
+          if (day) {
+            td.title = `${day.date}: ${day.count} contribution${day.count !== 1 ? 's' : ''}`;
+          }
+          tr.appendChild(td);
+        }
+
+        tbody.appendChild(tr);
       }
     }
 
