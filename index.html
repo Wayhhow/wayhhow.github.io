@@ -1079,40 +1079,31 @@
       updateStats();
     }
 
-    // Language stats
-    function getLangStats() {
-      const langs = {};
-      githubData.repos.forEach(r => {
-        if (r.language) langs[r.language] = (langs[r.language] || 0) + 1;
-      });
-      const total = Object.values(langs).reduce((a, b) => a + b, 0);
-      return Object.entries(langs)
-        .map(([name, count]) => ({ name, count, pct: total ? Math.round((count / total) * 100) : 0 }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 6);
-    }
-
-    const LANG_COLORS = {
-      JavaScript: { bg: 'rgba(247,223,30,0.12)', color: '#f7df1e', dot: '#f7df1e', hex: '#f7df1e' },
-      Python: { bg: 'rgba(53,114,165,0.12)', color: '#6fa3cc', dot: '#6fa3cc', hex: '#6fa3cc' },
-      Java: { bg: 'rgba(176,114,25,0.12)', color: '#e8a84c', dot: '#e8a84c', hex: '#e8a84c' },
-      HTML: { bg: 'rgba(227,76,38,0.12)', color: '#e34c26', dot: '#e34c26', hex: '#e34c26' },
-      Verilog: { bg: 'rgba(113,120,112,0.12)', color: '#9ca8a0', dot: '#9ca8a0', hex: '#9ca8a0' },
-    };
+    // Language stats — hardcoded from your real repo language data
+    const LANG_STATS = [
+      { name: 'JavaScript', count: 1, pct: 20 },
+      { name: 'Python', count: 2, pct: 40 },
+      { name: 'Java', count: 1, pct: 20 },
+      { name: 'HTML', count: 1, pct: 10 },
+      { name: 'Verilog', count: 1, pct: 10 },
+    ];
 
     function renderLangStats() {
       const grid = document.getElementById('langGrid');
-      const langs = getLangStats();
-      if (!langs.length) {
-        langs.push({ name: 'JavaScript', count: 2, pct: 35 }, { name: 'Python', count: 2, pct: 28 },
-          { name: 'Java', count: 1, pct: 20 }, { name: 'HTML', count: 1, pct: 10 }, { name: 'Verilog', count: 1, pct: 7 });
-      }
-      langs.forEach((lang, i) => {
-        const lc = LANG_COLORS[lang.name] || { bg: 'rgba(0,245,255,0.1)', color: '#00f5ff', dot: '#00f5ff', hex: '#00f5ff' };
+      grid.innerHTML = '';
+      LANG_STATS.forEach((lang, i) => {
+        const lc = {
+          JavaScript: { bg: 'rgba(247,223,30,0.12)', color: '#f7df1e', dot: '#f7df1e', hex: '#f7df1e' },
+          Python: { bg: 'rgba(53,114,165,0.12)', color: '#6fa3cc', dot: '#6fa3cc', hex: '#6fa3cc' },
+          Java: { bg: 'rgba(176,114,25,0.12)', color: '#e8a84c', dot: '#e8a84c', hex: '#e8a84c' },
+          HTML: { bg: 'rgba(227,76,38,0.12)', color: '#e34c26', dot: '#e34c26', hex: '#e34c26' },
+          Verilog: { bg: 'rgba(113,120,112,0.12)', color: '#9ca8a0', dot: '#9ca8a0', hex: '#9ca8a0' },
+        }[lang.name] || { bg: 'rgba(0,245,255,0.1)', color: '#00f5ff', dot: '#00f5ff', hex: '#00f5ff' };
+
         const item = document.createElement('div');
-        item.className = 'lang-item';
-        item.style.setProperty('--lang-color', lc.hex);
+        item.className = 'lang-item visible';
         item.style.transitionDelay = `${i * 80}ms`;
+        item.style.setProperty('--lang-color', lc.hex);
         item.innerHTML = `
           <div class="lang-dot" style="background:${lc.bg};color:${lc.color};border:1px solid ${lc.hex}40;">
             ${lang.name[0]}
@@ -1121,12 +1112,15 @@
             <div class="lang-name">${lang.name}</div>
             <div class="lang-pct">${lang.count} repo${lang.count > 1 ? 's' : ''}</div>
             <div class="lang-bar-track">
-              <div class="lang-bar-fill" data-pct="${lang.pct}" style="background:${lc.hex};box-shadow:0 0 6px ${lc.hex}60;"></div>
+              <div class="lang-bar-fill" data-pct="${lang.pct}" style="background:${lc.hex};box-shadow:0 0 6px ${lc.hex}60;width:0%;"></div>
             </div>
           </div>
           <div style="font-family:Orbitron,sans-serif;font-size:0.85rem;color:${lc.color};font-weight:700;">${lang.pct}%</div>
         `;
         grid.appendChild(item);
+        setTimeout(() => {
+          item.querySelector('.lang-bar-fill').style.width = lang.pct + '%';
+        }, 200 + i * 120);
       });
     }
 
@@ -1375,9 +1369,7 @@
         ];
       },
       lang: () => {
-        const langs = getLangStats();
-        if (!langs.length) langs.push({ name: 'JavaScript', pct: 35 }, { name: 'Python', pct: 28 }, { name: 'Java', pct: 20 }, { name: 'HTML', pct: 10 }, { name: 'Verilog', pct: 7 });
-        const bars = langs.map(l => {
+        const bars = LANG_STATS.map(l => {
           const bar = '█'.repeat(Math.round(l.pct / 5)) + '░'.repeat(20 - Math.round(l.pct / 5));
           return `  ${l.name.padEnd(12)} ${bar} ${l.pct}%`;
         });
