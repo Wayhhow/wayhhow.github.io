@@ -533,18 +533,18 @@
     .contrib-scroll::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.3); border-radius: 2px; }
 
     #contrib-table {
-      border-collapse: separate;
-      border-spacing: 3px;
+      border-collapse: collapse;
       min-width: max-content;
     }
 
     #contrib-table td {
       padding: 0;
-      min-width: 12px;
-      width: 12px;
-      height: 12px;
+      width: 11px;
+      min-width: 11px;
+      height: 11px;
       border-radius: 2px;
       cursor: default;
+      border: 1.5px solid transparent;
     }
 
     .contrib-label-col {
@@ -1131,6 +1131,8 @@
     }
 
     // Contribution Graph — GitHub style: weeks are columns, days are rows
+    // NOTE: GitHub REST API doesn't provide contribution calendar data.
+    // This shows a realistic low-activity pattern. For real data, you'd need GitHub GraphQL API.
     function renderContribGraph() {
       const tbody = document.getElementById('contrib-tbody');
       tbody.innerHTML = '';
@@ -1138,20 +1140,33 @@
       const start = new Date(now);
       start.setDate(start.getDate() - 364);
 
+      // Realistic low-activity contribution pattern
+      // Most days have no activity, occasional commits on weekdays
       const contribs = [];
       let total = 0;
+      
+      // Seed based on date for consistent "random" pattern
+      const seedRandom = (date) => {
+        const hash = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
+        return Math.sin(hash) * 10000 % 1;
+      };
+
       for (let d = new Date(start); d <= now; d.setDate(d.getDate() + 1)) {
         const dayOfWeek = d.getDay();
         let lv = 0;
+        let count = 0;
+        
+        // Only weekdays, with realistic low probability
         if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-          const rand = Math.random();
-          if (rand > 0.7) lv = 4;
-          else if (rand > 0.5) lv = 3;
-          else if (rand > 0.3) lv = 2;
-          else if (rand > 0.15) lv = 1;
+          const rand = Math.abs(seedRandom(d));
+          // ~15% chance of any activity on a weekday
+          if (rand < 0.05) { lv = 1; count = 1; }
+          else if (rand < 0.08) { lv = 2; count = 2; }
+          else if (rand < 0.10) { lv = 3; count = 3; }
+          else if (rand < 0.11) { lv = 4; count = 4; }
         }
+        
         const dateStr = d.toISOString().split('T')[0];
-        const count = lv === 0 ? 0 : Math.floor(Math.random() * 5) + 1;
         contribs.push({ date: dateStr, level: lv, count });
         total += count;
       }
