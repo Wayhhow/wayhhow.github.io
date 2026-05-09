@@ -1480,7 +1480,7 @@
       // Fallback: if IntersectionObserver misses (mobile issue), force visible after timeout
       setTimeout(() => {
         document.querySelectorAll('.proj-card:not(.visible)').forEach(el => el.classList.add('visible'));
-      }, 2000);
+      }, 4000);
     }
 
     // Nav visibility
@@ -1500,9 +1500,10 @@
     //  INIT
     // ══════════════════════════════════════════════
     function initAll() {
-      fetchGitHubData();
-      setupScrollAnimations();
-      termInput.focus();
+      fetchGitHubData().then(() => {
+        setupScrollAnimations();
+        termInput.focus();
+      });
     }
 
     runBoot();
