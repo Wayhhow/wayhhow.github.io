@@ -812,7 +812,7 @@
     </nav>
 
     <!-- Hero -->
-    <section class="hero">
+    <section class="hero" id="hero">
       <div class="hero-top">
         <div class="avatar-ring">
           <img src="https://avatars.githubusercontent.com/u/129638819?v=4" alt="Wayhhow" loading="eager">
@@ -1007,7 +1007,9 @@
       });
       setTimeout(() => {
         document.getElementById('boot').classList.add('hidden');
-        window.scrollTo(0, 0);
+        setTimeout(() => {
+          document.getElementById('hero').scrollIntoView({ block: 'start' });
+        }, 100);
         initAll();
       }, 4000);
     }
