@@ -525,6 +525,7 @@
       overflow-x: auto;
       overflow-y: hidden;
       width: 100%;
+      white-space: nowrap;
     }
 
     .contrib-scroll::-webkit-scrollbar { height: 4px; }
@@ -534,11 +535,12 @@
     #contrib-table {
       border-collapse: separate;
       border-spacing: 3px;
-      table-layout: fixed;
+      min-width: max-content;
     }
 
     #contrib-table td {
       padding: 0;
+      min-width: 12px;
       width: 12px;
       height: 12px;
       border-radius: 2px;
