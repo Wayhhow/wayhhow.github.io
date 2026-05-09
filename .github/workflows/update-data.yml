@@ -1,0 +1,110 @@
+name: Update Portfolio Data
+
+on:
+  schedule:
+    - cron: '0 0 */2 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch & update portfolio data
+        run: node << 'EOF'
+        const GITHUB_USER = 'Wayhhow';
+        const REPOS = [
+          'survey-map',
+          'electric-bike-system-for-display',
+          'NewBingGoGo-MagicURL-java',
+          'AutoNeteaseMusic',
+          'bing-auto-rewards',
+          'image_processing',
+        ];
+
+        async function fetchJSON(url) {
+          const res = await fetch(url, {
+            headers: { Accept: 'application/vnd.github+json' }
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        }
+
+        (async () => {
+          const [user, ...repos] = await Promise.all([
+            fetchJSON(`https://api.github.com/users/${GITHUB_USER}`),
+            ...REPOS.map(r => fetchJSON(`https://api.github.com/repos/${GITHUB_USER}/${r}`)),
+            ...REPOS.map(r => fetchJSON(`https://api.github.com/repos/${GITHUB_USER}/${r}/languages`)),
+          ]);
+
+          const repoData = repos.slice(0, REPOS.length);
+          const langData = repos.slice(REPOS.length);
+
+          const stars = repoData.reduce((s, r) => s + (r.stargazers_count || 0), 0);
+          const publicRepos = user.public_repos;
+          const followers = user.followers;
+
+          const langTotals = {};
+          let grand = 0;
+          langData.forEach(langs => {
+            Object.entries(langs).forEach(([lang, bytes]) => {
+              langTotals[lang] = (langTotals[lang] || 0) + bytes;
+              grand += bytes;
+            });
+          });
+
+          const langStats = Object.entries(langTotals)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 6)
+            .map(([name, bytes]) => ({
+              name,
+              count: langData.filter(l => l[name]).length,
+              pct: Math.round(bytes / grand * 100)
+            }));
+
+          const updated = new Date().toISOString().split('T')[0];
+
+          console.log('=== PORTFOLIO DATA UPDATE ===');
+          console.log(`Updated: ${updated}`);
+          console.log(`Stars: ${stars}`);
+          console.log(`Public Repos: ${publicRepos}`);
+          console.log(`Followers: ${followers}`);
+          console.log('Languages:', JSON.stringify(langStats, null, 2));
+
+          const fs = require('fs');
+          let html = fs.readFileSync('index.html', 'utf8');
+
+          html = html.replace(
+            /const LANG_STATS = \[[\s\S]*?\];/,
+            `const LANG_STATS = ${JSON.stringify(langStats, null, 4)};`
+          );
+
+          html = html.replace(
+            /\/\/ Real language data[\s\S]*?\*\//,
+            `// Real language data from GitHub API (updated ${updated})`
+          );
+
+          fs.writeFileSync('index.html', html);
+          console.log('index.html updated successfully');
+        })();
+        EOF
+
+      - name: Commit and push
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          git diff --staged --quiet || git commit -m "ci: auto-update portfolio data $(date -u +%Y-%m-%d)"
+          git push
