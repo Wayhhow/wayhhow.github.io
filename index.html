@@ -525,7 +525,8 @@
     #contrib-grid {
       display: flex;
       gap: 3px;
-      min-width: 800px;
+      overflow-x: auto;
+      padding-bottom: 8px;
     }
 
     .contrib-month-labels {
@@ -1124,14 +1125,13 @@
       });
     }
 
-    // Contribution Graph
+    // Contribution Graph — GitHub style: weeks are columns, days are rows
     function renderContribGraph() {
       const grid = document.getElementById('contribGrid');
       const now = new Date();
       const start = new Date(now);
       start.setDate(start.getDate() - 364);
 
-      // Generate realistic-ish contribution data
       const contribs = [];
       let total = 0;
       for (let d = new Date(start); d <= now; d.setDate(d.getDate() + 1)) {
@@ -1152,47 +1152,57 @@
       document.getElementById('contribTotal').textContent = total;
       document.getElementById('contribTitle').textContent = `${githubData.user.login || GITHUB_USER}'s contribution activity`;
 
-      // Group into weeks
+      // Group into weeks (each week = array of 7 days, null-padded at start)
       const weeks = [];
       let week = [];
-      // Pad start to Sunday
       const startDow = start.getDay();
       for (let i = 0; i < startDow; i++) week.push(null);
       contribs.forEach(c => { week.push(c); if (week.length === 7) { weeks.push(week); week = []; } });
       if (week.length) { while (week.length < 7) week.push(null); weeks.push(week); }
 
-      // Month labels
-      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      const monthLabelRow = document.createElement('div');
-      monthLabelRow.className = 'contrib-month-labels';
+      // Grid: each column = one day of week (0=Sun..6=Sat), rows = weeks
+      // For each day index, create a column of cells
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const maxWeeks = weeks.length;
 
-      const dayLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-      weeks.forEach((wk, wi) => {
-        const weekEl = document.createElement('div');
-        weekEl.className = 'contrib-week';
+      // Day-label column (left side)
+      const labelCol = document.createElement('div');
+      labelCol.className = 'contrib-day-labels';
+      labelCol.style.cssText = 'display:flex;flex-direction:column;gap:3px;margin-right:4px;justify-content:flex-end;';
+      const labelDummy = document.createElement('div');
+      labelDummy.style.cssText = 'height:12px;';
+      labelCol.appendChild(labelDummy);
+      dayNames.forEach(name => {
+        const lbl = document.createElement('div');
+        lbl.textContent = name;
+        lbl.style.cssText = 'font-size:0.6rem;color:#4a5568;height:12px;display:flex;align-items:center;writing-mode:initial;';
+        labelCol.appendChild(lbl);
+      });
+      grid.appendChild(labelCol);
 
-        wk.forEach((day, di) => {
-          const dayRow = document.createElement('div');
-          dayRow.className = 'contrib-days-row';
-          if (di === 0 && wk[di]) {
-            const lbl = document.createElement('span');
-            lbl.className = 'contrib-day-label';
-            lbl.textContent = dayLabels[new Date(day.date).getDay()];
-            dayRow.appendChild(lbl);
-          }
+      // Week columns
+      for (let wi = 0; wi < maxWeeks; wi++) {
+        const colEl = document.createElement('div');
+        colEl.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+        for (let di = 0; di < 7; di++) {
+          const day = weeks[wi] ? weeks[wi][di] : null;
           const cell = document.createElement('div');
-          cell.className = 'contrib-day';
+          cell.style.cssText = 'width:12px;height:12px;border-radius:2px;transition:transform 0.1s;cursor:default;';
           if (day) {
-            cell.dataset.lv = day.level;
+            const lvl = day.level;
+            const colors = ['rgba(255,255,255,0.05)', 'rgba(57,255,20,0.2)', 'rgba(57,255,20,0.4)', 'rgba(57,255,20,0.65)', '#39ff14'];
+            cell.style.background = colors[lvl];
+            if (lvl === 4) cell.style.boxShadow = '0 0 4px #39ff14';
             cell.title = `${day.date}: ${day.count} contribution${day.count !== 1 ? 's' : ''}`;
           } else {
-            cell.dataset.lv = '0';
+            cell.style.background = 'rgba(255,255,255,0.03)';
           }
-          dayRow.appendChild(cell);
-          weekEl.appendChild(dayRow);
-        });
-        grid.appendChild(weekEl);
-      });
+          cell.addEventListener('mouseover', function() { this.style.transform = 'scale(1.5)'; this.style.zIndex = '2'; this.style.position = 'relative'; });
+          cell.addEventListener('mouseout', function() { this.style.transform = ''; this.style.zIndex = ''; this.style.position = ''; });
+          colEl.appendChild(cell);
+        }
+        grid.appendChild(colEl);
+      }
     }
 
     // Projects
@@ -1445,29 +1455,28 @@
     document.getElementById('termEl').addEventListener('click', () => termInput.focus());
 
     // ══════════════════════════════════════════════
-    //  SCROLL ANIMATIONS (IntersectionObserver)
+    //  SCROLL ANIMATIONS
     // ══════════════════════════════════════════════
     function setupScrollAnimations() {
       const obs = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             entry.target.classList.add('visible');
-            // Animate skill bars inside
             entry.target.querySelectorAll('.lang-bar-fill[data-pct]').forEach(bar => {
               setTimeout(() => { bar.style.width = bar.dataset.pct + '%'; }, 100);
             });
           }
         });
-      }, { threshold: 0.1 });
+      }, { threshold: 0.05 });
 
       document.querySelectorAll('.stat-card, .lang-item, .proj-card, .contrib-wrapper, .terminal').forEach(el => {
         obs.observe(el);
       });
 
-      // Staggered stat cards
-      document.querySelectorAll('.stat-card').forEach((el, i) => {
-        setTimeout(() => obs.observe(el), 100 + i * 120);
-      });
+      // Fallback: if IntersectionObserver misses (mobile issue), force visible after timeout
+      setTimeout(() => {
+        document.querySelectorAll('.proj-card:not(.visible)').forEach(el => el.classList.add('visible'));
+      }, 2000);
     }
 
     // Nav visibility
