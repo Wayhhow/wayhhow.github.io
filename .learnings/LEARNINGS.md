@@ -6,6 +6,35 @@ Corrections, insights, and knowledge gaps captured during development.
 
 ---
 
+## [LRN-20260510-005] correction
+
+**Logged**: 2026-05-10T08:40:00Z
+**Priority**: critical
+**Status**: resolved
+**Area**: infra
+
+### Summary
+GitHub Actions 环境抓取 `github.com/users/{user}/contributions` HTML 页面返回的 HTML 里没有 `data-count` 属性，导致抓到的 `REAL_CONTRIB_DATA` 为空，整个热力图所有格子都是灰色。
+
+### Details
+工作流的 `fetchContribData()` 函数用正则 `/data-date="..."\s+data-count="..."/` 去匹配 GitHub 贡献页 HTML。但 GitHub 的贡献页在服务器端渲染，数据并不嵌入在 HTML 的 `data-count` 属性里——这些格子可能是 JavaScript 动态渲染的，或者 HTML 里根本没有这些属性。结果是 `REAL_CONTRIB_DATA = {}`，所有格子 level 都是 0，热力图完全空白。
+
+**根因**：GitHub 贡献页的 HTML 在非浏览器环境下（Node.js fetch）不会包含动态渲染的格子数据。
+
+**正确方案**：使用第三方 API `https://github-contributions-api.jogruber.de/v4/{username}`，这个 API 返回 JSON 格式的真实贡献数据，不依赖浏览器渲染。
+
+### Suggested Action
+抓取 GitHub 贡献数据不要用 `github.com/users/.../contributions` HTML 页面解析，直接用 `github-contributions-api.jogruber.de` 或 GitHub GraphQL API。
+
+### Metadata
+- Source: error_recovery
+- Related Files: .github/workflows/update-data.yml, index.html
+- Tags: github-actions, web-scraping, api
+- Pattern-Key: infra.github_contrib_scraping
+- Recurrence-Count: 1
+
+---
+
 ## [LRN-20260510-004] correction
 
 **Logged**: 2026-05-10T08:30:00Z
@@ -214,5 +243,81 @@ In `/workspace/index.html`, `const termBody = document.getElementById('termBody'
 - Tags: javascript, dom, async, github-pages
 - Pattern-Key: frontend.dom_safety
 - Recurrence-Count: 4
+
+---
+
+## [LRN-20260510-006] correction
+
+**Logged**: 2026-05-10T09:10:00Z
+**Priority**: high
+**Status**: resolved
+**Area**: infra
+
+### Summary
+GitHub Actions 无认证 API 速率限制导致语言统计数据不完整，工作流只抓到了 3 种语言而非真实的所有语言。
+
+### Details
+工作流在 GitHub Actions CI 环境中用无认证的 GitHub REST API（60 req/hour）获取所有非 fork 仓库的语言字节数据。当 CI 环境 IP 已经被限速时，`fetchJSON(repo.languages_url)` 返回 `null`（网络错误或 403），这些仓库的语言数据被静默跳过。结果：4 个非 fork 仓库中只有 2 个成功获取到语言数据，导致语言分布只有 3 种（HTML/JavaScript/CSS），Java/Dockerfile/Shell 等语言完全缺失。
+
+**错误代码**：
+```javascript
+const langs = await fetchJSON(repo.languages_url);
+if (!langs) continue;  // 静默跳过，不记录日志
+```
+
+**真实仓库语言字节统计**（直接查询，非 CI 环境）：
+| 仓库 | 语言 | 字节 |
+|------|------|------|
+| wayhhow.github.io | HTML | 64928 |
+| wayhhow.github.io | JavaScript | 513 |
+| survey-map | JavaScript | 34702 |
+| survey-map | CSS | 24561 |
+| survey-map | HTML | 6963 |
+| electric-bike-system-for-display | HTML | 50398 |
+| NewBingGoGo-MagicURL-java | Java | 12367 |
+| NewBingGoGo-MagicURL-java | Dockerfile | 173 |
+| NewBingGoGo-MagicURL-java | Shell | 91 |
+
+**正确结果**：HTML 56%, JavaScript 21%, CSS 13%, Java 6%, Dockerfile 1%, Shell 2% — 共 6 种语言。
+
+### Suggested Action
+1. 工作流中添加日志记录每个 `fetchJSON` 的成功/失败状态，便于事后排查
+2. 对于语言统计这类重要数据，可以考虑增加重试逻辑（延迟 1-2 秒后重试 1-2 次）
+3. 工作流正则改为包含注释行的完整块，避免多行匹配问题
+
+### Metadata
+- Source: user_feedback
+- Related Files: index.html, .github/workflows/update-data.yml
+- Tags: github-actions, api, rate-limit, regex
+- Pattern-Key: infra.github_api_rate_limit_ci
+- Recurrence-Count: 1
+
+---
+
+## [LRN-20260510-007] correction
+
+**Logged**: 2026-05-10T09:10:00Z
+**Priority**: medium
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+百分比取整（`Math.round`）导致语言分布总计不到 100%，最后一个语言应适当上取整补偿。
+
+### Details
+GitHub 语言字节数按百分比取整时，单独四舍五入会产生舍入误差累计，导致总计不是 100%。例如 174922 总字节，Shell 为 91 字节，`91/174922*100 = 0.052%`，`Math.round(0.052) = 0`，导致总和 = 56+21+13+6+1+0 = 97%。
+
+**解决方案**：将百分比数组的总和与 100 的差值加到占比最小的最后一项上：
+```javascript
+const total = langStats.reduce((s, l) => s + l.pct, 0);  // 例如 97
+if (total < 100) langStats[langStats.length - 1].pct += (100 - total);  // 最后一项补差
+```
+
+### Metadata
+- Source: error_recovery
+- Related Files: index.html
+- Tags: javascript, percentage, rounding
+- Pattern-Key: frontend.percent_rounding_sum
+- Recurrence-Count: 1
 
 ---

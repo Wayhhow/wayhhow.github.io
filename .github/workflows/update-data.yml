@@ -28,10 +28,28 @@ jobs:
           const GITHUB_USER = 'Wayhhow';
           const PORTFOLIO_REPO = 'wayhhow.github.io';
 
-          async function fetchJSON(url) {
-            const res = await fetch(url, { headers: { Accept: 'application/vnd.github+json' } });
-            if (!res.ok) return null;
-            return res.json();
+          async function fetchJSON(url, retries = 2) {
+            for (let attempt = 1; attempt <= retries + 1; attempt++) {
+              try {
+                const res = await fetch(url, { headers: { Accept: 'application/vnd.github+json' } });
+                if (res.ok) return await res.json();
+                if (res.status === 403 || res.status === 429) {
+                  console.warn(`Rate limited on ${url} (attempt ${attempt}/${retries + 1}), waiting 2s...`);
+                  await new Promise(r => setTimeout(r, 2000));
+                  continue;
+                }
+                if (attempt > 1) console.warn(`fetch ${url} failed with ${res.status} after ${attempt - 1} retries`);
+                return null;
+              } catch (e) {
+                if (attempt <= retries) {
+                  console.warn(`fetch ${url} error (attempt ${attempt}/${retries + 1}): ${e.message}`);
+                  await new Promise(r => setTimeout(r, 1500));
+                  continue;
+                }
+                console.error(`fetch ${url} failed after ${retries} retries: ${e.message}`);
+                return null;
+              }
+            }
           }
 
           async function getAllRepos() {
@@ -100,12 +118,8 @@ jobs:
             let html = fs.readFileSync('index.html', 'utf8');
 
             html = html.replace(
-              /const LANG_STATS = \[[\s\S]*?\];/,
-              `const LANG_STATS = ${JSON.stringify(langStats, null, 4)};`
-            );
-            html = html.replace(
-              /\/\/ Real language data[\s\S]*?\*\//,
-              `// Real language data from GitHub API (updated ${updated})`
+              /\/\/ Real language data from GitHub API[\s\S]*?const LANG_STATS = \[[\s\S]*?\];/,
+              `// Real language data from GitHub API (updated ${updated})\n    const LANG_STATS = ${JSON.stringify(langStats, null, 4)};`
             );
 
             const projectsArr = featured.map(r => ({
