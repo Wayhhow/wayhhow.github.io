@@ -1593,10 +1593,12 @@
         if (labelEl) labelEl.textContent = getOrdinalSuffix(n) + ' visitor';
       };
 
-      fetch(`https://api.countapi.xyz/hit/${COUNTAPI_NS}/${COUNTAPI_KEY}`)
+      fetch('https://wayhhow-visitors.wwh2972506943.workers.dev', {
+        method: 'POST'
+      })
         .then(r => r.json())
         .then(data => {
-          updateUI(data.value);
+          updateUI(data.count);
         })
         .catch(() => {
           const local = (parseInt(localStorage.getItem('wh_local_count') || '0', 10)) + 1;
