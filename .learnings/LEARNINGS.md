@@ -6,6 +6,40 @@ Corrections, insights, and knowledge gaps captured during development.
 
 ---
 
+## [LRN-20260510-004] correction
+
+**Logged**: 2026-05-10T08:30:00Z
+**Priority**: critical
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+CSS `min-height: 100vh` 导致弹性布局（flex/grid）中元素之间出现无法消除的大空白。
+
+### Details
+`.hero` 设置了 `min-height: 100vh` + `display: flex` + `flex-direction: column`，子元素用 `margin` 控制间距。在这种组合下，`min-height: 100vh` 强制 hero 容器撑到至少一整屏高度，即使实际内容远小于 100vh。子元素的 `margin-bottom` 无法改变这个基线——底部空白由容器自身 `min-height` 决定，而非子元素的间距。
+
+**症状**：访客计数器（hero 的最后一个子元素）离 Language Distribution（hero 外的下一个区块）之间出现超大空白（约 40vh）。
+
+**错误修复路径**：
+- 第一次：加 `.hero-visitor-counter { margin-bottom: 48px }` → 无效
+- 第二次：改 `.hero { justify-content: flex-start }` + 改 `padding-bottom` → 无效（容器基线不变）
+- 第三次：改 `.hero { justify-content: center }` → 空白移到访客计数器下方（因为居中了）
+- **正确修复**：移除 `.hero { min-height: 100vh }`，让容器自适应内容高度
+
+### Suggested Action
+当 flex 容器用 `margin` 控制子元素间距时，如果出现无法解释的大空白，先检查容器是否有 `min-height` / `height` 的固定值限制。这些固定高度会覆盖弹性布局的正常流动。
+
+### Metadata
+- Source: user_feedback
+- Related Files: /workspace/index.html
+- Tags: css, flexbox, layout, min-height
+- Pattern-Key: frontend.css_min_height_flex_gap
+- Recurrence-Count: 3
+- See Also: LRN-20260509-002
+
+---
+
 ## [LRN-20260509-002] correction
 
 **Logged**: 2026-05-09T08:10:00Z
