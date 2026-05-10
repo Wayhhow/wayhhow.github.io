@@ -3058,10 +3058,8 @@ const PROJECTS = [
           updateUI(data.count);
         })
         .catch(() => {
-          const local = (parseInt(localStorage.getItem('wh_local_count') || '0', 10)) + 1;
-          localStorage.setItem('wh_local_count', local);
-          localStorage.setItem('wh_last_count', local);
-          updateUI(local);
+          // 请求失败时不再本地累加，避免多设备计数不一致
+          // 只保留上次缓存值，不再变更
         });
     }
 
