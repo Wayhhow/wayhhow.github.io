@@ -355,7 +355,7 @@
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      margin-bottom: 32px;
+      margin-top: 20px;
     }
 
     .visit-num {
@@ -913,7 +913,7 @@
       <!-- Visitor Counter -->
       <div class="hero-visitor-counter" id="hero-visitor-counter" style="display:none;">
         <div class="visit-num" id="visit-count">--</div>
-        <div class="visit-label">total views</div>
+        <div class="visit-label">th visitor</div>
       </div>
     </section>
 
@@ -1564,23 +1564,41 @@
     }, { passive: true });
     backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
+    function getOrdinalSuffix(n) {
+      if (n >= 11 && n <= 13) return 'th';
+      const last = n % 10;
+      if (last === 1) return 'st';
+      if (last === 2) return 'nd';
+      if (last === 3) return 'rd';
+      return 'th';
+    }
+
     function initVisitorCounter() {
       const SESSION_KEY = 'wh_visit_session';
-      const COUNT_KEY = 'wh_visit_count';
       const SESSION_TTL = 30 * 60 * 1000;
       const now = Date.now();
       const last = parseInt(localStorage.getItem(SESSION_KEY) || '0', 10);
-      if (!last || now - last > SESSION_TTL) {
-        const count = (parseInt(localStorage.getItem(COUNT_KEY) || '0', 10)) + 1;
-        localStorage.setItem(COUNT_KEY, count);
-        localStorage.setItem(SESSION_KEY, now);
-        document.getElementById('visit-count').textContent = count;
-      } else {
-        const count = parseInt(localStorage.getItem(COUNT_KEY) || '0', 10);
-        document.getElementById('visit-count').textContent = count;
-      }
-      const el = document.getElementById('hero-visitor-counter');
-      if (el) el.style.display = '';
+      const isNew = !last || now - last > SESSION_TTL;
+      if (isNew) localStorage.setItem(SESSION_KEY, now);
+
+      const counterEl = document.getElementById('hero-visitor-counter');
+      const countEl = document.getElementById('visit-count');
+      const labelEl = counterEl ? counterEl.querySelector('.visit-label') : null;
+
+      fetch('https://wayhhow-visitors.pages.dev/api/count', { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+          const n = data.count;
+          if (countEl) countEl.textContent = n;
+          if (labelEl) labelEl.textContent = getOrdinalSuffix(n) + ' visitor';
+        })
+        .catch(() => {
+          if (countEl) countEl.textContent = '?';
+          if (labelEl) labelEl.textContent = 'th visitor';
+        })
+        .finally(() => {
+          if (counterEl) counterEl.style.display = '';
+        });
     }
 
     const BIO_TEXT = 'Building tools at the intersection of hardware and software. Passionate about accessibility systems, automation infrastructure, and low-level systems programming. Turning complex problems into elegant solutions.';
