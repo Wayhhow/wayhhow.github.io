@@ -49,16 +49,14 @@ jobs:
           }
 
           async function fetchContribData() {
-            const res = await fetch(`https://github.com/users/${GITHUB_USER}/contributions`, {
-              headers: { 'Accept': 'text/html' }
-            });
+            const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${GITHUB_USER}`);
             if (!res.ok) return {};
-            const html = await res.text();
+            const data = await res.json();
             const contrib = {};
-            const re = /data-date="(\d{4}-\d{2}-\d{2})"\s+data-count="(\d+)"/g;
-            let m;
-            while ((m = re.exec(html)) !== null) {
-              contrib[m[1]] = parseInt(m[2], 10);
+            if (data.contributions) {
+              data.contributions.forEach(c => {
+                contrib[c.date] = c.count;
+              });
             }
             return contrib;
           }
