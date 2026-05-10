@@ -294,6 +294,32 @@ if (!langs) continue;  // 静默跳过，不记录日志
 
 ---
 
+## [LRN-20260510-008] correction
+
+**Logged**: 2026-05-10T09:30:00Z
+**Priority**: critical
+**Status**: resolved
+**Area**: infra
+
+### Summary
+工作流正则和 HTML 注释文本不一致，导致 PROJECTS 数据从未被自动更新过。
+
+### Details
+工作流中 PROJECTS 的替换正则是 `/\/\/ Featured Projects data[\s\S]*?\];/`，但 HTML 中的实际注释是 `// Projects`（简短注释，没有 "Featured Projects data"）。正则完全不匹配，导致每次 GitHub Actions 运行，PROJECTS 数组始终是旧的静态数据，只有手动编辑才会改变。
+
+**排查方法**：用 Node.js 在本地对 HTML 文件逐个运行每个正则的 `.match()`，验证是否能正确匹配目标文本。
+
+**正确做法**：让 HTML 注释文本与工作流正则完全对应，或将正则改为能匹配更宽泛模式的模式（例如 `/\/\/ Projects[\s\S]*?const PROJECTS/`）。
+
+### Metadata
+- Source: error_recovery
+- Related Files: index.html, .github/workflows/update-data.yml
+- Tags: regex, github-actions, data-stale
+- Pattern-Key: infra.regex_comment_mismatch
+- Recurrence-Count: 1
+
+---
+
 ## [LRN-20260510-007] correction
 
 **Logged**: 2026-05-10T09:10:00Z
