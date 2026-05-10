@@ -1564,6 +1564,9 @@
     }, { passive: true });
     backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
+    const COUNTAPI_NS = 'wayhhow_portfolio';
+    const COUNTAPI_KEY = 'visits';
+
     function getOrdinalSuffix(n) {
       if (n >= 11 && n <= 13) return 'th';
       const last = n % 10;
@@ -1585,16 +1588,20 @@
       const countEl = document.getElementById('visit-count');
       const labelEl = counterEl ? counterEl.querySelector('.visit-label') : null;
 
-      fetch('https://wayhhow-visitors.pages.dev/api/count', { method: 'POST' })
+      const updateUI = (n) => {
+        if (countEl) countEl.textContent = n;
+        if (labelEl) labelEl.textContent = getOrdinalSuffix(n) + ' visitor';
+      };
+
+      fetch(`https://api.countapi.xyz/hit/${COUNTAPI_NS}/${COUNTAPI_KEY}`)
         .then(r => r.json())
         .then(data => {
-          const n = data.count;
-          if (countEl) countEl.textContent = n;
-          if (labelEl) labelEl.textContent = getOrdinalSuffix(n) + ' visitor';
+          updateUI(data.value);
         })
         .catch(() => {
-          if (countEl) countEl.textContent = '?';
-          if (labelEl) labelEl.textContent = 'th visitor';
+          const local = (parseInt(localStorage.getItem('wh_local_count') || '0', 10)) + 1;
+          localStorage.setItem('wh_local_count', local);
+          updateUI(local);
         })
         .finally(() => {
           if (counterEl) counterEl.style.display = '';
