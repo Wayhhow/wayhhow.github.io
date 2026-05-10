@@ -405,7 +405,47 @@ fetch('https://wayhhow-visitors.wwh2972506943.workers.dev', { method: 'POST' })
 
 ---
 
-## [LRN-20260510-007] correction
+## [LRN-20260510-011] correction
+
+**Logged**: 2026-05-10T12:00:00Z
+**Priority**: critical
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+`renderProjects()` 函数体为空，导致 PROJECTS 数组中的数据从未被渲染到页面上，Featured Projects 永远显示静态 HTML 中的旧数据。
+
+### Details
+GitHub Actions 正确更新了 `index.html` 中的 `PROJECTS` 数组，但 `renderProjects()` 是空函数：
+```javascript
+// ❌ 原代码 — 永远不渲染任何东西
+function renderProjects() {}
+```
+
+同时 `initAll()` 没有调用 `renderProjects()`。因此页面上永远显示静态 HTML 中的硬编码卡片（fork 仓库也混在里面）。
+
+### 修复方案
+1. 实现完整的 `renderProjects()` 函数，根据 `PROJECTS` 数组动态生成项目卡片：
+```javascript
+function renderProjects() {
+  const grid = document.getElementById('projGrid');
+  if (!grid || !PROJECTS || !PROJECTS.length) return;
+  grid.innerHTML = '';
+  PROJECTS.forEach((proj, i) => {
+    // 根据语言生成卡片...
+  });
+}
+```
+2. 在 `initAll()` 中调用 `renderProjects()`
+
+### Metadata
+- Source: user_feedback
+- Related Files: index.html
+- Tags: render, projects, empty-function, bug
+- Pattern-Key: frontend.empty_render_function
+- Recurrence-Count: 1
+
+---
 
 **Logged**: 2026-05-10T09:10:00Z
 **Priority**: medium
