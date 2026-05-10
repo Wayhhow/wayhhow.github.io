@@ -354,8 +354,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
-      margin-top: 20px;
+      gap: 8px;
+      margin-top: 48px;
+      margin-bottom: 48px;
     }
 
     .visit-num {
@@ -911,9 +912,9 @@
       </div>
 
       <!-- Visitor Counter -->
-      <div class="hero-visitor-counter" id="hero-visitor-counter" style="display:none;">
-        <div class="visit-num" id="visit-count">--</div>
-        <div class="visit-label">th visitor</div>
+      <div class="hero-visitor-counter" id="hero-visitor-counter">
+        <div class="visit-num" id="visit-count">1</div>
+        <div class="visit-label">第 1 位访客</div>
       </div>
     </section>
 
@@ -1590,23 +1591,26 @@
 
       const updateUI = (n) => {
         if (countEl) countEl.textContent = n;
-        if (labelEl) labelEl.textContent = getOrdinalSuffix(n) + ' visitor';
+        if (labelEl) labelEl.textContent = '第 ' + n + ' 位访客';
       };
+
+      const savedCount = parseInt(localStorage.getItem('wh_last_count') || '1', 10);
+      updateUI(savedCount);
+      if (counterEl) counterEl.style.display = '';
 
       fetch('https://wayhhow-visitors.wwh2972506943.workers.dev', {
         method: 'POST'
       })
         .then(r => r.json())
         .then(data => {
+          localStorage.setItem('wh_last_count', data.count);
           updateUI(data.count);
         })
         .catch(() => {
           const local = (parseInt(localStorage.getItem('wh_local_count') || '0', 10)) + 1;
           localStorage.setItem('wh_local_count', local);
+          localStorage.setItem('wh_last_count', local);
           updateUI(local);
-        })
-        .finally(() => {
-          if (counterEl) counterEl.style.display = '';
         });
     }
 
@@ -1616,13 +1620,21 @@
       bioEl = document.getElementById('hero-bio');
       if (!bioEl) return;
       let i = 0;
-      function tick() {
-        if (i < BIO_TEXT.length) {
-          bioEl.textContent = BIO_TEXT.slice(0, ++i);
-          setTimeout(tick, 18);
+      const speed = 30;
+      let lastTime = 0;
+      function tick(currentTime) {
+        if (!lastTime) lastTime = currentTime;
+        if (currentTime - lastTime >= speed) {
+          if (i < BIO_TEXT.length) {
+            bioEl.textContent = BIO_TEXT.slice(0, ++i);
+            lastTime = currentTime;
+          } else {
+            return;
+          }
         }
+        requestAnimationFrame(tick);
       }
-      setTimeout(tick, 500);
+      requestAnimationFrame(tick);
     }
 
     // ══════════════════════════════════════════════
