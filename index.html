@@ -817,9 +817,7 @@
         </div>
       </div>
 
-      <p class="hero-bio">
-        Building tools at the intersection of hardware and software. Passionate about accessibility systems, automation infrastructure, and low-level systems programming. Turning complex problems into elegant solutions.
-      </p>
+      <p class="hero-bio" id="hero-bio"></p>
 
       <div class="hero-tags">
         <span class="tag" style="border-color:rgba(247,223,30,0.3);color:#f7df1e;background:rgba(247,223,30,0.08);">JavaScript</span>
@@ -857,7 +855,7 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </div>
           <div class="stat-info">
-            <div class="stat-num" style="color:var(--cyan);text-shadow:var(--glow-cyan);">6</div>
+            <div class="stat-num" style="color:var(--cyan);text-shadow:var(--glow-cyan);" id="stat-repos">8</div>
             <div class="stat-label">Repositories</div>
           </div>
         </div>
@@ -877,6 +875,15 @@
           <div class="stat-info">
             <div class="stat-num" style="color:var(--orange);text-shadow:0 0 8px rgba(255,107,53,0.5);">6</div>
             <div class="stat-label">Languages</div>
+          </div>
+        </div>
+        <div class="stat-card" data-delay="4" id="stat-visits-card" style="display:none;">
+          <div class="stat-icon" style="background:rgba(0,245,255,0.08);border:1px solid rgba(0,245,255,0.15);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-num" style="color:var(--cyan);text-shadow:var(--glow-cyan);font-size:1.6rem;" id="stat-visits">--</div>
+            <div class="stat-label">Total Visits</div>
           </div>
         </div>
       </div>
@@ -900,7 +907,7 @@
           <span class="contrib-title" id="contribTitle">GitHub contributions in the last year</span>
           <span class="contrib-total"><span id="contribTotal">0</span> <span>contributions</span></span>
         </div>
-        <div class="contrib-scroll">
+        <div class="contrib-scroll" id="contrib-scroll">
           <div id="contrib-grid"></div>
         </div>
       </div>
@@ -1119,6 +1126,7 @@
     //  GITHUB API DATA
     // ══════════════════════════════════════════════
     const GITHUB_USER = 'Wayhhow';
+    const PORTFOLIO_REPO = 'wayhhow.github.io';
     let githubData = {};
 
     async function fetchGitHubData() {
@@ -1271,6 +1279,11 @@
           grid.appendChild(cell);
         }
       }
+
+      requestAnimationFrame(() => {
+        const scrollEl = document.getElementById('contrib-scroll');
+        if (scrollEl) scrollEl.scrollLeft = scrollEl.scrollWidth;
+      });
     }
 
     // Projects
@@ -1338,10 +1351,11 @@
 
     function updateStats() {
       if (githubData.user.public_repos !== undefined) {
-        const statCards = document.querySelectorAll('.stat-card');
-        statCards[1].querySelector('.stat-num').textContent = githubData.user.public_repos;
+        document.getElementById('stat-repos').textContent = githubData.user.public_repos;
       }
-      const totalStars = PROJECTS.reduce((sum, p) => sum + (p.stars || 0), 0);
+      const totalStars = (githubData.repos || [])
+        .filter(r => r.name !== PORTFOLIO_REPO && !r.fork)
+        .reduce((s, r) => s + (r.stargazers_count || 0), 0);
       document.getElementById('stat-stars').textContent = totalStars || 4;
     }
 
@@ -1421,7 +1435,9 @@
       },
       stats: () => {
         const u = githubData.user;
-        const totalStars = PROJECTS.reduce((sum, p) => sum + (p.stars || 0), 0);
+        const totalStars = (githubData.repos || [])
+          .filter(r => r.name !== PORTFOLIO_REPO && !r.fork)
+          .reduce((s, r) => s + (r.stargazers_count || 0), 0);
         return [
           'GitHub Statistics:',
           `  Stars earned : ${totalStars || 25}`,
@@ -1520,10 +1536,45 @@
     }, { passive: true });
     backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
+    function initVisitorCounter() {
+      const SESSION_KEY = 'wh_visit_session';
+      const COUNT_KEY = 'wh_visit_count';
+      const SESSION_TTL = 30 * 60 * 1000;
+      const now = Date.now();
+      const last = parseInt(localStorage.getItem(SESSION_KEY) || '0', 10);
+      if (!last || now - last > SESSION_TTL) {
+        const count = (parseInt(localStorage.getItem(COUNT_KEY) || '0', 10)) + 1;
+        localStorage.setItem(COUNT_KEY, count);
+        localStorage.setItem(SESSION_KEY, now);
+        document.getElementById('stat-visits').textContent = count;
+        document.getElementById('stat-visits-card').style.display = '';
+      } else {
+        const count = parseInt(localStorage.getItem(COUNT_KEY) || '0', 10);
+        document.getElementById('stat-visits').textContent = count;
+        document.getElementById('stat-visits-card').style.display = '';
+      }
+    }
+
+    const BIO_TEXT = 'Building tools at the intersection of hardware and software. Passionate about accessibility systems, automation infrastructure, and low-level systems programming. Turning complex problems into elegant solutions.';
+
+    function typeWriter() {
+      bioEl = document.getElementById('hero-bio');
+      if (!bioEl) return;
+      let i = 0;
+      function tick() {
+        if (i < BIO_TEXT.length) {
+          bioEl.textContent = BIO_TEXT.slice(0, ++i);
+          setTimeout(tick, 18);
+        }
+      }
+      setTimeout(tick, 500);
+    }
+
     // ══════════════════════════════════════════════
     //  INIT
     // ══════════════════════════════════════════════
     function initAll() {
+      initVisitorCounter();
       fetchGitHubData()
         .then(() => {
           renderLangStats();
@@ -1537,6 +1588,7 @@
         })
         .finally(() => {
           setupScrollAnimations();
+          typeWriter();
         });
     }
 

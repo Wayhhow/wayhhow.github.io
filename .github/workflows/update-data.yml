@@ -55,13 +55,34 @@ jobs:
           return all;
         }
 
+        async function fetchContribData() {
+          const res = await fetch(`https://github.com/users/${GITHUB_USER}/contributions`, {
+            headers: { 'Accept': 'text/html' }
+          });
+          if (!res.ok) return {};
+          const html = await res.text();
+          const contrib = {};
+          const re = /data-date="(\d{4}-\d{2}-\d{2})"\s+data-count="(\d+)"/g;
+          let m;
+          while ((m = re.exec(html)) !== null) {
+            contrib[m[1]] = parseInt(m[2], 10);
+          }
+          return contrib;
+        }
+
         (async () => {
-          const [user, allRepos] = await Promise.all([
+          const [user, allRepos, contribData] = await Promise.all([
             fetchJSON(`https://api.github.com/users/${GITHUB_USER}`),
             getAllRepos(),
+            fetchContribData(),
           ]);
 
-          const featured = allRepos.slice(0, 6);
+          const starred = allRepos.filter(r => r.stargazers_count > 0)
+            .sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0));
+          const starredNames = new Set(starred.map(r => r.name));
+          const latest = allRepos.filter(r => !starredNames.has(r.name))
+            .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
+          const featured = [...starred, ...latest].slice(0, 6);
           const totalStars = allRepos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
           const publicRepos = user.public_repos;
 
@@ -81,7 +102,8 @@ jobs:
             .map(([name, bytes]) => ({ name, count: langCounts[name], pct: Math.round(bytes / grand * 100) }));
 
           const updated = new Date().toISOString().split('T')[0];
-          console.log(`Updated: ${updated} | Stars: ${totalStars} | Repos: ${publicRepos} | Featured: ${featured.length}`);
+          const contribTotal = Object.values(contribData).reduce((s, n) => s + n, 0);
+          console.log(`Updated: ${updated} | Stars: ${totalStars} | Repos: ${publicRepos} | Featured: ${featured.length} | Contribs: ${contribTotal}`);
 
           const fs = require('fs');
           let html = fs.readFileSync('index.html', 'utf8');
@@ -109,9 +131,29 @@ jobs:
             `// Featured Projects data from GitHub API (updated ${updated})\nconst PROJECTS = ${JSON.stringify(projectsArr, null, 4)};`
           );
 
+          // Update REAL_CONTRIB_DATA
+          const contribEntries = Object.entries(contribData)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([date, count]) => `      '${date}': ${count}`);
+          const contribBlock = `const REAL_CONTRIB_DATA = {\n${contribEntries.join(',\n')}\n    };`;
+          html = html.replace(
+            /\/\/ Real contribution data[\s\S]*?const REAL_CONTRIB_DATA = \{[\s\S]*?\n    \};/,
+            `// Real contribution data from github.com/users/${GITHUB_USER}/contributions (updated ${updated})\n// Total: ${contribTotal} contributions\n${contribBlock}`
+          );
+
+          // Update static stat cards: Total Stars and Repositories
+          html = html.replace(
+            /(id="stat-stars"[^>]*)>(\d+)</,
+            (_, attrs, _old) => `${attrs}>${totalStars}<`
+          );
+          html = html.replace(
+            /(id="stat-repos"[^>]*)>(\d+)</,
+            (_, attrs, _old) => `${attrs}>${publicRepos}<`
+          );
+
           fs.writeFileSync('index.html', html);
-          console.log('index.html updated — LANG_STATS + PROJECTS');
-          console.log('Featured repos:', featured.map(r => `${r.name} (${r.stargazers_count}★, ${r.language})`));
+          console.log('index.html updated — LANG_STATS + PROJECTS + REAL_CONTRIB_DATA + stat-stars + stat-repos');
+          console.log(`Stats: ${totalStars} stars, ${publicRepos} repos | Contribs: ${contribTotal} | Featured: ${featured.length} repos`);
         })();
         EOF
 
