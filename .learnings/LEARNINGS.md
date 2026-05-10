@@ -320,6 +320,43 @@ if (!langs) continue;  // 静默跳过，不记录日志
 
 ---
 
+## [LRN-20260510-009] correction
+
+**Logged**: 2026-05-10T10:15:00Z
+**Priority**: critical
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+访客计数器 catch 块使用本地 localStorage 累加作为降级方案，导致手机和电脑显示不同数字。
+
+### Details
+当 Cloudflare Worker 请求失败（网络问题或 Worker 不可用）时，catch 块执行：
+```javascript
+const local = (parseInt(localStorage.getItem('wh_local_count') || '0') + 1;
+localStorage.setItem('wh_local_count', local);
+updateUI(local);  // 每个设备各自累加，计数不一致！
+```
+`localStorage` 是每个设备独立的（手机 ≠ 电脑），导致降级时手机和电脑各自从 0 开始累加，结果完全不同。
+
+### Suggested Action
+请求失败时**不降级累加**，只保留上次缓存值即可：
+```javascript
+.catch(() => {
+  // 不做任何事，保持显示上次的 cached count
+});
+```
+云服务 Worker 通常稳定性很高，不需要本地降级计数。
+
+### Metadata
+- Source: user_feedback
+- Related Files: index.html
+- Tags: localStorage, counter, cross-device, bug
+- Pattern-Key: frontend.local_counter_cross_device
+- Recurrence-Count: 1
+
+---
+
 ## [LRN-20260510-007] correction
 
 **Logged**: 2026-05-10T09:10:00Z
