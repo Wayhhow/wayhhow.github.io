@@ -2827,7 +2827,35 @@ const PROJECTS = [
       Verilog: { bg: 'rgba(113,120,112,0.12)', color: '#9ca8a0', dot: '#9ca8a0' },
     };
 
-    function renderProjects() {}
+    function renderProjects() {
+      const grid = document.getElementById('projGrid');
+      if (!grid || !PROJECTS || !PROJECTS.length) return;
+      grid.innerHTML = '';
+      PROJECTS.forEach((proj, i) => {
+        const lc = LANG_COLORS[proj.lang] || { bg: 'rgba(0,245,255,0.1)', color: '#00f5ff', dot: '#00f5ff' };
+        const card = document.createElement('a');
+        card.className = 'proj-card visible';
+        card.style.transitionDelay = (i * 80) + 'ms';
+        card.href = proj.url;
+        card.target = '_blank';
+        card.rel = 'noopener';
+        card.innerHTML = `
+          <div class="proj-top">
+            <div class="proj-name">${proj.name}</div>
+            <svg class="proj-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+          </div>
+          <p class="proj-desc">${proj.desc}</p>
+          <div class="proj-meta">
+            <span class="proj-lang-tag" style="background:${lc.bg};border-color:${lc.color}30;color:${lc.color};">
+              <span style="width:7px;height:7px;border-radius:50%;background:${lc.dot};display:inline-block;"></span>
+              ${proj.lang}
+            </span>
+            ${proj.stars > 0 ? `<span class="proj-stars"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffe600" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${proj.stars}</span>` : ''}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
 
     function updateStats() {
       if (githubData.user.public_repos !== undefined) {
@@ -3092,6 +3120,7 @@ const PROJECTS = [
     //  INIT
     // ══════════════════════════════════════════════
     function initAll() {
+      renderProjects();
       initVisitorCounter();
       fetchGitHubData()
         .then(() => {

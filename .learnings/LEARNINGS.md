@@ -357,6 +357,54 @@ updateUI(local);  // 每个设备各自累加，计数不一致！
 
 ---
 
+## [LRN-20260510-010] correction
+
+**Logged**: 2026-05-10T11:00:00Z
+**Priority**: critical
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+访客计数器初始化时直接显示 localStorage 默认值 1，导致新设备访问时显示错误的计数（应该从 Cloudflare Worker 获取真实值）。
+
+### Details
+原代码：
+```javascript
+const savedCount = parseInt(localStorage.getItem('wh_last_count') || '1', 10);
+updateUI(savedCount);  // 新设备显示 1，这是错误的！
+```
+
+问题在于：
+1. `localStorage` 是每个设备独立的，新设备没有缓存值
+2. 默认值设为 `'1'` 导致新设备显示 1
+3. 计数器应该从远程 Worker 获取真实的全局计数
+
+### 修复方案
+```javascript
+const savedCount = parseInt(localStorage.getItem('wh_last_count') || '0', 10);
+if (savedCount > 0) {
+  updateUI(savedCount);  // 有缓存值才显示
+}
+// 否则等待 Worker 返回真实值后再显示
+fetch('https://wayhhow-visitors.wwh2972506943.workers.dev', { method: 'POST' })
+  .then(r => r.json())
+  .then(data => {
+    localStorage.setItem('wh_last_count', data.count);
+    updateUI(data.count);
+  });
+```
+
+同时静态 HTML 设置为 `style="display: none;"`，初始值为 0。
+
+### Metadata
+- Source: user_feedback
+- Related Files: index.html
+- Tags: localStorage, counter, initialization, bug
+- Pattern-Key: frontend.cache_default_value_bug
+- Recurrence-Count: 1
+
+---
+
 ## [LRN-20260510-007] correction
 
 **Logged**: 2026-05-10T09:10:00Z
