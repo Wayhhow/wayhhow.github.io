@@ -878,7 +878,7 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           </div>
           <div class="stat-info">
-            <div class="stat-num" style="color:var(--green);text-shadow:var(--glow-green);" id="stat-stars">4</div>
+            <div class="stat-num" style="color:var(--green);text-shadow:var(--glow-green);" id="stat-stars">3</div>
             <div class="stat-label">Total Stars</div>
           </div>
         </div>
@@ -1176,13 +1176,22 @@
 
     // Real language data from GitHub API (byte counts across 6 projects, May 2026)
     const LANG_STATS = [
-      { name: 'Verilog', count: 1, pct: 35 },
-      { name: 'HTML', count: 2, pct: 20 },
-      { name: 'Python', count: 2, pct: 19 },
-      { name: 'JavaScript', count: 1, pct: 12 },
-      { name: 'CSS', count: 1, pct: 8 },
-      { name: 'Java', count: 1, pct: 4 },
-    ];
+    {
+        "name": "HTML",
+        "count": 2,
+        "pct": 49
+    },
+    {
+        "name": "JavaScript",
+        "count": 1,
+        "pct": 30
+    },
+    {
+        "name": "CSS",
+        "count": 1,
+        "pct": 21
+    }
+];
 
     function renderLangStats() {
       const grid = document.getElementById('langGrid');
@@ -1222,21 +1231,10 @@
       });
     }
 
-    // Real contribution data from github.com/users/Wayhhow/contributions
-    // Total: 171 contributions (correct, complete last-year range: 2025-05-10 to 2026-05-09)
-    const REAL_CONTRIB_DATA = {
-      // 2025
-      '2025-05-10': 1, '2025-05-17': 1, '2025-05-24': 1, '2025-05-31': 1,
-      '2025-12-11': 3, '2025-12-16': 1,
-      // 2026
-      '2026-01-28': 1,
-      '2026-02-19': 1, '2026-02-26': 1,
-      '2026-04-12': 1,  '2026-04-13': 13, '2026-04-14': 75,
-      '2026-04-16': 13, '2026-04-17': 11, '2026-04-21': 2,
-      '2026-04-22': 23, '2026-04-23': 3,  '2026-04-26': 4,
-      '2026-04-27': 4,  '2026-04-28': 1,  '2026-04-30': 1,
-      '2026-05-01': 3,  '2026-05-07': 1,  '2026-05-08': 6,
-      '2026-05-09': 1,
+    // Real contribution data from github.com/users/Wayhhow/contributions (updated 2026-05-10)
+// Total: 0 contributions
+const REAL_CONTRIB_DATA = {
+
     };
 
     function contribLevel(count) {
