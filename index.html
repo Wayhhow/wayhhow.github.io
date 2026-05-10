@@ -350,6 +350,37 @@
 
     .hero-links { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
 
+    .hero-visitor-counter {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 32px;
+    }
+
+    .visit-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 900;
+      color: var(--cyan);
+      text-shadow: 0 0 20px rgba(0,245,255,0.8), 0 0 60px rgba(0,245,255,0.4), 0 0 100px rgba(0,245,255,0.2);
+      line-height: 1;
+      letter-spacing: 4px;
+      animation: visit-pulse 3s ease-in-out infinite;
+    }
+
+    .visit-label {
+      font-size: clamp(0.65rem, 1.5vw, 0.8rem);
+      color: var(--muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    @keyframes visit-pulse {
+      0%, 100% { text-shadow: 0 0 20px rgba(0,245,255,0.8), 0 0 60px rgba(0,245,255,0.4), 0 0 100px rgba(0,245,255,0.2); }
+      50% { text-shadow: 0 0 30px rgba(0,245,255,1), 0 0 80px rgba(0,245,255,0.6), 0 0 120px rgba(0,245,255,0.3); }
+    }
+
     .btn {
       display: inline-flex;
       align-items: center;
@@ -877,15 +908,12 @@
             <div class="stat-label">Languages</div>
           </div>
         </div>
-        <div class="stat-card" data-delay="4" id="stat-visits-card" style="display:none;">
-          <div class="stat-icon" style="background:rgba(0,245,255,0.08);border:1px solid rgba(0,245,255,0.15);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          </div>
-          <div class="stat-info">
-            <div class="stat-num" style="color:var(--cyan);text-shadow:var(--glow-cyan);font-size:1.6rem;" id="stat-visits">--</div>
-            <div class="stat-label">Total Visits</div>
-          </div>
-        </div>
+      </div>
+
+      <!-- Visitor Counter -->
+      <div class="hero-visitor-counter" id="hero-visitor-counter" style="display:none;">
+        <div class="visit-num" id="visit-count">--</div>
+        <div class="visit-label">total views</div>
       </div>
     </section>
 
@@ -1546,13 +1574,13 @@
         const count = (parseInt(localStorage.getItem(COUNT_KEY) || '0', 10)) + 1;
         localStorage.setItem(COUNT_KEY, count);
         localStorage.setItem(SESSION_KEY, now);
-        document.getElementById('stat-visits').textContent = count;
-        document.getElementById('stat-visits-card').style.display = '';
+        document.getElementById('visit-count').textContent = count;
       } else {
         const count = parseInt(localStorage.getItem(COUNT_KEY) || '0', 10);
-        document.getElementById('stat-visits').textContent = count;
-        document.getElementById('stat-visits-card').style.display = '';
+        document.getElementById('visit-count').textContent = count;
       }
+      const el = document.getElementById('hero-visitor-counter');
+      if (el) el.style.display = '';
     }
 
     const BIO_TEXT = 'Building tools at the intersection of hardware and software. Passionate about accessibility systems, automation infrastructure, and low-level systems programming. Turning complex problems into elegant solutions.';
