@@ -59,7 +59,7 @@ jobs:
                 `https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&page=${page}&sort=updated`
               );
               if (!repos || !repos.length) break;
-              all = all.concat(repos.filter(r => !r.fork && r.name !== PORTFOLIO_REPO));
+              all = all.concat(repos.filter(r => !r.fork));
               if (repos.length < 100) break;
               page++;
             }
@@ -117,9 +117,11 @@ jobs:
             const fs = require('fs');
             let html = fs.readFileSync('index.html', 'utf8');
 
+            const indentMatch = html.match(/\/\/ Real language data from GitHub API\s*\n(\s*)/);
+            const langIndent = indentMatch ? indentMatch[1] : '    ';
             html = html.replace(
               /\/\/ Real language data from GitHub API[\s\S]*?const LANG_STATS = \[[\s\S]*?\];/,
-              `// Real language data from GitHub API (updated ${updated})\n    const LANG_STATS = ${JSON.stringify(langStats, null, 4)};`
+              `// Real language data from GitHub API (updated ${updated})\n${langIndent}const LANG_STATS = ${JSON.stringify(langStats, null, 4)};`
             );
 
             const projectsArr = featured.map(r => ({
@@ -130,9 +132,14 @@ jobs:
               url: r.html_url,
               topics: (r.topics || []).slice(0, 3),
             }));
+            const projIndentMatch = html.match(/\/\/ Featured Projects data[\s\S]*?\n([ \t]*)/);
+            const projIndent = projIndentMatch ? projIndentMatch[1] : '';
+            const contribIndentMatch = html.match(/\/\/ Real contribution data[\s\S]*?\n([ \t]*)/);
+            const contribIndent = contribIndentMatch ? contribIndentMatch[1] : '    ';
+
             html = html.replace(
-              /\/\/ Featured Projects data[\s\S]*?\];/,
-              `// Featured Projects data from GitHub API (updated ${updated})\nconst PROJECTS = ${JSON.stringify(projectsArr, null, 4)};`
+              /\/\/ Featured Projects data[\s\S]*?const PROJECTS = \[[\s\S]*\];/,
+              `// Featured Projects data from GitHub API (updated ${updated})\n${projIndent}const PROJECTS = ${JSON.stringify(projectsArr, null, 4)};`
             );
 
             const contribEntries = Object.entries(contribData)
@@ -140,8 +147,8 @@ jobs:
               .map(([date, count]) => `      '${date}': ${count}`);
             const contribBlock = `const REAL_CONTRIB_DATA = {\n${contribEntries.join(',\n')}\n    };`;
             html = html.replace(
-              /\/\/ Real contribution data[\s\S]*?const REAL_CONTRIB_DATA = \{[\s\S]*?\n    \};/,
-              `// Real contribution data from github.com/users/${GITHUB_USER}/contributions (updated ${updated})\n// Total: ${contribTotal} contributions\n${contribBlock}`
+              /\/\/ Real contribution data[\s\S]*?const REAL_CONTRIB_DATA = \{[\s\S]*?\};/,
+              `// Real contribution data from github-contributions-api.jogruber.de (updated ${updated})\n${contribIndent}// Total: ${contribTotal} contributions\n${contribIndent}${contribBlock}`
             );
 
             html = html.replace(
