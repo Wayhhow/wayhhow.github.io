@@ -853,7 +853,7 @@
       <div class="hero-tags">
         <span class="tag" style="border-color:rgba(247,223,30,0.3);color:#f7df1e;background:rgba(247,223,30,0.08);">JavaScript</span>
         <span class="tag" style="border-color:rgba(53,114,165,0.3);color:#6fa3cc;background:rgba(53,114,165,0.08);">Python</span>
-        <span class="tag" style="border-color:rgba(176,114,25,0.3);color:#e8a84c;background:rgba(176,114,25,0.08);">Java</span>
+        <span class="tag" style="border-color:rgba(38,77,228,0.3);color:#6d9dec;background:rgba(38,77,228,0.08);">CSS</span>
         <span class="tag" style="border-color:rgba(113,120,112,0.3);color:#9ca8a0;background:rgba(113,120,112,0.08);">Verilog</span>
         <span class="tag" style="border-color:rgba(0,245,255,0.3);color:#00f5ff;background:rgba(0,245,255,0.08);">FPGA</span>
         <span class="tag" style="border-color:rgba(57,255,20,0.3);color:#39ff14;background:rgba(57,255,20,0.08);">GIS / Maps</span>
@@ -1141,7 +1141,7 @@
     }
 
     // Real contribution data from github-contributions-api.jogruber.de (updated 2026-05-11)
-    // Total: 175 contributions
+    // Total: 167 contributions
     const REAL_CONTRIB_DATA = {
       '2026-01-28': 1, '2026-02-19': 1, '2026-02-26': 1,
       '2026-04-12': 1, '2026-04-13': 13, '2026-04-14': 75,
@@ -1213,9 +1213,9 @@
           cell.className = 'contrib-cell cell-lv' + (day ? day.level : 0);
           cell.style.gridColumn = String(wi + 2);
           cell.style.gridRow = String(di + 1);
-          if (day && day.count > 0) {
-            const dateIdx = wi * 7 + di - (startDow > 0 ? startDow : 0);
-            cell.title = `${dates[dateIdx] || ''}: ${day.count} contribution${day.count !== 1 ? 's' : ''}`;
+          const dateIdx = wi * 7 + di - (startDow > 0 ? startDow : 0);
+          if (day && day.count > 0 && dates[dateIdx] !== undefined) {
+            cell.title = `${dates[dateIdx]}: ${day.count} contribution${day.count !== 1 ? 's' : ''}`;
           }
           grid.appendChild(cell);
         }
@@ -1417,7 +1417,7 @@ const PROJECTS = [
         '  Shell   : bash 5.2',
         '  Terminal: wayhhow-dev-terminal',
         '  CPU     : GitHub Actions Runner',
-        '  Memory  : 7168 MB / 32768 MB',
+        '  Memory  : 8192 MB / 16384 MB (typical)',
         '',
         '  Color   : ████ ████ ████ ████',
         '',
