@@ -2,13 +2,14 @@ name: Update Portfolio Data
 
 on:
   schedule:
-    - cron: '0 0 */2 * *'
+    - cron: '0 */1 * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
   pages: write
   id-token: write
+  actions: read
 
 jobs:
   update:
@@ -167,6 +168,44 @@ jobs:
           })();
           SCRIPT
           node /tmp/update-data.js
+
+      - name: Fetch real GitHub Pages traffic
+        run: |
+          curl -s -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/Wayhhow/wayhhow.github.io/traffic/views" \
+            -o /tmp/traffic.json
+          cat /tmp/traffic.json
+
+      - name: Update visitor counter with real data
+        run: |
+          cat > /tmp/update-visitors.js << 'VISITOR_SCRIPT'
+          const fs = require('fs');
+          let traffic = {};
+          try { traffic = JSON.parse(fs.readFileSync('/tmp/traffic.json', 'utf8')); } catch (e) {
+            console.log('Could not read traffic file:', e.message);
+          }
+          const views = traffic.views || [];
+          const today = new Date().toISOString().split('T')[0];
+          const todayViews = views.find(v => v.timestamp && v.timestamp.startsWith(today));
+          const uniqueCount = todayViews ? todayViews.uniques : 0;
+          const totalCount = views.reduce((s, v) => s + (v.uniques || 0), 0);
+          let visitors = { count: 1, unique_today: 0, total_unique: 0, updated_at: new Date().toISOString() };
+          try {
+            if (fs.existsSync('visitors.json')) {
+              visitors = JSON.parse(fs.readFileSync('visitors.json', 'utf8'));
+            }
+          } catch (e) {}
+          visitors.count = uniqueCount > 0 ? uniqueCount : (visitors.count || 1);
+          visitors.unique_today = uniqueCount;
+          visitors.total_unique = totalCount;
+          visitors.updated_at = new Date().toISOString();
+          fs.writeFileSync('visitors.json', JSON.stringify(visitors, null, 2));
+          console.log(`Updated visitors: today=${uniqueCount}, total=${totalCount}, stored=${visitors.count}`);
+          VISITOR_SCRIPT
+          node /tmp/update-visitors.js
 
       - name: Commit and push
         run: |

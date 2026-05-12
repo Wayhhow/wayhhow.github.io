@@ -3004,15 +3004,16 @@ const PROJECTS = [
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      fetch('https://wayhhow-visitors.wwh2972506943.workers.dev', {
-        method: 'POST',
+      fetch('visitors.json', {
         signal: controller.signal,
+        cache: 'no-cache',
       })
         .then(r => r.json())
         .then(data => {
           clearTimeout(timeoutId);
-          localStorage.setItem('wh_last_count', data.count);
-          updateUI(data.count);
+          const count = data.count || savedCount || 1;
+          localStorage.setItem('wh_last_count', count);
+          updateUI(count);
         })
         .catch(() => {
           clearTimeout(timeoutId);
