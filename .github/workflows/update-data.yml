@@ -139,7 +139,7 @@ jobs:
             const contribIndent = contribIndentMatch ? contribIndentMatch[1] : '    ';
 
             html = html.replace(
-              /\/\/ Featured Projects data[\s\S]*?const PROJECTS = \[[\s\S]*\];/,
+              /\/\/ Featured Projects data[\s\S]*?const PROJECTS = \[[\s\S]*?\];/,
               `// Featured Projects data from GitHub API (updated ${updated})\n${projIndent}const PROJECTS = ${JSON.stringify(projectsArr, null, 4)};`
             );
 
