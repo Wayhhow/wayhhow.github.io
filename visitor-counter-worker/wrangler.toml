@@ -1,0 +1,7 @@
+name = "wayhhow-visitors"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "WAYHHOW_VISITORS"
+id = "0b544a25f92a4b218ea9b1efb1ff7b6c"

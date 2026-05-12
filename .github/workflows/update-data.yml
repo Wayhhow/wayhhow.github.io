@@ -59,7 +59,7 @@ jobs:
                 `https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&page=${page}&sort=updated`
               );
               if (!repos || !repos.length) break;
-              all = all.concat(repos.filter(r => !r.fork));
+              all = all.concat(repos);
               if (repos.length < 100) break;
               page++;
             }
@@ -86,13 +86,14 @@ jobs:
               fetchContribData(),
             ]);
 
-            const starred = allRepos.filter(r => r.stargazers_count > 0)
+            const starred = allRepos.filter(r => !r.fork && r.stargazers_count > 0)
               .sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0));
             const starredNames = new Set(starred.map(r => r.name));
-            const latest = allRepos.filter(r => !starredNames.has(r.name))
+            const latest = allRepos.filter(r => !r.fork && !starredNames.has(r.name))
               .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
             const featured = [...starred, ...latest].slice(0, 6);
-            const totalStars = allRepos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
+            const nonForkRepos = allRepos.filter(r => !r.fork);
+            const totalStars = nonForkRepos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
             const publicRepos = user.public_repos;
 
             const langTotals = {}, langCounts = {};
