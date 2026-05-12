@@ -2756,7 +2756,161 @@ const PROJECTS = [
         "url": "https://github.com/Wayhhow/accessibility-standards",
         "topics": []
     }
-]; },
+];
+
+    const LANG_COLORS = {
+      JavaScript: { bg: 'rgba(247,223,30,0.1)', color: '#f7df1e', dot: '#f7df1e' },
+      Python: { bg: 'rgba(53,114,165,0.1)', color: '#6fa3cc', dot: '#6fa3cc' },
+      HTML: { bg: 'rgba(227,76,38,0.1)', color: '#e34c26', dot: '#e34c26' },
+      CSS: { bg: 'rgba(38,77,228,0.1)', color: '#6d9dec', dot: '#6d9dec' },
+      Verilog: { bg: 'rgba(113,120,112,0.1)', color: '#9ca8a0', dot: '#9ca8a0' },
+      Java: { bg: 'rgba(176,114,25,0.1)', color: '#e8a84c', dot: '#e8a84c' },
+      C: { bg: 'rgba(167,178,186,0.1)', color: '#a7b2ba', dot: '#a7b2ba' },
+      Rust: { bg: 'rgba(222,165,132,0.1)', color: '#dea584', dot: '#dea584' },
+    };
+
+    function renderProjects() {
+      const grid = document.getElementById('projGrid');
+      if (!grid || !PROJECTS || !PROJECTS.length) return;
+      grid.innerHTML = '';
+      PROJECTS.forEach((proj, i) => {
+        const lc = LANG_COLORS[proj.lang] || { bg: 'rgba(0,245,255,0.1)', color: '#00f5ff', dot: '#00f5ff' };
+        const card = document.createElement('a');
+        card.className = 'proj-card visible';
+        card.style.transitionDelay = (i * 80) + 'ms';
+        card.href = proj.url;
+        card.target = '_blank';
+        card.rel = 'noopener';
+        card.innerHTML = `
+          <div class="proj-top">
+            <div class="proj-name">${proj.name}</div>
+            <svg class="proj-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+          </div>
+          <p class="proj-desc">${proj.desc}</p>
+          <div class="proj-meta">
+            <span class="proj-lang-tag" style="background:${lc.bg};border-color:${lc.color}30;color:${lc.color};">
+              <span style="width:7px;height:7px;border-radius:50%;background:${lc.dot};display:inline-block;"></span>
+              ${proj.lang}
+            </span>
+            ${proj.stars > 0 ? `<span class="proj-stars"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffe600" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${proj.stars}</span>` : ''}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function updateStats() {
+      if (githubData.user.public_repos !== undefined) {
+        document.getElementById('stat-repos').textContent = githubData.user.public_repos;
+      }
+      const totalStars = (githubData.repos || [])
+        .filter(r => r.name !== PORTFOLIO_REPO && !r.fork)
+        .reduce((s, r) => s + (r.stargazers_count || 0), 0);
+      document.getElementById('stat-stars').textContent = totalStars || 5;
+    }
+
+    const PROJ_MAP = Object.fromEntries(
+      PROJECTS.map(p => [p.name, `${p.desc} [${p.lang}]`])
+    );
+
+    const COMMANDS = {
+      help: () => [
+        'Available commands:',
+        '  help          — Show this help message',
+        '  whoami        — Display user information',
+        '  ls            — List all repositories',
+        '  cat <repo>    — Show project details',
+        '  lang          — Show language statistics',
+        '  stats         — Show GitHub statistics',
+        '  neofetch      — System information display',
+        '  matrix        — Toggle Matrix rain effect',
+        '  clear         — Clear terminal',
+        '  sudo rm -rf / — Just kidding 😄',
+        '',
+      ],
+      whoami: () => {
+        const u = githubData.user;
+        return [
+          '┌──────────────────────────────────────────┐',
+          '│  username   : ' + (u.login || 'Wayhhow').padEnd(28) + '│',
+          '│  full_name  : ' + (u.name || 'Weihao Wu').padEnd(28) + '│',
+          '│  followers  : ' + String(u.followers || 0).padEnd(28) + '│',
+          '│  following  : ' + String(u.following || 2).padEnd(28) + '│',
+          '│  repos      : ' + String(u.public_repos || 8).padEnd(28) + '│',
+          '│  achievement: Pair Extraordinaire 🏅    │',
+          '│  status     : Building things            │',
+          '└──────────────────────────────────────────┘',
+        ];
+      },
+      ls: () => [
+        'total ' + PROJECTS.length,
+        ...PROJECTS.map(p => `drwxr-xr-x ${p.name.padEnd(35)} ${p.lang}`),
+        '',
+      ],
+      cat: (args) => {
+        const name = args[0];
+        if (!name) return ['usage: cat <project-name>', 'example: cat survey-map', '', 'Available: ' + Object.keys(PROJ_MAP).join(', '), ''];
+        if (!PROJ_MAP[name]) return [`cat: ${name}: No such file or directory`, '', 'Available: ' + Object.keys(PROJ_MAP).join(', '), ''];
+        const desc = PROJ_MAP[name];
+        const proj = PROJECTS.find(p => p.name === name);
+        return [
+          '// ' + desc,
+          `// repo: ${proj ? proj.url : 'https://github.com/Wayhhow/' + name}`,
+          `// stars: ${proj ? proj.stars : 0}`,
+          '// status: public',
+          '',
+          `[EOF] — ${desc}`,
+          '',
+        ];
+      },
+      lang: () => {
+        const bars = LANG_STATS.map(l => {
+          const bar = '█'.repeat(Math.round(l.pct / 5)) + '░'.repeat(20 - Math.round(l.pct / 5));
+          return `  ${l.name.padEnd(12)} ${bar} ${l.pct}%`;
+        });
+        return ['Language Distribution:', '', ...bars, ''];
+      },
+      stats: () => {
+        const u = githubData.user;
+        const totalStars = (githubData.repos || [])
+          .filter(r => r.name !== PORTFOLIO_REPO && !r.fork)
+          .reduce((s, r) => s + (r.stargazers_count || 0), 0);
+        return [
+          'GitHub Statistics:',
+          `  Stars earned : ${totalStars || 5}`,
+          `  Public repos : ${u.public_repos || 8}`,
+          `  Followers    : ${u.followers || 0}`,
+          `  Following    : ${u.following || 2}`,
+          `  Gists        : ${u.public_gists || 0}`,
+          '',
+        ];
+      },
+      neofetch: () => [
+        '                    .                    ',
+        '                   /#\\                   ',
+        '                  /###\\    ████████████   ',
+        '                 /#####\\   ██      ███   ',
+        '                /#######\\  ██  ██  ███   ',
+        '               /#########\\ ███████████   ',
+        '              /###########\\              ',
+        '',
+        '  OS      : GitHub Pages (Linux x86_64)',
+        '  Host    : wayhhow.github.io',
+        '  Kernel  : Node.js v20.x',
+        '  Shell   : bash 5.2',
+        '  Terminal: wayhhow-dev-terminal',
+        '  CPU     : GitHub Actions Runner',
+        '  Memory  : 7168 MB / 32768 MB',
+        '',
+        '  Color   : ████ ████ ████ ████',
+        '',
+      ],
+      matrix: () => {
+        const canvas = document.getElementById('matrix-canvas');
+        canvas.style.opacity = canvas.style.opacity === '0.35' ? '0.18' : '0.35';
+        return [`Matrix rain intensity: ${canvas.style.opacity === '0.35' ? 'HIGH' : 'NORMAL'}`, ''];
+      },
+      clear: () => { termBody.innerHTML = ''; return []; },
       'sudo': () => ['sudo: You do not have permission to run this command.', 'Nice try. 😄', ''],
       'sudo rm -rf /': () => ['rm: cannot remove \'/\': Operation not permitted', 'Access denied. Nice try. 😄', ''],
       'rm -rf /': () => ['rm: cannot remove \'/\': Operation not permitted', 'Access denied. Nice try. 😄', ''],
