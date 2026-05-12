@@ -10,17 +10,17 @@ export default {
     const SESSION_TTL = 30 * 60;
 
     const seenKey = `seen:${visitorKey}`;
-    const lastSeen = await env.WAYHHOW_VISITORS.get(seenKey);
+    const lastSeen = await env['WAYHHOW-VISITORS'].get(seenKey);
 
     if (lastSeen !== null) {
-      const counter = (await env.WAYHHOW_VISITORS.get('counter')) || '0';
+      const counter = (await env['WAYHHOW-VISITORS'].get('counter')) || '0';
       return jsonResp({ count: parseInt(counter, 10) });
     }
 
-    const counter = (await env.WAYHHOW_VISITORS.get('counter')) || '0';
+    const counter = (await env['WAYHHOW-VISITORS'].get('counter')) || '0';
     const newCount = parseInt(counter, 10) + 1;
-    await env.WAYHHOW_VISITORS.put('counter', String(newCount));
-    await env.WAYHHOW_VISITORS.put(seenKey, String(Date.now()), { expirationTtl: SESSION_TTL });
+    await env['WAYHHOW-VISITORS'].put('counter', String(newCount));
+    await env['WAYHHOW-VISITORS'].put(seenKey, String(Date.now()), { expirationTtl: SESSION_TTL });
 
     return jsonResp({ count: newCount });
   },

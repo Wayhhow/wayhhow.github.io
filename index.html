@@ -2986,39 +2986,36 @@ const PROJECTS = [
     }
 
     function initVisitorCounter() {
-      const SESSION_KEY = 'wh_visit_session';
-      const SESSION_TTL = 30 * 60 * 1000;
-      const now = Date.now();
-      const last = parseInt(localStorage.getItem(SESSION_KEY) || '0', 10);
-      const isNew = !last || now - last > SESSION_TTL;
-      if (isNew) localStorage.setItem(SESSION_KEY, now);
-
       const counterEl = document.getElementById('hero-visitor-counter');
       const countEl = document.getElementById('visit-count');
       const labelEl = counterEl ? counterEl.querySelector('.visit-label') : null;
 
+      if (!counterEl || !countEl) return;
+
       const updateUI = (n) => {
-        if (countEl) countEl.textContent = n;
+        countEl.textContent = n;
         if (labelEl) labelEl.textContent = '第 ' + n + ' 位访客';
+        counterEl.style.display = '';
       };
 
       const savedCount = parseInt(localStorage.getItem('wh_last_count') || '0', 10);
-      if (savedCount > 0) {
-        updateUI(savedCount);
-        if (counterEl) counterEl.style.display = '';
-      }
+      if (savedCount > 0) updateUI(savedCount);
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
 
       fetch('https://wayhhow-visitors.wwh2972506943.workers.dev', {
-        method: 'POST'
+        method: 'POST',
+        signal: controller.signal,
       })
         .then(r => r.json())
         .then(data => {
+          clearTimeout(timeoutId);
           localStorage.setItem('wh_last_count', data.count);
           updateUI(data.count);
-          if (counterEl) counterEl.style.display = '';
         })
         .catch(() => {
-          // 请求失败时保持显示缓存值（如果有），否则保持隐藏
+          clearTimeout(timeoutId);
         });
     }
 
