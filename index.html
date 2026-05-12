@@ -877,7 +877,7 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           </div>
           <div class="stat-info">
-            <div class="stat-num" style="color:var(--green);text-shadow:var(--glow-green);" id="stat-stars">6</div>
+            <div class="stat-num" style="color:var(--green);text-shadow:var(--glow-green);" id="stat-stars">7</div>
             <div class="stat-label">Total Stars</div>
           </div>
         </div>
@@ -886,7 +886,7 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </div>
           <div class="stat-info">
-            <div class="stat-num" style="color:var(--cyan);text-shadow:var(--glow-cyan);" id="stat-repos">10</div>
+            <div class="stat-num" style="color:var(--cyan);text-shadow:var(--glow-cyan);" id="stat-repos">11</div>
             <div class="stat-label">Repositories</div>
           </div>
         </div>
@@ -1092,22 +1092,27 @@
       githubData.user = githubData.user || {};
     }
 
-    // Real language data from GitHub API (updated 2026-05-11)
+    // Real language data from GitHub API (updated 2026-05-12)
     const LANG_STATS = [
     {
         "name": "JavaScript",
         "count": 3,
-        "pct": 94
+        "pct": 82
     },
     {
         "name": "HTML",
-        "count": 4,
-        "pct": 4
+        "count": 5,
+        "pct": 12
     },
     {
         "name": "Python",
+        "count": 3,
+        "pct": 2
+    },
+    {
+        "name": "Verilog",
         "count": 1,
-        "pct": 1
+        "pct": 2
     },
     {
         "name": "CSS",
@@ -1115,7 +1120,7 @@
         "pct": 1
     },
     {
-        "name": "Batchfile",
+        "name": "Java",
         "count": 1,
         "pct": 0
     }
@@ -1159,8 +1164,8 @@
       });
     }
 
-    // Real contribution data from github-contributions-api.jogruber.de (updated 2026-05-11)
-    // Total: 190 contributions
+    // Real contribution data from github-contributions-api.jogruber.de (updated 2026-05-12)
+    // Total: 203 contributions
     const REAL_CONTRIB_DATA = {
       '2023-01-01': 0,
       '2023-01-02': 0,
@@ -2388,7 +2393,7 @@
       '2026-05-08': 6,
       '2026-05-09': 1,
       '2026-05-10': 15,
-      '2026-05-11': 1,
+      '2026-05-11': 14,
       '2026-05-12': 0,
       '2026-05-13': 0,
       '2026-05-14': 0,
@@ -2701,7 +2706,7 @@
       });
     }
 
-    // Featured Projects data from GitHub API (updated 2026-05-11)
+    // Featured Projects data from GitHub API (updated 2026-05-12)
 const PROJECTS = [
     {
         "name": "survey-map",
@@ -2717,6 +2722,14 @@ const PROJECTS = [
         "lang": "HTML",
         "stars": 1,
         "url": "https://github.com/Wayhhow/wayhhow.github.io",
+        "topics": []
+    },
+    {
+        "name": "REVIEW",
+        "desc": "REVIEW — a HTML project by Wayhhow",
+        "lang": "HTML",
+        "stars": 1,
+        "url": "https://github.com/Wayhhow/REVIEW",
         "topics": []
     },
     {
@@ -2741,14 +2754,6 @@ const PROJECTS = [
         "lang": "JavaScript",
         "stars": 1,
         "url": "https://github.com/Wayhhow/accessibility-standards",
-        "topics": []
-    },
-    {
-        "name": "my-first-project",
-        "desc": "my-first-project — a code project by Wayhhow",
-        "lang": "Code",
-        "stars": 0,
-        "url": "https://github.com/Wayhhow/my-first-project",
         "topics": []
     }
 ]; },
