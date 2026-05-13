@@ -2998,25 +2998,25 @@ const PROJECTS = [
         counterEl.style.display = '';
       };
 
-      const savedCount = parseInt(localStorage.getItem('wh_last_count') || '0', 10);
-      if (savedCount > 0) updateUI(savedCount);
-
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
       fetch('visitors.json', {
         signal: controller.signal,
-        cache: 'no-cache',
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
       })
         .then(r => r.json())
         .then(data => {
           clearTimeout(timeoutId);
-          const count = data.count || savedCount || 1;
+          const count = data.total_unique || data.count || 1;
           localStorage.setItem('wh_last_count', count);
           updateUI(count);
         })
         .catch(() => {
           clearTimeout(timeoutId);
+          const savedCount = parseInt(localStorage.getItem('wh_last_count') || '1', 10);
+          if (savedCount > 0) updateUI(savedCount);
         });
     }
 
