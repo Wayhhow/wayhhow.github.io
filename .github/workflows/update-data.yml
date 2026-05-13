@@ -188,22 +188,27 @@ jobs:
             console.log('Could not read traffic file:', e.message);
           }
           const views = traffic.views || [];
+          const totalCount = views.reduce((s, v) => s + (v.uniques || 0), 0);
           const today = new Date().toISOString().split('T')[0];
           const todayViews = views.find(v => v.timestamp && v.timestamp.startsWith(today));
+          let latestViews = todayViews;
+          if (!latestViews && views.length > 0) {
+            latestViews = views[views.length - 1];
+          }
           const uniqueCount = todayViews ? todayViews.uniques : 0;
-          const totalCount = views.reduce((s, v) => s + (v.uniques || 0), 0);
+          const displayCount = latestViews ? latestViews.uniques : 1;
           let visitors = { count: 1, unique_today: 0, total_unique: 0, updated_at: new Date().toISOString() };
           try {
             if (fs.existsSync('visitors.json')) {
               visitors = JSON.parse(fs.readFileSync('visitors.json', 'utf8'));
             }
           } catch (e) {}
-          visitors.count = uniqueCount > 0 ? uniqueCount : (visitors.count || 1);
+          visitors.count = displayCount;
           visitors.unique_today = uniqueCount;
           visitors.total_unique = totalCount;
           visitors.updated_at = new Date().toISOString();
           fs.writeFileSync('visitors.json', JSON.stringify(visitors, null, 2));
-          console.log(`Updated visitors: today=${uniqueCount}, total=${totalCount}, stored=${visitors.count}`);
+          console.log(`Updated visitors: today=${uniqueCount}, latest=${displayCount}, total=${totalCount}, stored=${visitors.count}`);
           VISITOR_SCRIPT
           node /tmp/update-visitors.js
 
