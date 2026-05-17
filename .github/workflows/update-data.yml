@@ -1,0 +1,239 @@
+name: Update Portfolio Data
+
+on:
+  schedule:
+    - cron: '0 */1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  actions: read
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch & update data.json
+        run: |
+          cat > /tmp/update-data.js << 'SCRIPT'
+          const GITHUB_USER = 'Wayhhow';
+          const PORTFOLIO_REPO = 'wayhhow.github.io';
+
+          async function fetchJSON(url, retries = 2) {
+            for (let attempt = 1; attempt <= retries + 1; attempt++) {
+              try {
+                const res = await fetch(url, { headers: { Accept: 'application/vnd.github+json' } });
+                if (res.ok) return await res.json();
+                if (res.status === 403 || res.status === 429) {
+                  console.warn(`Rate limited on ${url} (attempt ${attempt}/${retries + 1}), waiting 2s...`);
+                  await new Promise(r => setTimeout(r, 2000));
+                  continue;
+                }
+                if (attempt > 1) console.warn(`fetch ${url} failed with ${res.status} after ${attempt - 1} retries`);
+                return null;
+              } catch (e) {
+                if (attempt <= retries) {
+                  console.warn(`fetch ${url} error (attempt ${attempt}/${retries + 1}): ${e.message}`);
+                  await new Promise(r => setTimeout(r, 1500));
+                  continue;
+                }
+                console.error(`fetch ${url} failed after ${retries} retries: ${e.message}`);
+                return null;
+              }
+            }
+          }
+
+          async function getAllRepos() {
+            let page = 1, all = [];
+            while (true) {
+              const repos = await fetchJSON(
+                `https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&page=${page}&sort=updated`
+              );
+              if (!repos || !repos.length) break;
+              all = all.concat(repos);
+              if (repos.length < 100) break;
+              page++;
+            }
+            return all;
+          }
+
+          async function fetchContribData() {
+            const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${GITHUB_USER}`);
+            if (!res.ok) return {};
+            const data = await res.json();
+            const contrib = {};
+            if (data.contributions) {
+              data.contributions.forEach(c => {
+                contrib[c.date] = c.count;
+              });
+            }
+            return contrib;
+          }
+
+          (async () => {
+            const fs = require('fs');
+
+            let existingData = {};
+            try {
+              if (fs.existsSync('data.json')) {
+                existingData = JSON.parse(fs.readFileSync('data.json', 'utf8'));
+              }
+            } catch (e) {
+              console.warn('Could not read existing data.json:', e.message);
+            }
+
+            const [user, allRepos, contribData] = await Promise.all([
+              fetchJSON(`https://api.github.com/users/${GITHUB_USER}`),
+              getAllRepos(),
+              fetchContribData(),
+            ]);
+
+            if (!user && !allRepos && !Object.keys(contribData).length) {
+              console.error('All API calls failed, skipping update');
+              process.exit(0);
+            }
+
+            const safeUser = user || existingData.user || { login: GITHUB_USER, name: 'Weihao Wu' };
+            const safeRepos = allRepos || [];
+
+            const EXCLUDED_REPOS = new Set(['my-first-project']);
+            const starred = safeRepos.filter(r => !r.fork && !EXCLUDED_REPOS.has(r.name) && r.stargazers_count > 0)
+              .sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0));
+            const starredNames = new Set(starred.map(r => r.name));
+            const latest = safeRepos.filter(r => !r.fork && !starredNames.has(r.name) && !EXCLUDED_REPOS.has(r.name))
+              .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
+            const featured = [...starred, ...latest].slice(0, 6);
+            const nonForkRepos = safeRepos.filter(r => !r.fork);
+            const totalStars = nonForkRepos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
+            const publicRepos = safeUser.public_repos || nonForkRepos.length;
+
+            const langTotals = {}, langCounts = {};
+            let grand = 0;
+            for (const repo of safeRepos) {
+              const langs = await fetchJSON(repo.languages_url);
+              if (!langs) continue;
+              Object.entries(langs).forEach(([lang, bytes]) => {
+                langTotals[lang] = (langTotals[lang] || 0) + bytes;
+                langCounts[lang] = (langCounts[lang] || 0) + 1;
+                grand += bytes;
+              });
+            }
+            const langStats = grand > 0
+              ? Object.entries(langTotals)
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 6)
+                  .filter(([, bytes]) => Math.round(bytes / grand * 100) > 0)
+                  .map(([name, bytes]) => ({ name, count: langCounts[name], pct: Math.round(bytes / grand * 100) }))
+              : (existingData.lang_stats || []);
+
+            const cutoff = new Date();
+            cutoff.setDate(cutoff.getDate() - 370);
+            const cutoffStr = cutoff.toISOString().split('T')[0];
+            const trimmedContrib = {};
+            for (const [date, count] of Object.entries(contribData)) {
+              if (date >= cutoffStr && count > 0) {
+                trimmedContrib[date] = count;
+              }
+            }
+
+            const projectsArr = featured.map(r => ({
+              name: r.name,
+              desc: r.description || `${r.name} — a ${r.language || 'code'} project by ${GITHUB_USER}`,
+              lang: r.language || 'Code',
+              stars: r.stargazers_count || 0,
+              url: r.html_url,
+              topics: (r.topics || []).slice(0, 3),
+            }));
+
+            const updated = new Date().toISOString().split('T')[0];
+            const contribTotal = Object.values(contribData).reduce((s, n) => s + n, 0);
+            const languagesCount = langStats.length;
+
+            const dataJson = {
+              updated_at: updated,
+              user: {
+                login: safeUser.login || GITHUB_USER,
+                name: safeUser.name || 'Weihao Wu',
+                public_repos: publicRepos,
+                followers: safeUser.followers || 0,
+                following: safeUser.following || 2,
+                public_gists: safeUser.public_gists || 0,
+              },
+              stats: {
+                total_stars: totalStars,
+                public_repos: publicRepos,
+                languages_count: languagesCount,
+                achievements: 1,
+              },
+              lang_stats: langStats,
+              contributions: trimmedContrib,
+              projects: projectsArr,
+            };
+
+            fs.writeFileSync('data.json', JSON.stringify(dataJson, null, 2));
+            console.log(`data.json updated — ${updated}`);
+            console.log(`Stats: ${totalStars} stars, ${publicRepos} repos, ${languagesCount} langs | Contribs: ${contribTotal} | Featured: ${projectsArr.length} repos`);
+          })();
+          SCRIPT
+          node /tmp/update-data.js
+
+      - name: Fetch real GitHub Pages traffic
+        run: |
+          curl -s -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GH_PAT }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/Wayhhow/wayhhow.github.io/traffic/views" \
+            -o /tmp/traffic.json
+          cat /tmp/traffic.json
+
+      - name: Update visitor counter with real data
+        run: |
+          cat > /tmp/update-visitors.js << 'VISITOR_SCRIPT'
+          const fs = require('fs');
+          let traffic = {};
+          try { traffic = JSON.parse(fs.readFileSync('/tmp/traffic.json', 'utf8')); } catch (e) {
+            console.log('Could not read traffic file:', e.message);
+          }
+          const views = traffic.views || [];
+          const totalCount = views.reduce((s, v) => s + (v.uniques || 0), 0);
+          const today = new Date().toISOString().split('T')[0];
+          const todayViews = views.find(v => v.timestamp && v.timestamp.startsWith(today));
+          let latestViews = todayViews;
+          if (!latestViews && views.length > 0) {
+            latestViews = views[views.length - 1];
+          }
+          const uniqueCount = todayViews ? todayViews.uniques : 0;
+          const displayCount = latestViews ? latestViews.uniques : 1;
+          let visitors = { count: 1, unique_today: 0, total_unique: 0, updated_at: new Date().toISOString() };
+          try {
+            if (fs.existsSync('visitors.json')) {
+              visitors = JSON.parse(fs.readFileSync('visitors.json', 'utf8'));
+            }
+          } catch (e) {}
+          visitors.count = displayCount;
+          visitors.unique_today = uniqueCount;
+          visitors.total_unique = totalCount;
+          visitors.updated_at = new Date().toISOString();
+          fs.writeFileSync('visitors.json', JSON.stringify(visitors, null, 2));
+          console.log(`Updated visitors: today=${uniqueCount}, latest=${displayCount}, total=${totalCount}, stored=${visitors.count}`);
+          VISITOR_SCRIPT
+          node /tmp/update-visitors.js
+
+      - name: Commit and push
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          git diff --staged --quiet || git commit -m "ci: auto-update portfolio data $(date -u +%Y-%m-%d)"
+          git push
