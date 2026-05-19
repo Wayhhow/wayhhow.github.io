@@ -1,0 +1,32 @@
+{
+  "updated_at": "2026-05-19",
+  "user": {
+    "login": "Wayhhow",
+    "name": "Weihao Wu",
+    "public_repos": 10,
+    "followers": 0,
+    "following": 0,
+    "public_gists": 0
+  },
+  "stats": {
+    "total_stars": 5,
+    "public_repos": 10,
+    "languages_count": 5,
+    "achievements": 1
+  },
+  "lang_stats": [
+    { "name": "JavaScript", "count": 3, "pct": 89 },
+    { "name": "HTML", "count": 4, "pct": 4 },
+    { "name": "Python", "count": 3, "pct": 3 },
+    { "name": "Verilog", "count": 1, "pct": 3 },
+    { "name": "CSS", "count": 2, "pct": 1 }
+  ],
+  "contributions": {},
+  "projects": [
+    { "name": "survey-map", "desc": "GitHub Pages 托管的地图网站，用于可视化橙光队的无障碍督导路线。", "lang": "JavaScript", "stars": 2, "url": "https://github.com/Wayhhow/survey-map", "topics": [] },
+    { "name": "wayhhow.github.io", "desc": "Wayhhow Personal Portfolio — Cyberpunk Developer Page", "lang": "HTML", "stars": 1, "url": "https://github.com/Wayhhow/wayhhow.github.io", "topics": [] },
+    { "name": "accessibility-standards", "desc": "无障碍督导标准在线查询工具", "lang": "JavaScript", "stars": 1, "url": "https://github.com/Wayhhow/accessibility-standards", "topics": [] },
+    { "name": "electric-bike-system-for-display", "desc": "一个用于演示的电动自行车管理系统", "lang": "HTML", "stars": 1, "url": "https://github.com/Wayhhow/electric-bike-system-for-display", "topics": [] },
+    { "name": "teleprompter", "desc": "一个支持自动播放和语音跟读的桌面提词器应用。", "lang": "Python", "stars": 1, "url": "https://github.com/Wayhhow/teleprompter", "topics": [] }
+  ]
+}
