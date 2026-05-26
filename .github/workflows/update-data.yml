@@ -23,16 +23,21 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Fetch & update data.json
+      - name: Fetch & update portfolio data
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           cat > /tmp/update-data.js << 'SCRIPT'
           const GITHUB_USER = 'Wayhhow';
           const PORTFOLIO_REPO = 'wayhhow.github.io';
+          const GH_TOKEN = process.env.GH_TOKEN;
 
           async function fetchJSON(url, retries = 2) {
             for (let attempt = 1; attempt <= retries + 1; attempt++) {
               try {
-                const res = await fetch(url, { headers: { Accept: 'application/vnd.github+json' } });
+                const headers = { Accept: 'application/vnd.github+json' };
+                if (GH_TOKEN) headers.Authorization = `Bearer ${GH_TOKEN}`;
+                const res = await fetch(url, { headers });
                 if (res.ok) return await res.json();
                 if (res.status === 403 || res.status === 429) {
                   console.warn(`Rate limited on ${url} (attempt ${attempt}/${retries + 1}), waiting 2s...`);
@@ -68,58 +73,86 @@ jobs:
           }
 
           async function fetchContribData() {
-            const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${GITHUB_USER}`);
-            if (!res.ok) return {};
-            const data = await res.json();
-            const contrib = {};
-            if (data.contributions) {
-              data.contributions.forEach(c => {
-                contrib[c.date] = c.count;
+            try {
+              const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${GITHUB_USER}`, {
+                headers: GH_TOKEN ? { Authorization: `Bearer ${GH_TOKEN}` } : {},
+                signal: AbortSignal.timeout(10000),
               });
+              if (res.ok) {
+                const data = await res.json();
+                const contrib = {};
+                if (data.contributions) {
+                  data.contributions.forEach(c => {
+                    contrib[c.date] = c.count;
+                  });
+                }
+                // Data completeness check
+                const oneYearAgo = new Date();
+                oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+                const cutoffDate = oneYearAgo.toISOString().split('T')[0];
+                const recentDays = Object.keys(contrib).filter(d => d >= cutoffDate).length;
+                console.log(`Primary API returned ${recentDays} days of contribution data`);
+                if (recentDays < 300) {
+                  console.warn('Primary API data appears incomplete (< 300 days), falling back to GraphQL');
+                  return {};
+                }
+                return contrib;
+              }
+            } catch (e) {
+              console.warn('Primary contribution API failed:', e.message);
             }
-            return contrib;
+
+            if (!GH_TOKEN) return {};
+            console.log('Falling back to GitHub GraphQL API for contributions...');
+            try {
+              const from = new Date();
+              from.setDate(from.getDate() - 365);
+              const gqlRes = await fetch('https://api.github.com/graphql', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${GH_TOKEN}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  query: `query($login: String!, $from: DateTime!, $to: DateTime!) {
+                    user(login: $login) {
+                      contributionsCollection(from: $from, to: $to) {
+                        contributionCalendar { weeks { contributionDays { date contributionCount } } }
+                      }
+                    }
+                  }`,
+                  variables: { login: GITHUB_USER, from: from.toISOString(), to: new Date().toISOString() },
+                }),
+              });
+              if (!gqlRes.ok) return {};
+              const gqlData = await gqlRes.json();
+              const contrib = {};
+              const weeks = gqlData?.data?.user?.contributionsCollection?.contributionCalendar?.weeks || [];
+              weeks.forEach(w => w.contributionDays.forEach(d => { contrib[d.date] = d.contributionCount; }));
+              return contrib;
+            } catch (e) {
+              console.warn('GraphQL fallback also failed:', e.message);
+              return {};
+            }
           }
 
           (async () => {
-            const fs = require('fs');
-
-            let existingData = {};
-            try {
-              if (fs.existsSync('data.json')) {
-                existingData = JSON.parse(fs.readFileSync('data.json', 'utf8'));
-              }
-            } catch (e) {
-              console.warn('Could not read existing data.json:', e.message);
-            }
-
             const [user, allRepos, contribData] = await Promise.all([
               fetchJSON(`https://api.github.com/users/${GITHUB_USER}`),
               getAllRepos(),
               fetchContribData(),
             ]);
 
-            if (!user && !allRepos && !Object.keys(contribData).length) {
-              console.error('All API calls failed, skipping update');
-              process.exit(0);
-            }
-
-            const safeUser = user || existingData.user || { login: GITHUB_USER, name: 'Weihao Wu' };
-            const safeRepos = allRepos || [];
-
-            const EXCLUDED_REPOS = new Set(['my-first-project']);
-            const starred = safeRepos.filter(r => !r.fork && !EXCLUDED_REPOS.has(r.name) && r.stargazers_count > 0)
+            const starred = allRepos.filter(r => !r.fork && r.stargazers_count > 0)
               .sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0));
             const starredNames = new Set(starred.map(r => r.name));
-            const latest = safeRepos.filter(r => !r.fork && !starredNames.has(r.name) && !EXCLUDED_REPOS.has(r.name))
+            const latest = allRepos.filter(r => !r.fork && !starredNames.has(r.name))
               .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
             const featured = [...starred, ...latest].slice(0, 6);
-            const nonForkRepos = safeRepos.filter(r => !r.fork);
+            const nonForkRepos = allRepos.filter(r => !r.fork && r.name !== PORTFOLIO_REPO);
             const totalStars = nonForkRepos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
-            const publicRepos = safeUser.public_repos || nonForkRepos.length;
+            const publicRepos = user.public_repos;
 
             const langTotals = {}, langCounts = {};
             let grand = 0;
-            for (const repo of safeRepos) {
+            for (const repo of nonForkRepos) {
               const langs = await fetchJSON(repo.languages_url);
               if (!langs) continue;
               Object.entries(langs).forEach(([lang, bytes]) => {
@@ -128,23 +161,20 @@ jobs:
                 grand += bytes;
               });
             }
-            const langStats = grand > 0
-              ? Object.entries(langTotals)
-                  .sort((a, b) => b[1] - a[1])
-                  .slice(0, 6)
-                  .filter(([, bytes]) => Math.round(bytes / grand * 100) > 0)
-                  .map(([name, bytes]) => ({ name, count: langCounts[name], pct: Math.round(bytes / grand * 100) }))
-              : (existingData.lang_stats || []);
-
-            const cutoff = new Date();
-            cutoff.setDate(cutoff.getDate() - 370);
-            const cutoffStr = cutoff.toISOString().split('T')[0];
-            const trimmedContrib = {};
-            for (const [date, count] of Object.entries(contribData)) {
-              if (date >= cutoffStr && count > 0) {
-                trimmedContrib[date] = count;
-              }
+            const langStats = Object.entries(langTotals)
+              .sort((a, b) => b[1] - a[1])
+              .filter(([, bytes]) => bytes / grand * 100 >= 0.5)
+              .slice(0, 6)
+              .map(([name, bytes]) => ({ name, count: langCounts[name], pct: Math.round(bytes / grand * 100) }));
+            const pctSum = langStats.reduce((s, l) => s + l.pct, 0);
+            if (pctSum !== 100 && langStats.length > 0) {
+              const diff = 100 - pctSum;
+              langStats[0].pct += diff;
             }
+
+            const updated = new Date().toISOString().split('T')[0];
+            const contribTotal = Object.values(contribData).reduce((s, n) => s + n, 0);
+            console.log(`Updated: ${updated} | Stars: ${totalStars} | Repos: ${publicRepos} | Featured: ${featured.length} | Contribs: ${contribTotal}`);
 
             const projectsArr = featured.map(r => ({
               name: r.name,
@@ -155,80 +185,60 @@ jobs:
               topics: (r.topics || []).slice(0, 3),
             }));
 
-            const updated = new Date().toISOString().split('T')[0];
-            const contribTotal = Object.values(contribData).reduce((s, n) => s + n, 0);
-            const languagesCount = langStats.length;
+            const oneYearAgo = new Date();
+            oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+            const cutoffDate = oneYearAgo.toISOString().split('T')[0];
+            const filteredContrib = {};
+            Object.entries(contribData)
+              .filter(([date]) => date >= cutoffDate && date <= updated)
+              .sort(([a], [b]) => a.localeCompare(b))
+              .forEach(([date, count]) => { filteredContrib[date] = count; });
 
+            const fs = require('fs');
             const dataJson = {
               updated_at: updated,
               user: {
-                login: safeUser.login || GITHUB_USER,
-                name: safeUser.name || 'Weihao Wu',
+                login: user.login || GITHUB_USER,
+                name: user.name || 'Weihao Wu',
                 public_repos: publicRepos,
-                followers: safeUser.followers || 0,
-                following: safeUser.following || 2,
-                public_gists: safeUser.public_gists || 0,
+                followers: user.followers || 0,
+                following: user.following || 0,
+                public_gists: user.public_gists || 0,
               },
               stats: {
                 total_stars: totalStars,
                 public_repos: publicRepos,
-                languages_count: languagesCount,
+                languages_count: langStats.length,
                 achievements: 1,
               },
               lang_stats: langStats,
-              contributions: trimmedContrib,
+              contributions: filteredContrib,
               projects: projectsArr,
             };
-
+            // Validate data before writing
+            if (Object.keys(filteredContrib).length === 0 && Object.keys(contribData).length > 0) {
+              console.warn('Filtered contributions is empty but raw data exists - date range may be wrong');
+            }
+            if (Object.keys(filteredContrib).length === 0) {
+              console.warn('WARNING: No contribution data available, keeping existing data.json contributions');
+              // Read existing data.json and preserve its contributions
+              try {
+                const existing = JSON.parse(fs.readFileSync('data.json', 'utf8'));
+                if (existing.contributions && Object.keys(existing.contributions).length > 0) {
+                  dataJson.contributions = existing.contributions;
+                  console.log('Preserved existing contribution data');
+                }
+              } catch (e) { /* no existing file */ }
+            }
             fs.writeFileSync('data.json', JSON.stringify(dataJson, null, 2));
-            console.log(`data.json updated — ${updated}`);
-            console.log(`Stats: ${totalStars} stars, ${publicRepos} repos, ${languagesCount} langs | Contribs: ${contribTotal} | Featured: ${projectsArr.length} repos`);
+            console.log('data.json written');
+            console.log(`Contributions: ${Object.keys(filteredContrib).length} days, ${contribTotal} total`);
+            console.log(`Languages: ${langStats.map(l => l.name + ' ' + l.pct + '%').join(', ')}`);
+            console.log(`Projects: ${projectsArr.map(p => p.name).join(', ')}`);
+            console.log(`Stats: ${totalStars} stars, ${publicRepos} repos | Contribs: ${contribTotal} | Featured: ${featured.length} repos`);
           })();
           SCRIPT
           node /tmp/update-data.js
-
-      - name: Fetch real GitHub Pages traffic
-        run: |
-          curl -s -L \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GH_PAT }}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/Wayhhow/wayhhow.github.io/traffic/views" \
-            -o /tmp/traffic.json
-          cat /tmp/traffic.json
-
-      - name: Update visitor counter with real data
-        run: |
-          cat > /tmp/update-visitors.js << 'VISITOR_SCRIPT'
-          const fs = require('fs');
-          let traffic = {};
-          try { traffic = JSON.parse(fs.readFileSync('/tmp/traffic.json', 'utf8')); } catch (e) {
-            console.log('Could not read traffic file:', e.message);
-          }
-          const views = traffic.views || [];
-          const totalCount = views.reduce((s, v) => s + (v.uniques || 0), 0);
-          const today = new Date().toISOString().split('T')[0];
-          const todayViews = views.find(v => v.timestamp && v.timestamp.startsWith(today));
-          let latestViews = todayViews;
-          if (!latestViews && views.length > 0) {
-            latestViews = views[views.length - 1];
-          }
-          const uniqueCount = todayViews ? todayViews.uniques : 0;
-          const displayCount = latestViews ? latestViews.uniques : 1;
-          let visitors = { count: 1, unique_today: 0, total_unique: 0, updated_at: new Date().toISOString() };
-          try {
-            if (fs.existsSync('visitors.json')) {
-              visitors = JSON.parse(fs.readFileSync('visitors.json', 'utf8'));
-            }
-          } catch (e) {}
-          visitors.count = displayCount;
-          visitors.unique_today = uniqueCount;
-          visitors.total_unique = totalCount;
-          visitors.updated_at = new Date().toISOString();
-          fs.writeFileSync('visitors.json', JSON.stringify(visitors, null, 2));
-          console.log(`Updated visitors: today=${uniqueCount}, latest=${displayCount}, total=${totalCount}, stored=${visitors.count}`);
-          VISITOR_SCRIPT
-          node /tmp/update-visitors.js
 
       - name: Commit and push
         run: |

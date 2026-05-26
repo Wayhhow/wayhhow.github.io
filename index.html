@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wayhhow // Terminal</title>
   <meta name="description" content="Weihao Wu (Wayhhow) — Developer Portfolio">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.loli.net">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.loli.net/css2?family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="icon" href="https://avatars.githubusercontent.com/u/129638819?v=4">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -25,19 +25,43 @@
       --orange: #ff6b35;
       --text: #c0c8d0;
       --muted: #4a5568;
-      --glow-cyan: 0 0 8px #00f5ff, 0 0 20px rgba(0,245,255,0.4);
-      --glow-green: 0 0 8px #39ff14, 0 0 20px rgba(57,255,20,0.4);
-      --glow-pink: 0 0 8px #ff2d78, 0 0 20px rgba(255,45,120,0.4);
+      --glow-cyan: 0 0 10px rgba(0,245,255,0.2);
+      --glow-green: 0 0 10px rgba(57,255,20,0.2);
+      --glow-pink: 0 0 10px rgba(255,45,120,0.2);
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Share Tech Mono', monospace;
+      font-family: 'Inter', sans-serif;
       background: var(--bg);
       color: var(--text);
       overflow-x: hidden;
       cursor: crosshair;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 40%, rgba(0,245,255,0.04), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 60%, rgba(255,45,120,0.03), transparent),
+        radial-gradient(ellipse 50% 30% at 50% 20%, rgba(168,85,247,0.03), transparent);
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 256px 256px;
     }
 
     ::selection { background: rgba(0,245,255,0.25); color: #fff; }
@@ -65,7 +89,7 @@
       position: fixed;
       inset: 0;
       z-index: 0;
-      opacity: 0.18;
+      opacity: 0.08;
       pointer-events: none;
     }
 
@@ -76,8 +100,8 @@
       z-index: 0;
       pointer-events: none;
       background-image:
-        linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+        linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
       background-size: 50px 50px;
     }
 
@@ -122,6 +146,8 @@
     .boot-line.warn { color: var(--yellow); }
     .boot-line.info { color: var(--cyan); }
 
+    #boot-skip:hover { border-color: rgba(255,255,255,0.35); color: var(--text); }
+
     /* ─── MAIN CONTENT ─────────────────────── */
     #main { position: relative; z-index: 1; }
 
@@ -129,7 +155,7 @@
     .section {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 80px 5%;
+      padding: 50px 5%;
     }
 
     .section-label {
@@ -137,7 +163,7 @@
       font-size: clamp(1.2rem, 3vw, 1.6rem);
       font-weight: 700;
       color: #fff;
-      margin-bottom: 48px;
+      margin-bottom: 32px;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -184,18 +210,42 @@
       font-size: 0.82rem;
       letter-spacing: 1px;
       text-transform: uppercase;
-      transition: color 0.2s, text-shadow 0.2s;
+      transition: color 0.2s;
     }
 
-    .nav-links a:hover { color: var(--cyan); text-shadow: var(--glow-cyan); }
+    .nav-links a:hover { color: var(--cyan); }
+    .nav-links a.active { color: var(--cyan); }
+
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .nav-hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .nav-hamburger.active span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 
     /* ─── HERO ─────────────────────────────── */
     .hero {
-      min-height: 100vh;
+      min-height: auto;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      padding: 80px 5% 40px;
+      padding: 100px 5% 50px;
       max-width: 1100px;
       margin: 0 auto;
       position: relative;
@@ -209,7 +259,7 @@
     }
 
     .avatar-ring {
-      width: 90px; height: 90px;
+      width: 120px; height: 120px;
       border-radius: 50%;
       padding: 3px;
       background: conic-gradient(var(--cyan), var(--pink), var(--purple), var(--green), var(--cyan));
@@ -241,7 +291,7 @@
     .hero-name .glitch {
       position: relative;
       display: inline-block;
-      animation: glitch-skew 4s infinite linear alternate-reverse;
+      animation: glitch-skew 8s infinite linear alternate-reverse;
     }
 
     .hero-name .glitch::before,
@@ -254,34 +304,38 @@
 
     .hero-name .glitch::before {
       color: var(--cyan);
-      animation: glitch-1 2.5s infinite linear alternate-reverse;
+      animation: glitch-1 8s infinite linear alternate-reverse;
       clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
       transform: translate(-2px, -1px);
     }
 
     .hero-name .glitch::after {
       color: var(--pink);
-      animation: glitch-2 3s infinite linear alternate-reverse;
+      animation: glitch-2 8s infinite linear alternate-reverse;
       clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
       transform: translate(2px, 1px);
     }
 
-    @keyframes glitch-skew { 0% { transform: skew(0deg); } 5% { transform: skew(-0.5deg); } 10% { transform: skew(0deg); } }
+    @keyframes glitch-skew {
+      0%, 90% { transform: skew(0deg); }
+      91% { transform: skew(-0.5deg); }
+      92% { transform: skew(0deg); }
+    }
     @keyframes glitch-1 {
-      0%, 90% { transform: translate(0); }
-      92% { transform: translate(-3px, 1px); }
+      0%, 92% { transform: translate(0); }
+      93% { transform: translate(-3px, 1px); }
       94% { transform: translate(3px, -1px); }
-      96% { transform: translate(-1px, 2px); }
-      98% { transform: translate(2px, -1px); }
-      100% { transform: translate(0); }
+      95% { transform: translate(-1px, 2px); }
+      96% { transform: translate(2px, -1px); }
+      97%, 100% { transform: translate(0); }
     }
     @keyframes glitch-2 {
-      0%, 85% { transform: translate(0); }
-      87% { transform: translate(3px, -1px); }
-      89% { transform: translate(-2px, 1px); }
-      91% { transform: translate(1px, -2px); }
-      93% { transform: translate(-3px, 1px); }
+      0%, 88% { transform: translate(0); }
+      90% { transform: translate(3px, -1px); }
+      91% { transform: translate(-2px, 1px); }
+      93% { transform: translate(1px, -2px); }
       95% { transform: translate(0); }
+      97%, 100% { transform: translate(0); }
     }
 
     .hero-subtitle {
@@ -316,12 +370,6 @@
       padding: 3px 10px;
       border-radius: 20px;
       font-size: 0.72rem;
-      animation: badge-pulse 3s ease-in-out infinite;
-    }
-
-    @keyframes badge-pulse {
-      0%, 100% { box-shadow: 0 0 6px rgba(168,85,247,0.3); }
-      50% { box-shadow: 0 0 16px rgba(168,85,247,0.6); }
     }
 
     .hero-bio {
@@ -350,37 +398,6 @@
 
     .hero-links { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
 
-    .hero-visitor-counter {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      margin-top: 120px;
-    }
-
-    .visit-num {
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(2.5rem, 8vw, 5rem);
-      font-weight: 900;
-      color: var(--cyan);
-      text-shadow: 0 0 20px rgba(0,245,255,0.8), 0 0 60px rgba(0,245,255,0.4), 0 0 100px rgba(0,245,255,0.2);
-      line-height: 1;
-      letter-spacing: 4px;
-      animation: visit-pulse 3s ease-in-out infinite;
-    }
-
-    .visit-label {
-      font-size: clamp(0.65rem, 1.5vw, 0.8rem);
-      color: var(--muted);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
-
-    @keyframes visit-pulse {
-      0%, 100% { text-shadow: 0 0 20px rgba(0,245,255,0.8), 0 0 60px rgba(0,245,255,0.4), 0 0 100px rgba(0,245,255,0.2); }
-      50% { text-shadow: 0 0 30px rgba(0,245,255,1), 0 0 80px rgba(0,245,255,0.6), 0 0 120px rgba(0,245,255,0.3); }
-    }
-
     .btn {
       display: inline-flex;
       align-items: center;
@@ -388,7 +405,7 @@
       padding: 10px 22px;
       border-radius: 6px;
       font-size: 0.85rem;
-      font-family: 'Share Tech Mono', monospace;
+      font-family: 'Inter', sans-serif;
       text-decoration: none;
       font-weight: 500;
       cursor: pointer;
@@ -420,34 +437,65 @@
       transform: translateY(-2px);
     }
 
-    /* ─── STATS BAR ────────────────────────── */
-    .stats-bar {
+    /* ─── ABOUT SECTION ─────────────────────── */
+    .about-section { padding: 30px 5% 50px; max-width: 1100px; margin: 0 auto; }
+
+    .about-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      max-width: 900px;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
     }
 
-    .stat-card {
+    .about-card {
       background: rgba(255,255,255,0.02);
       border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-      padding: 20px 24px;
+      border-radius: 14px;
+      padding: 28px;
+    }
+
+    .about-bio p {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .skill-group { margin-bottom: 16px; }
+    .skill-group:last-child { margin-bottom: 0; }
+    .skill-group-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .skill-tag {
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      border: 1px solid;
+    }
+
+    /* ─── DASHBOARD / BENTO GRID ────────────── */
+    .dashboard-section { padding: 40px 5%; max-width: 1100px; margin: 0 auto; }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .bento-cell {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 24px;
+      transition: border-color 0.3s ease;
+    }
+
+    .bento-cell:hover { border-color: rgba(255,255,255,0.12); }
+
+    .bento-stat {
       display: flex;
       align-items: center;
-      gap: 16px;
-      transition: opacity 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-      backdrop-filter: blur(10px);
+      gap: 14px;
     }
 
-    .stat-card:hover {
-      border-color: rgba(0,245,255,0.25);
-      background: rgba(0,245,255,0.04);
-      box-shadow: 0 4px 30px rgba(0,245,255,0.06);
-      transform: translateY(-2px);
-    }
-
-    .stat-icon {
+    .bento-stat .stat-icon {
       width: 44px; height: 44px;
       border-radius: 10px;
       display: flex;
@@ -456,75 +504,22 @@
       flex-shrink: 0;
     }
 
-    .stat-info { display: flex; flex-direction: column; gap: 2px; }
-    .stat-num { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 700; }
-    .stat-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+    .bento-stat .stat-info { display: flex; flex-direction: column; gap: 2px; }
+    .bento-stat .stat-num { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 700; }
+    .bento-stat .stat-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
 
-    /* ─── LANG STATS ────────────────────────── */
-    #lang-stats { padding: 60px 5%; max-width: 1100px; margin: 0 auto; }
+    .bento-contrib { grid-column: span 3; min-height: 200px; }
+    .bento-lang-detail { grid-column: span 1; align-self: start; }
 
-    .lang-header {
+    .contrib-months {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-      gap: 12px;
+      gap: 0;
+      margin-top: 12px;
+      font-size: 0.6rem;
+      color: var(--muted);
+      padding-left: 28px;
     }
-
-    .lang-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 12px;
-    }
-
-    .lang-item {
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 10px;
-      padding: 16px 18px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      transition: border-color 0.3s ease, background 0.3s ease;
-    }
-
-    .lang-item:hover {
-      border-color: var(--lang-color, rgba(0,245,255,0.3));
-      background: rgba(255,255,255,0.04);
-      transform: translateY(-2px) !important;
-    }
-
-    .lang-dot {
-      width: 36px; height: 36px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.65rem;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .lang-info { flex: 1; }
-    .lang-name { font-size: 0.82rem; color: var(--text); font-weight: 500; }
-    .lang-pct { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
-    .lang-bar-track { height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 6px; overflow: hidden; }
-    .lang-bar-fill { height: 100%; border-radius: 2px; width: 0; transition: width 1.4s cubic-bezier(0.4,0,0.2,1); }
-
-    /* ─── CONTRIBUTION GRAPH ───────────────── */
-    .contrib-section {
-      padding: 60px 5%;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .contrib-wrapper {
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 14px;
-      padding: 28px;
-    }
+    .contrib-months span { flex: 1; text-align: center; }
 
     .contrib-header {
       display: flex;
@@ -537,7 +532,7 @@
 
     .contrib-title { font-size: 0.82rem; color: var(--muted); }
     .contrib-total { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: var(--green); text-shadow: var(--glow-green); }
-    .contrib-total span { font-size: 0.75rem; color: var(--muted); font-family: 'Share Tech Mono', monospace; }
+    .contrib-total span { font-size: 0.75rem; color: var(--muted); font-family: 'Inter', sans-serif; }
 
     .contrib-scroll {
       overflow-x: auto;
@@ -582,8 +577,70 @@
     .cell-lv4 { background: #39ff14; box-shadow: 0 0 5px #39ff14; }
     .contrib-cell:hover { transform: scale(1.5); z-index: 1; position: relative; }
 
+    .contrib-tooltip {
+      position: fixed;
+      background: rgba(10,10,20,0.95);
+      border: 1px solid rgba(0,245,255,0.2);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.72rem;
+      color: var(--text);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 200;
+      white-space: nowrap;
+    }
+
+    .contrib-tooltip.show { opacity: 1; }
+
+    .lang-detail-title {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .lang-bar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .lang-bar-item:last-child { margin-bottom: 0; }
+
+    .lang-bar-name {
+      font-size: 0.78rem;
+      color: var(--text);
+      width: 70px;
+      flex-shrink: 0;
+    }
+
+    .lang-bar-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .lang-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      width: 0;
+      transition: width 1.4s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .lang-bar-pct {
+      font-size: 0.72rem;
+      color: var(--muted);
+      width: 36px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
     /* ─── TERMINAL ─────────────────────────── */
-    .terminal-section { padding: 60px 5%; max-width: 1100px; margin: 0 auto; }
+    .terminal-section { padding: 40px 5%; max-width: 1100px; margin: 0 auto; }
 
     .terminal {
       background: #050508;
@@ -613,11 +670,12 @@
       font-size: 0.72rem;
       color: var(--muted);
       letter-spacing: 2px;
+      font-family: 'Share Tech Mono', monospace;
     }
 
     .term-body {
       padding: 20px;
-      height: 340px;
+      height: 280px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -626,7 +684,7 @@
       scrollbar-color: var(--border) transparent;
     }
 
-    .term-line { font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
+    .term-line { font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
     .term-line.cmd { color: var(--cyan); }
     .term-line.cmd::before { content: '❯ '; color: var(--green); }
     .term-line.out { color: var(--text); }
@@ -643,7 +701,7 @@
       border-top: 1px solid rgba(0,245,255,0.06);
     }
 
-    .term-prompt { color: var(--green); font-size: 0.85rem; white-space: nowrap; }
+    .term-prompt { color: var(--green); font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; white-space: nowrap; }
     .term-input {
       flex: 1;
       background: transparent;
@@ -656,11 +714,11 @@
     }
 
     /* ─── PROJECTS ─────────────────────────── */
-    .projects-section { padding: 60px 5%; max-width: 1100px; margin: 0 auto; }
+    .projects-section { padding: 40px 5%; max-width: 1100px; margin: 0 auto; }
 
     .projects-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 16px;
     }
 
@@ -677,19 +735,12 @@
       position: relative;
       overflow: hidden;
       transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
-      transform-style: preserve-3d;
-      perspective: 800px;
-      opacity: 0;
-      transform: translateY(30px) rotateX(5deg);
     }
 
-    .proj-card.visible { opacity: 1; transform: translateY(0) rotateX(0); }
-
     .proj-card:hover {
-      border-color: rgba(0,245,255,0.25);
-      background: rgba(0,245,255,0.03);
-      transform: translateY(-6px);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,245,255,0.1);
+      border-color: rgba(0,245,255,0.15);
+      background: rgba(0,245,255,0.02);
+      transform: translateY(-4px);
     }
 
     .proj-card::before {
@@ -704,6 +755,40 @@
 
     .proj-card:hover::before { opacity: 1; }
 
+    .proj-image {
+      width: calc(100% + 48px);
+      margin: -24px -24px 0 -24px;
+      height: 140px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .proj-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .proj-image-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60%;
+      background: linear-gradient(transparent, rgba(5,5,8,0.95));
+    }
+
+    .proj-banner-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.85;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+    }
+
+    .proj-content { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+
     .proj-top { display: flex; justify-content: space-between; align-items: flex-start; }
 
     .proj-name {
@@ -715,7 +800,7 @@
       line-height: 1.3;
     }
 
-    .proj-card:hover .proj-name { color: #fff; text-shadow: var(--glow-cyan); }
+    .proj-card:hover .proj-name { color: #fff; }
 
     .proj-arrow {
       color: var(--muted);
@@ -749,6 +834,21 @@
 
     .proj-stars { font-size: 0.75rem; color: var(--muted); display: flex; align-items: center; gap: 4px; }
 
+    .proj-topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .proj-topic {
+      font-size: 0.65rem;
+      color: var(--muted);
+      background: rgba(255,255,255,0.03);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
     /* ─── FOOTER ───────────────────────────── */
     footer {
       padding: 40px 5%;
@@ -758,8 +858,26 @@
       font-size: 0.75rem;
     }
 
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+
+    .footer-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.8rem;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--cyan); }
+
     footer a { color: var(--cyan); text-decoration: none; }
-    footer a:hover { text-shadow: var(--glow-cyan); }
 
     /* ─── BACK TO TOP ──────────────────────── */
     .back-top {
@@ -784,16 +902,61 @@
     .back-top.visible { opacity: 1; transform: translateY(0); }
     .back-top:hover { background: rgba(0,245,255,0.18); box-shadow: var(--glow-cyan); }
 
+    /* ─── SCROLL ENTRANCE ANIMATIONS ────────── */
+    .animate-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .animate-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     /* ─── RESPONSIVE ───────────────────────── */
     @media (max-width: 768px) {
       .hero-top { flex-direction: column; align-items: flex-start; }
       .projects-grid { grid-template-columns: 1fr; }
-      .stats-bar { grid-template-columns: 1fr 1fr; }
+      .about-grid { grid-template-columns: 1fr; }
+      .bento-grid { grid-template-columns: repeat(2, 1fr); }
+      .bento-contrib { grid-column: span 2; }
+      .bento-lang-detail { grid-column: span 2; }
       .nav-links { display: none; }
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(3,3,7,0.95);
+        backdrop-filter: blur(20px);
+        padding: 16px 5%;
+        border-bottom: 1px solid rgba(0,245,255,0.08);
+        gap: 16px;
+      }
+      .nav-hamburger { display: flex; }
     }
 
     @media (max-width: 480px) {
-      .stats-bar { grid-template-columns: 1fr; }
+      .bento-grid { grid-template-columns: 1fr; }
+      .bento-contrib { grid-column: span 1; }
+      .bento-lang-detail { grid-column: span 1; }
+      .avatar-ring { width: 90px; height: 90px; }
+    }
+
+    /* ─── ACCESSIBILITY ────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .avatar-ring { animation: none; }
+      #matrix-canvas { display: none; }
+      #boot { display: none !important; }
+      #main { opacity: 1 !important; }
     }
   </style>
 </head>
@@ -807,7 +970,11 @@
   <div id="boot">
     <div id="boot-logo"></div>
     <div id="boot-lines"></div>
+    <button id="boot-skip" style="position:absolute;bottom:40px;right:8%;background:none;border:1px solid rgba(255,255,255,0.15);color:var(--muted);padding:8px 20px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.8rem;letter-spacing:1px;transition:all 0.2s;">Skip →</button>
   </div>
+
+  <!-- ── CONTRIBUTION TOOLTIP ── -->
+  <div class="contrib-tooltip" id="contribTooltip"></div>
 
   <!-- ── MAIN ── -->
   <div id="main">
@@ -815,13 +982,15 @@
     <!-- Nav -->
     <nav id="nav">
       <a href="#" class="nav-logo">WAYHHOW.SYS</a>
-      <ul class="nav-links">
-        <li><a href="#stats">Stats</a></li>
-        <li><a href="#languages">Languages</a></li>
-        <li><a href="#contributions">Activity</a></li>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#about">About</a></li>
+        <li><a href="#dashboard">Dashboard</a></li>
         <li><a href="#terminal">Terminal</a></li>
         <li><a href="#projects">Projects</a></li>
       </ul>
+      <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </nav>
 
     <!-- Hero -->
@@ -864,15 +1033,67 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
           github.com/Wayhhow
         </a>
-        <a href="#terminal" class="btn btn-secondary">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-          Open Terminal
+        <a href="mailto:wayhhow@outlook.com" class="btn btn-secondary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          Contact
         </a>
       </div>
+    </section>
 
-      <!-- Stats -->
-      <div class="stats-bar" id="stats" style="margin-top: 20px;">
-        <div class="stat-card" data-delay="0">
+    <!-- About Me -->
+    <section class="about-section section animate-in" id="about">
+      <h2 class="section-label"><span class="hash">//</span> About Me</h2>
+      <div class="about-grid">
+        <div class="about-card about-bio">
+          <p>I'm Weihao Wu, a systems developer who bridges the gap between hardware and software. I build tools that make technology more accessible — from web-based map visualization for accessibility surveys to FPGA-based digital systems.</p>
+          <p style="margin-top:14px;">Currently focused on creating practical solutions at the intersection of embedded systems, GIS, and web technology. I believe good software should feel invisible — it just works, and helps people do what they need to do.</p>
+        </div>
+        <div class="about-card about-skills">
+          <div class="skill-group">
+            <div class="skill-group-title" style="color:var(--cyan);">Frontend</div>
+            <div class="skill-tags">
+              <span class="skill-tag" style="border-color:rgba(0,245,255,0.25);color:var(--cyan);background:rgba(0,245,255,0.06);">JavaScript</span>
+              <span class="skill-tag" style="border-color:rgba(0,245,255,0.25);color:var(--cyan);background:rgba(0,245,255,0.06);">HTML/CSS</span>
+              <span class="skill-tag" style="border-color:rgba(0,245,255,0.25);color:var(--cyan);background:rgba(0,245,255,0.06);">Mapbox GL</span>
+              <span class="skill-tag" style="border-color:rgba(0,245,255,0.25);color:var(--cyan);background:rgba(0,245,255,0.06);">Leaflet</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <div class="skill-group-title" style="color:var(--green);">Systems</div>
+            <div class="skill-tags">
+              <span class="skill-tag" style="border-color:rgba(57,255,20,0.25);color:var(--green);background:rgba(57,255,20,0.06);">Python</span>
+              <span class="skill-tag" style="border-color:rgba(57,255,20,0.25);color:var(--green);background:rgba(57,255,20,0.06);">Verilog</span>
+              <span class="skill-tag" style="border-color:rgba(57,255,20,0.25);color:var(--green);background:rgba(57,255,20,0.06);">FPGA</span>
+              <span class="skill-tag" style="border-color:rgba(57,255,20,0.25);color:var(--green);background:rgba(57,255,20,0.06);">Embedded</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <div class="skill-group-title" style="color:var(--purple);">Tools</div>
+            <div class="skill-tags">
+              <span class="skill-tag" style="border-color:rgba(168,85,247,0.25);color:var(--purple);background:rgba(168,85,247,0.06);">Git</span>
+              <span class="skill-tag" style="border-color:rgba(168,85,247,0.25);color:var(--purple);background:rgba(168,85,247,0.06);">GitHub Actions</span>
+              <span class="skill-tag" style="border-color:rgba(168,85,247,0.25);color:var(--purple);background:rgba(168,85,247,0.06);">Node.js</span>
+              <span class="skill-tag" style="border-color:rgba(168,85,247,0.25);color:var(--purple);background:rgba(168,85,247,0.06);">Linux</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <div class="skill-group-title" style="color:var(--pink);">Interests</div>
+            <div class="skill-tags">
+              <span class="skill-tag" style="border-color:rgba(255,45,120,0.25);color:var(--pink);background:rgba(255,45,120,0.06);">Open Source</span>
+              <span class="skill-tag" style="border-color:rgba(255,45,120,0.25);color:var(--pink);background:rgba(255,45,120,0.06);">HCI / UX</span>
+              <span class="skill-tag" style="border-color:rgba(255,45,120,0.25);color:var(--pink);background:rgba(255,45,120,0.06);">Automation</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard / Bento Grid -->
+    <section class="dashboard-section section animate-in" id="dashboard">
+      <h2 class="section-label"><span class="hash">//</span> Dashboard</h2>
+      <div class="bento-grid">
+        <!-- Row 1: 4 stat cards -->
+        <div class="bento-cell bento-stat" id="bento-stars">
           <div class="stat-icon" style="background:rgba(57,255,20,0.1);border:1px solid rgba(57,255,20,0.2);">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#39ff14" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           </div>
@@ -881,7 +1102,7 @@
             <div class="stat-label">Total Stars</div>
           </div>
         </div>
-        <div class="stat-card" data-delay="1">
+        <div class="bento-cell bento-stat" id="bento-repos">
           <div class="stat-icon" style="background:rgba(0,245,255,0.1);border:1px solid rgba(0,245,255,0.2);">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </div>
@@ -890,59 +1111,44 @@
             <div class="stat-label">Repositories</div>
           </div>
         </div>
-        <div class="stat-card" data-delay="2">
+        <div class="bento-cell bento-stat" id="bento-achieve">
           <div class="stat-icon" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
           </div>
           <div class="stat-info">
-            <div class="stat-num" style="color:var(--purple);text-shadow:0 0 8px rgba(168,85,247,0.5);">1</div>
+            <div class="stat-num" style="color:var(--purple);" id="stat-achieve">--</div>
             <div class="stat-label">Achievement</div>
           </div>
         </div>
-        <div class="stat-card" data-delay="3">
+        <div class="bento-cell bento-stat" id="bento-langs">
           <div class="stat-icon" style="background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.2);">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff6b35" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
           </div>
           <div class="stat-info">
-            <div class="stat-num" style="color:var(--orange);text-shadow:0 0 8px rgba(255,107,53,0.5);">6</div>
+            <div class="stat-num" style="color:var(--orange);" id="stat-langs">--</div>
             <div class="stat-label">Languages</div>
           </div>
         </div>
-      </div>
-
-      <!-- Visitor Counter -->
-      <div class="hero-visitor-counter" id="hero-visitor-counter" style="display: none;">
-        <div class="visit-num" id="visit-count">0</div>
-        <div class="visit-label">第 0 位访客</div>
+        <!-- Row 2: Contribution heatmap + Language detail -->
+        <div class="bento-cell bento-contrib" id="bento-contrib">
+          <div class="contrib-header">
+            <span class="contrib-title" id="contribTitle">GitHub contributions in the last year</span>
+            <span class="contrib-total"><span id="contribTotal">0</span> <span>contributions</span></span>
+          </div>
+          <div class="contrib-scroll" id="contrib-scroll">
+            <div id="contrib-grid"></div>
+          </div>
+          <div class="contrib-months" id="contribMonths"></div>
+        </div>
+        <div class="bento-cell bento-lang-detail" id="bento-lang-detail">
+          <div class="lang-detail-title">Language Distribution</div>
+          <div id="langBarsContainer"></div>
+        </div>
       </div>
     </section>
 
-    <!-- Language Stats -->
-    <div id="lang-stats">
-      <h2 class="section-label">
-        <span class="hash">//</span> Language Distribution
-      </h2>
-      <div class="lang-grid" id="langGrid"></div>
-    </div>
-
-    <!-- Contributions -->
-    <div class="contrib-section" id="contributions">
-      <h2 class="section-label">
-        <span class="hash">//</span> Contribution Activity
-      </h2>
-      <div class="contrib-wrapper" id="contribWrapper">
-        <div class="contrib-header">
-          <span class="contrib-title" id="contribTitle">GitHub contributions in the last year</span>
-          <span class="contrib-total"><span id="contribTotal">0</span> <span>contributions</span></span>
-        </div>
-        <div class="contrib-scroll" id="contrib-scroll">
-          <div id="contrib-grid"></div>
-        </div>
-      </div>
-    </div>
-
     <!-- Terminal -->
-    <div class="terminal-section" id="terminal">
+    <section class="terminal-section section animate-in" id="terminal">
       <h2 class="section-label">
         <span class="hash">//</span> Interactive Terminal
       </h2>
@@ -961,10 +1167,10 @@
           <input type="text" class="term-input" id="termInput" autocomplete="off" spellcheck="false" placeholder="type a command...">
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Projects -->
-    <section class="projects-section" id="projects">
+    <section class="projects-section section animate-in" id="projects">
       <h2 class="section-label">
         <span class="hash">//</span> Featured Projects
       </h2>
@@ -972,11 +1178,17 @@
     </section>
 
     <footer>
-      <p>
-        &copy; 2025–2026 <a href="https://github.com/Wayhhow" target="_blank" rel="noopener">Wayhhow</a>
-        &nbsp;·&nbsp; Built with <span style="color:var(--cyan);">neon</span> &amp; <span style="color:var(--green);">code</span>
-        &nbsp;·&nbsp; Deployed on GitHub Pages
-      </p>
+      <div class="footer-links">
+        <a href="https://github.com/Wayhhow" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </a>
+        <a href="mailto:wayhhow@outlook.com">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          Email
+        </a>
+      </div>
+      <p>&copy; 2025–2026 Wayhhow · Built with neon & code · Deployed on GitHub Pages</p>
     </footer>
   </div>
 
@@ -1011,6 +1223,8 @@
       { t: '╚══════════════════════════════════════╝', c: 'info', delay: 3200 },
     ];
 
+    let bootTimeout = null;
+
     function runBoot() {
       const container = document.getElementById('boot-lines');
       BOOT_LINES.forEach(line => {
@@ -1022,18 +1236,29 @@
           el.classList.add(line.c);
         }, line.delay);
       });
-      setTimeout(() => {
-        document.getElementById('boot').classList.add('hidden');
-        setTimeout(() => {
-          document.getElementById('hero').scrollIntoView({ block: 'start' });
-        }, 100);
-        initAll();
+      bootTimeout = setTimeout(() => {
+        finishBoot();
       }, 4000);
     }
+
+    function finishBoot() {
+      document.getElementById('boot').classList.add('hidden');
+      setTimeout(() => {
+        document.getElementById('hero').scrollIntoView({ block: 'start' });
+      }, 100);
+      initAll();
+    }
+
+    document.getElementById('boot-skip').addEventListener('click', () => {
+      if (bootTimeout) clearTimeout(bootTimeout);
+      finishBoot();
+    });
 
     // ══════════════════════════════════════════════
     //  MATRIX RAIN
     // ══════════════════════════════════════════════
+    let matrixAnimId = null;
+
     (function initMatrix() {
       const canvas = document.getElementById('matrix-canvas');
       const ctx = canvas.getContext('2d');
@@ -1064,17 +1289,49 @@
           if (y * 16 > H && Math.random() > 0.975) drops[i] = 0;
           drops[i]++;
         });
-        requestAnimationFrame(draw);
+        matrixAnimId = requestAnimationFrame(draw);
       }
       draw();
     })();
+
+    // Visibility pause for Matrix Rain
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (matrixAnimId) cancelAnimationFrame(matrixAnimId);
+      } else {
+        // Resume by re-triggering draw loop
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width;
+        const H = canvas.height;
+        const cols = Math.floor(W / 16);
+        const drops = Array(cols).fill(1);
+        const chars = '01寒光流码界破晓极客雾数据云端代码零壹贰叁肆伍陆柒捌玖拾网链密算符{}[]<>/\\|;:!@#$%^&*_+-=~`甲乙丙丁戊己庚辛壬癸';
+
+        function draw() {
+          ctx.fillStyle = 'rgba(3,3,7,0.08)';
+          ctx.fillRect(0, 0, W, H);
+          ctx.font = '14px Share Tech Mono';
+          drops.forEach((y, i) => {
+            const char = chars[Math.floor(Math.random() * chars.length)];
+            const x = i * 16;
+            const hue = 170 + Math.random() * 30;
+            ctx.fillStyle = `hsl(${hue}, 100%, 65%)`;
+            ctx.fillText(char, x, y * 16);
+            if (y * 16 > H && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+          });
+          matrixAnimId = requestAnimationFrame(draw);
+        }
+        draw();
+      }
+    });
 
     // ══════════════════════════════════════════════
     //  GITHUB API DATA
     // ══════════════════════════════════════════════
     const GITHUB_USER = 'Wayhhow';
     const PORTFOLIO_REPO = 'wayhhow.github.io';
-    const CF_WORKER_URL = 'https://wayhhow-visitors.wwh2972506943.workers.dev';
     let siteData = null;
     let githubData = { user: {}, repos: [] };
 
@@ -1083,67 +1340,62 @@
         const res = await fetch('data.json', { cache: 'no-store' });
         if (res.ok) { siteData = await res.json(); return; }
       } catch (e) { console.warn('Failed to load data.json:', e); }
-      siteData = {
-        user: { login: GITHUB_USER, name: 'Weihao Wu', public_repos: 10, followers: 0, following: 2, public_gists: 0 },
-        stats: { total_stars: 6, public_repos: 10, languages_count: 5, achievements: 1 },
-        lang_stats: [
-          { name: 'JavaScript', count: 3, pct: 89 },
-          { name: 'HTML', count: 4, pct: 4 },
-          { name: 'Python', count: 3, pct: 3 },
-          { name: 'Verilog', count: 1, pct: 3 },
-          { name: 'CSS', count: 2, pct: 1 }
-        ],
-        contributions: {},
-        projects: []
-      };
+      siteData = { user: {}, stats: {}, lang_stats: [], contributions: {}, projects: [] };
     }
 
     async function fetchGitHubData() {
       try {
-        const [userRes, reposRes] = await Promise.all([
-          fetch(`https://api.github.com/users/${GITHUB_USER}`),
-          fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=updated`),
-        ]);
+        const userRes = await fetch(`https://api.github.com/users/${GITHUB_USER}`);
         if (userRes.ok) githubData.user = await userRes.json();
-        if (reposRes.ok) githubData.repos = await reposRes.json();
+
+        let page = 1;
+        let allRepos = [];
+        while (true) {
+          const reposRes = await fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&page=${page}&sort=updated`);
+          if (!reposRes.ok) break;
+          const repos = await reposRes.json();
+          if (!repos || !repos.length) break;
+          allRepos = allRepos.concat(repos);
+          if (repos.length < 100) break;
+          page++;
+        }
+        githubData.repos = allRepos;
       } catch (e) {
         console.warn('GitHub API rate limited, using fallback data');
       }
+
       githubData.repos = githubData.repos || [];
       githubData.user = githubData.user || {};
     }
 
-    function renderLangStats() {
-      const grid = document.getElementById('langGrid');
-      grid.innerHTML = '';
-      const langStats = (siteData && siteData.lang_stats) || []; langStats.forEach((lang, i) => {
-        const lc = {
-          JavaScript: { bg: 'rgba(247,223,30,0.12)', color: '#f7df1e', dot: '#f7df1e', hex: '#f7df1e' },
-          Python: { bg: 'rgba(53,114,165,0.12)', color: '#6fa3cc', dot: '#6fa3cc', hex: '#6fa3cc' },
-          Java: { bg: 'rgba(176,114,25,0.12)', color: '#e8a84c', dot: '#e8a84c', hex: '#e8a84c' },
-          HTML: { bg: 'rgba(227,76,38,0.12)', color: '#e34c26', dot: '#e34c26', hex: '#e34c26' },
-          CSS: { bg: 'rgba(38,77,228,0.12)', color: '#6d9dec', dot: '#6d9dec', hex: '#6d9dec' },
-          Verilog: { bg: 'rgba(113,120,112,0.12)', color: '#9ca8a0', dot: '#9ca8a0', hex: '#9ca8a0' },
-        }[lang.name] || { bg: 'rgba(0,245,255,0.1)', color: '#00f5ff', dot: '#00f5ff', hex: '#00f5ff' };
+    const LANG_COLORS = {
+      JavaScript: { bg: 'rgba(247,223,30,0.1)', color: '#f7df1e', dot: '#f7df1e' },
+      Python: { bg: 'rgba(53,114,165,0.1)', color: '#6fa3cc', dot: '#6fa3cc' },
+      HTML: { bg: 'rgba(227,76,38,0.1)', color: '#e34c26', dot: '#e34c26' },
+      CSS: { bg: 'rgba(38,77,228,0.1)', color: '#6d9dec', dot: '#6d9dec' },
+      Verilog: { bg: 'rgba(113,120,112,0.1)', color: '#9ca8a0', dot: '#9ca8a0' },
+      Java: { bg: 'rgba(176,114,25,0.1)', color: '#e8a84c', dot: '#e8a84c' },
+      C: { bg: 'rgba(167,178,186,0.1)', color: '#a7b2ba', dot: '#a7b2ba' },
+      Rust: { bg: 'rgba(222,165,132,0.1)', color: '#dea584', dot: '#dea584' },
+    };
 
+    function renderLangBars() {
+      const container = document.getElementById('langBarsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      const langStats = (siteData && siteData.lang_stats) || [];
+      langStats.forEach((lang, i) => {
+        const lc = LANG_COLORS[lang.name] || { color: '#00f5ff' };
         const item = document.createElement('div');
-        item.className = 'lang-item visible';
-        item.style.transitionDelay = `${i * 80}ms`;
-        item.style.setProperty('--lang-color', lc.hex);
+        item.className = 'lang-bar-item';
         item.innerHTML = `
-          <div class="lang-dot" style="background:${lc.bg};color:${lc.color};border:1px solid ${lc.hex}40;">
-            ${lang.name[0]}
+          <span class="lang-bar-name">${lang.name}</span>
+          <div class="lang-bar-track">
+            <div class="lang-bar-fill" data-pct="${lang.pct}" style="background:${lc.color};width:0%;"></div>
           </div>
-          <div class="lang-info">
-            <div class="lang-name">${lang.name}</div>
-            <div class="lang-pct">${lang.count} repo${lang.count > 1 ? 's' : ''}</div>
-            <div class="lang-bar-track">
-              <div class="lang-bar-fill" data-pct="${lang.pct}" style="background:${lc.hex};box-shadow:0 0 6px ${lc.hex}60;width:0%;"></div>
-            </div>
-          </div>
-          <div style="font-family:Orbitron,sans-serif;font-size:0.85rem;color:${lc.color};font-weight:700;">${lang.pct}%</div>
+          <span class="lang-bar-pct">${lang.pct}%</span>
         `;
-        grid.appendChild(item);
+        container.appendChild(item);
         setTimeout(() => {
           const barFill = item.querySelector('.lang-bar-fill');
           if (barFill) barFill.style.width = lang.pct + '%';
@@ -1181,7 +1433,7 @@
       for (let i = 0; i < startDow; i++) week.push(null);
       const dates = Object.keys(contribMap).sort();
       dates.forEach(date => {
-        week.push(contribMap[date]);
+        week.push({ ...contribMap[date], date });
         if (week.length === 7) { weeks.push(week); week = []; }
       });
       if (week.length) { while (week.length < 7) week.push(null); weeks.push(week); }
@@ -1206,6 +1458,8 @@
         grid.appendChild(lbl);
       });
 
+      const tooltip = document.getElementById('contribTooltip');
+
       for (let di = 0; di < 7; di++) {
         for (let wi = 0; wi < maxWeeks; wi++) {
           const day = weeks[wi] ? weeks[wi][di] : null;
@@ -1213,9 +1467,22 @@
           cell.className = 'contrib-cell cell-lv' + (day ? day.level : 0);
           cell.style.gridColumn = String(wi + 2);
           cell.style.gridRow = String(di + 1);
-          const dateIdx = wi * 7 + di - (startDow > 0 ? startDow : 0);
-          if (day && day.count > 0 && dates[dateIdx] !== undefined) {
-            cell.title = `${dates[dateIdx]}: ${day.count} contribution${day.count !== 1 ? 's' : ''}`;
+          if (day && day.date) {
+            cell.dataset.date = day.date;
+            cell.dataset.count = day.count;
+            cell.addEventListener('mouseenter', (e) => {
+              const count = e.target.dataset.count;
+              const date = e.target.dataset.date;
+              tooltip.textContent = `${date}: ${count} contribution${count !== '1' ? 's' : ''}`;
+              tooltip.classList.add('show');
+            });
+            cell.addEventListener('mousemove', (e) => {
+              tooltip.style.left = (e.clientX + 12) + 'px';
+              tooltip.style.top = (e.clientY - 30) + 'px';
+            });
+            cell.addEventListener('mouseleave', () => {
+              tooltip.classList.remove('show');
+            });
           }
           grid.appendChild(cell);
         }
@@ -1225,60 +1492,128 @@
         const scrollEl = document.getElementById('contrib-scroll');
         if (scrollEl) scrollEl.scrollLeft = scrollEl.scrollWidth;
       });
-    }
 
-    const LANG_COLORS = {
-      JavaScript: { bg: 'rgba(247,223,30,0.1)', color: '#f7df1e', dot: '#f7df1e' },
-      Python: { bg: 'rgba(53,114,165,0.1)', color: '#6fa3cc', dot: '#6fa3cc' },
-      HTML: { bg: 'rgba(227,76,38,0.1)', color: '#e34c26', dot: '#e34c26' },
-      CSS: { bg: 'rgba(38,77,228,0.1)', color: '#6d9dec', dot: '#6d9dec' },
-      Verilog: { bg: 'rgba(113,120,112,0.1)', color: '#9ca8a0', dot: '#9ca8a0' },
-      Java: { bg: 'rgba(176,114,25,0.1)', color: '#e8a84c', dot: '#e8a84c' },
-      C: { bg: 'rgba(167,178,186,0.1)', color: '#a7b2ba', dot: '#a7b2ba' },
-      Rust: { bg: 'rgba(222,165,132,0.1)', color: '#dea584', dot: '#dea584' },
-    };
+      const monthsEl = document.getElementById('contribMonths');
+      if (monthsEl) {
+        monthsEl.innerHTML = '';
+        const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        let currentMonth = -1;
+        dates.forEach((date, i) => {
+          const m = new Date(date + 'T00:00:00').getMonth();
+          if (m !== currentMonth) {
+            currentMonth = m;
+            const span = document.createElement('span');
+            span.textContent = monthNames[m];
+            monthsEl.appendChild(span);
+          }
+        });
+      }
+    }
 
     function renderProjects() {
       const grid = document.getElementById('projGrid');
-      const projects = (siteData && siteData.projects) || []; if (!grid || !projects.length) return;
+      const projects = (siteData && siteData.projects) || [];
+      if (!grid || !projects.length) return;
       grid.innerHTML = '';
+
+      const PROJ_BANNERS = {
+        'survey-map': {
+          bg: 'linear-gradient(135deg,#0a1628 0%,#0d2137 40%,#1a3a5c 100%), radial-gradient(circle at 30% 70%,rgba(0,245,255,0.06) 0%,transparent 50%)',
+          icon: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,245,255,0.6)" stroke-width="1.2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/><path d="M2 12h4m12 0h4M12 2v4m0 12v4" opacity="0.2"/><circle cx="18" cy="6" r="1" fill="rgba(57,255,20,0.5)" opacity="0.6"/><circle cx="5" cy="17" r="1.5" fill="rgba(57,255,20,0.3)" opacity="0.5"/><path d="M3 8l3 2m10-4l3-1" stroke="rgba(57,255,20,0.15)" stroke-width="0.8"/></svg>',
+          pattern: 'radial-gradient(circle, rgba(0,245,255,0.04) 1px, transparent 1px)'
+        },
+        'accessibility-standards': {
+          bg: 'linear-gradient(135deg,#1a0a28 0%,#2d1040 40%,#3d1a5c 100%), radial-gradient(circle at 70% 30%,rgba(168,85,247,0.08) 0%,transparent 50%)',
+          icon: '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(168,85,247,0.55)" stroke-width="1.3"><circle cx="12" cy="5" r="2"/><path d="M12 8v6"/><path d="M9 11h6"/><path d="M12 14l-3 7m3-7l3 7"/><rect x="4" y="4" width="16" height="16" rx="3" opacity="0.15"/></svg>',
+          pattern: 'radial-gradient(circle, rgba(168,85,247,0.05) 1px, transparent 1px)'
+        }
+      };
+
       projects.forEach((proj, i) => {
         const lc = LANG_COLORS[proj.lang] || { bg: 'rgba(0,245,255,0.1)', color: '#00f5ff', dot: '#00f5ff' };
+        const repoName = proj.url.split('/').pop();
+        const banner = PROJ_BANNERS[repoName];
         const card = document.createElement('a');
-        card.className = 'proj-card visible';
+        card.className = 'proj-card animate-in';
         card.style.transitionDelay = (i * 80) + 'ms';
         card.href = proj.url;
         card.target = '_blank';
         card.rel = 'noopener';
+
+        const topicsHtml = (proj.topics && proj.topics.length)
+          ? `<div class="proj-topics">${proj.topics.map(t => `<span class="proj-topic">${t}</span>`).join('')}</div>`
+          : '';
+
         card.innerHTML = `
-          <div class="proj-top">
-            <div class="proj-name">${proj.name}</div>
-            <svg class="proj-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+          <div class="proj-image"${banner ? ` style="background:${banner.bg};background-size:100% 100%,${banner.pattern};background-position:0 0,0 0"` : ''}>
+            ${banner ? `<div class="proj-banner-icon">${banner.icon}</div>` : `<img src="https://opengraph.githubassets.com/1/Wayhhow/${repoName}" alt="${proj.name}" loading="lazy">`}
+            <div class="proj-image-overlay"></div>
           </div>
-          <p class="proj-desc">${proj.desc}</p>
-          <div class="proj-meta">
-            <span class="proj-lang-tag" style="background:${lc.bg};border-color:${lc.color}30;color:${lc.color};">
-              <span style="width:7px;height:7px;border-radius:50%;background:${lc.dot};display:inline-block;"></span>
-              ${proj.lang}
-            </span>
-            ${proj.stars > 0 ? `<span class="proj-stars"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffe600" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${proj.stars}</span>` : ''}
+          <div class="proj-content">
+            <div class="proj-top">
+              <div class="proj-name">${proj.name}</div>
+              <svg class="proj-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+            </div>
+            <p class="proj-desc">${proj.desc}</p>
+            ${topicsHtml}
+            <div class="proj-meta">
+              <span class="proj-lang-tag" style="background:${lc.bg};border-color:${lc.color}30;color:${lc.color};">
+                <span style="width:7px;height:7px;border-radius:50%;background:${lc.dot};display:inline-block;"></span>
+                ${proj.lang}
+              </span>
+              ${proj.stars > 0 ? `<span class="proj-stars"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffe600" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${proj.stars}</span>` : ''}
+            </div>
           </div>
         `;
         grid.appendChild(card);
       });
+
+      // Trigger animate-in for project cards
+      requestAnimationFrame(() => {
+        grid.querySelectorAll('.animate-in').forEach(el => {
+          animObserver.observe(el);
+        });
+      });
     }
 
     function updateStats() {
+      const starsEl = document.getElementById('stat-stars');
+      const reposEl = document.getElementById('stat-repos');
+      const achieveEl = document.getElementById('stat-achieve');
+      const langsEl = document.getElementById('stat-langs');
       const stats = (siteData && siteData.stats) || {};
-      const reposCount = githubData.user.public_repos || stats.public_repos || 10;
-      document.getElementById('stat-repos').textContent = reposCount;
+
+      if (githubData.user.public_repos !== undefined) {
+        reposEl.textContent = githubData.user.public_repos;
+      } else if (stats.public_repos) {
+        reposEl.textContent = stats.public_repos;
+      }
+
       const totalStars = (githubData.repos || [])
         .filter(r => r.name !== PORTFOLIO_REPO && !r.fork)
         .reduce((s, r) => s + (r.stargazers_count || 0), 0);
-      document.getElementById('stat-stars').textContent = totalStars || stats.total_stars || 6;
+
+      if (totalStars > 0) {
+        starsEl.textContent = totalStars;
+      } else if (stats.total_stars !== undefined) {
+        starsEl.textContent = stats.total_stars;
+      }
+
+      if (stats.achievements !== undefined) {
+        achieveEl.textContent = stats.achievements;
+      }
+
+      if (stats.languages_count !== undefined) {
+        langsEl.textContent = stats.languages_count;
+      }
     }
 
-    const PROJ_MAP = Object.fromEntries(((siteData && siteData.projects) || []).map(p => [p.name, `${p.desc} [${p.lang}]`]));
+    function getProjects() { return (siteData && siteData.projects) || []; }
+    function getLangStats() { return (siteData && siteData.lang_stats) || []; }
+
+    const PROJ_MAP = Object.fromEntries(
+      getProjects().map(p => [p.name, `${p.desc} [${p.lang}]`])
+    );
 
     const COMMANDS = {
       help: () => [
@@ -1297,21 +1632,22 @@
       ],
       whoami: () => {
         const u = githubData.user;
+        const s = (siteData && siteData.stats) || {};
         return [
           '┌──────────────────────────────────────────┐',
-          '│  username   : ' + (u.login || 'Wayhhow').padEnd(28) + '│',
-          '│  full_name  : ' + (u.name || 'Weihao Wu').padEnd(28) + '│',
-          '│  followers  : ' + String(u.followers || 0).padEnd(28) + '│',
-          '│  following  : ' + String(u.following || 2).padEnd(28) + '│',
-          '│  repos      : ' + String(u.public_repos || (siteData && siteData.stats && siteData.stats.public_repos) || 10).padEnd(28) + '│',
+          '│  username   : ' + (u.login || (siteData && siteData.user && siteData.user.login) || 'Wayhhow').padEnd(28) + '│',
+          '│  full_name  : ' + (u.name || (siteData && siteData.user && siteData.user.name) || 'Weihao Wu').padEnd(28) + '│',
+          '│  followers  : ' + String(u.followers || (siteData && siteData.user && siteData.user.followers) || 0).padEnd(28) + '│',
+          '│  following  : ' + String(u.following || (siteData && siteData.user && siteData.user.following) || 0).padEnd(28) + '│',
+          '│  repos      : ' + String(u.public_repos || s.public_repos || 0).padEnd(28) + '│',
           '│  achievement: Pair Extraordinaire 🏅    │',
           '│  status     : Building things            │',
           '└──────────────────────────────────────────┘',
         ];
       },
       ls: () => [
-        'total ' + ((siteData && siteData.projects) || []).length,
-        ...((siteData && siteData.projects) || []).map(p => `drwxr-xr-x ${p.name.padEnd(35)} ${p.lang}`),
+        'total ' + getProjects().length,
+        ...getProjects().map(p => `drwxr-xr-x ${p.name.padEnd(35)} ${p.lang}`),
         '',
       ],
       cat: (args) => {
@@ -1319,7 +1655,7 @@
         if (!name) return ['usage: cat <project-name>', 'example: cat survey-map', '', 'Available: ' + Object.keys(PROJ_MAP).join(', '), ''];
         if (!PROJ_MAP[name]) return [`cat: ${name}: No such file or directory`, '', 'Available: ' + Object.keys(PROJ_MAP).join(', '), ''];
         const desc = PROJ_MAP[name];
-        const proj = ((siteData && siteData.projects) || []).find(p => p.name === name);
+        const proj = getProjects().find(p => p.name === name);
         return [
           '// ' + desc,
           `// repo: ${proj ? proj.url : 'https://github.com/Wayhhow/' + name}`,
@@ -1331,7 +1667,7 @@
         ];
       },
       lang: () => {
-        const bars = ((siteData && siteData.lang_stats) || []).map(l => {
+        const bars = getLangStats().map(l => {
           const bar = '█'.repeat(Math.round(l.pct / 5)) + '░'.repeat(20 - Math.round(l.pct / 5));
           return `  ${l.name.padEnd(12)} ${bar} ${l.pct}%`;
         });
@@ -1339,14 +1675,15 @@
       },
       stats: () => {
         const u = githubData.user;
+        const s = (siteData && siteData.stats) || {};
         const totalStars = (githubData.repos || [])
           .filter(r => r.name !== PORTFOLIO_REPO && !r.fork)
           .reduce((s, r) => s + (r.stargazers_count || 0), 0);
         return [
           'GitHub Statistics:',
-          `  Stars earned : ${totalStars || (siteData && siteData.stats && siteData.stats.total_stars) || 6}`,
-          `  Public repos : ${u.public_repos || (siteData && siteData.stats && siteData.stats.public_repos) || 10}`,
-          `  Followers    : ${u.followers || 0}`,
+          `  Stars earned : ${totalStars || s.total_stars || 0}`,
+          `  Public repos : ${u.public_repos || s.public_repos || 0}`,
+          `  Followers    : ${u.followers || (siteData && siteData.user && siteData.user.followers) || 0}`,
           `  Following    : ${u.following || 2}`,
           `  Gists        : ${u.public_gists || 0}`,
           '',
@@ -1374,7 +1711,7 @@
       ],
       matrix: () => {
         const canvas = document.getElementById('matrix-canvas');
-        canvas.style.opacity = canvas.style.opacity === '0.35' ? '0.18' : '0.35';
+        canvas.style.opacity = canvas.style.opacity === '0.35' ? '0.08' : '0.35';
         return [`Matrix rain intensity: ${canvas.style.opacity === '0.35' ? 'HIGH' : 'NORMAL'}`, ''];
       },
       clear: () => { termBody.innerHTML = ''; return []; },
@@ -1393,6 +1730,13 @@
       termBody.scrollTop = termBody.scrollHeight;
     }
 
+    // Terminal command history & tab completion
+    let cmdHistory = [];
+    let cmdHistoryIdx = -1;
+
+    const termBody = document.getElementById('termBody');
+    const termInput = document.getElementById('termInput');
+
     termInput.addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         const raw = termInput.value.trim();
@@ -1405,17 +1749,46 @@
         cmdEl.textContent = raw;
         termBody.appendChild(cmdEl);
 
-        if (!raw) { termInput.value = ''; return; }
+        if (raw) {
+          cmdHistory.unshift(raw);
+          cmdHistoryIdx = -1;
 
-        if (COMMANDS[cmd]) {
-          const result = COMMANDS[cmd](args);
-          const isSuccess = cmd !== 'sudo' && cmd !== 'rm -rf /';
-          printLines(result, isSuccess ? 'out' : 'err');
-        } else if (raw) {
-          printLines([`command not found: ${cmd}`, 'Type \'help\' for available commands.', ''], 'err');
+          if (COMMANDS[cmd]) {
+            const result = COMMANDS[cmd](args);
+            const isSuccess = cmd !== 'sudo' && cmd !== 'rm -rf /';
+            printLines(result, isSuccess ? 'out' : 'err');
+          } else {
+            printLines([`command not found: ${cmd}`, 'Type \'help\' for available commands.', ''], 'err');
+          }
         }
         termInput.value = '';
         termBody.scrollTop = termBody.scrollHeight;
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (cmdHistoryIdx < cmdHistory.length - 1) {
+          cmdHistoryIdx++;
+          termInput.value = cmdHistory[cmdHistoryIdx];
+        }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (cmdHistoryIdx > 0) {
+          cmdHistoryIdx--;
+          termInput.value = cmdHistory[cmdHistoryIdx];
+        } else {
+          cmdHistoryIdx = -1;
+          termInput.value = '';
+        }
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        const partial = termInput.value.trim().toLowerCase();
+        if (partial) {
+          const matches = Object.keys(COMMANDS).filter(c => c.startsWith(partial));
+          if (matches.length === 1) {
+            termInput.value = matches[0] + ' ';
+          } else if (matches.length > 1) {
+            printLines([matches.join('  ')], 'info');
+          }
+        }
       }
     });
 
@@ -1425,13 +1798,37 @@
     // ══════════════════════════════════════════════
     //  SCROLL ANIMATIONS
     // ══════════════════════════════════════════════
-    function setupScrollAnimations() {}
+
+    // IntersectionObserver for animate-in elements
+    const animObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          animObserver.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.animate-in').forEach(el => animObserver.observe(el));
 
     // Nav visibility
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
       nav.classList.toggle('visible', window.scrollY > 80);
     }, { passive: true });
+
+    // Active section highlighting
+    const sectionIds = ['hero', 'about', 'dashboard', 'terminal', 'projects'];
+    const sectionObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+          const link = document.querySelector(`.nav-links a[href="#${e.target.id}"]`);
+          if (link) link.classList.add('active');
+        }
+      });
+    }, { threshold: 0.3 });
+    sectionIds.forEach(id => { const el = document.getElementById(id); if (el) sectionObserver.observe(el); });
 
     // Back to top
     const backTop = document.getElementById('backTop');
@@ -1440,78 +1837,19 @@
     }, { passive: true });
     backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-    const COUNTAPI_NS = 'wayhhow_portfolio';
-    const COUNTAPI_KEY = 'visits';
-
-    function getOrdinalSuffix(n) {
-      if (n >= 11 && n <= 13) return 'th';
-      const last = n % 10;
-      if (last === 1) return 'st';
-      if (last === 2) return 'nd';
-      if (last === 3) return 'rd';
-      return 'th';
-    }
-
-    function initVisitorCounter() {
-      const counterEl = document.getElementById('hero-visitor-counter');
-      const countEl = document.getElementById('visit-count');
-      const labelEl = counterEl ? counterEl.querySelector('.visit-label') : null;
-
-      if (!counterEl || !countEl) return;
-
-      const updateUI = (n) => {
-        countEl.textContent = n;
-        if (labelEl) labelEl.textContent = '第 ' + n + ' 位访客';
-        counterEl.style.display = '';
-      };
-
-      const tryCloudflareWorker = () => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-        fetch(CF_WORKER_URL, {
-          method: 'POST',
-          signal: controller.signal,
-        })
-          .then(r => r.json())
-          .then(data => {
-            clearTimeout(timeoutId);
-            if (data && data.count) {
-              localStorage.setItem('wh_last_count', data.count);
-              updateUI(data.count);
-            } else {
-              tryVisitorsJson();
-            }
-          })
-          .catch(() => {
-            clearTimeout(timeoutId);
-            tryVisitorsJson();
-          });
-      };
-
-      const tryVisitorsJson = () => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-        fetch('visitors.json', {
-          signal: controller.signal,
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
-        })
-          .then(r => r.json())
-          .then(data => {
-            clearTimeout(timeoutId);
-            const count = data.total_unique || data.count || 1;
-            localStorage.setItem('wh_last_count', count);
-            updateUI(count);
-          })
-          .catch(() => {
-            clearTimeout(timeoutId);
-            const savedCount = parseInt(localStorage.getItem('wh_last_count') || '1', 10);
-            if (savedCount > 0) updateUI(savedCount);
-          });
-      };
-
-      tryCloudflareWorker();
-    }
+    // Mobile hamburger menu
+    const hamburger = document.getElementById('navHamburger');
+    const navLinks = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      navLinks.classList.toggle('open');
+    });
+    navLinks.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        navLinks.classList.remove('open');
+      });
+    });
 
     const BIO_TEXT = 'Building tools at the intersection of hardware and software. Passionate about accessibility systems, automation infrastructure, and low-level systems programming. Turning complex problems into elegant solutions.';
 
@@ -1543,10 +1881,9 @@
       fetchSiteData()
         .then(() => {
           renderProjects();
-          renderLangStats();
+          renderLangBars();
           renderContribGraph();
           updateStats();
-          initVisitorCounter();
           return fetchGitHubData();
         })
         .then(() => {
@@ -1554,13 +1891,11 @@
         })
         .catch(() => {
           renderProjects();
-          renderLangStats();
+          renderLangBars();
           renderContribGraph();
           updateStats();
-          initVisitorCounter();
         })
         .finally(() => {
-          setupScrollAnimations();
           typeWriter();
         });
     }
