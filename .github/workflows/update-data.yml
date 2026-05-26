@@ -89,7 +89,10 @@ jobs:
                 // Data completeness check
                 const oneYearAgo = new Date();
                 oneYearAgo.setDate(oneYearAgo.getDate() - 365);
-                const cutoffDate = oneYearAgo.toISOString().split('T')[0];
+                const cutoffYear = oneYearAgo.getFullYear();
+                const cutoffMonth = String(oneYearAgo.getMonth() + 1).padStart(2, '0');
+                const cutoffDay = String(oneYearAgo.getDate()).padStart(2, '0');
+                const cutoffDate = `${cutoffYear}-${cutoffMonth}-${cutoffDay}`;
                 const recentDays = Object.keys(contrib).filter(d => d >= cutoffDate).length;
                 console.log(`Primary API returned ${recentDays} days of contribution data`);
                 if (recentDays < 300) {

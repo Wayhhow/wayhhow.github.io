@@ -1421,7 +1421,10 @@
       const contribMap = {};
       let total = 0;
       for (let d = new Date(start); d <= now; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().split('T')[0];
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
         const count = (siteData && siteData.contributions && siteData.contributions[dateStr]) || 0;
         contribMap[dateStr] = { count, level: contribLevel(count) };
         total += count;
