@@ -175,7 +175,8 @@ jobs:
               langStats[0].pct += diff;
             }
 
-            const updated = new Date().toISOString().split('T')[0];
+            const now = new Date();
+            const updated = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
             const contribTotal = Object.values(contribData).reduce((s, n) => s + n, 0);
             console.log(`Updated: ${updated} | Stars: ${totalStars} | Repos: ${publicRepos} | Featured: ${featured.length} | Contribs: ${contribTotal}`);
 
@@ -190,7 +191,7 @@ jobs:
 
             const oneYearAgo = new Date();
             oneYearAgo.setDate(oneYearAgo.getDate() - 365);
-            const cutoffDate = oneYearAgo.toISOString().split('T')[0];
+            const cutoffDate = `${oneYearAgo.getFullYear()}-${String(oneYearAgo.getMonth()+1).padStart(2,'0')}-${String(oneYearAgo.getDate()).padStart(2,'0')}`;
             const filteredContrib = {};
             Object.entries(contribData)
               .filter(([date]) => date >= cutoffDate && date <= updated)

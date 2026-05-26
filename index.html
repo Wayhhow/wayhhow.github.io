@@ -1360,6 +1360,50 @@
           page++;
         }
         githubData.repos = allRepos;
+
+        // 实时更新项目星标
+        const repoMap = {};
+        allRepos.forEach(r => { repoMap[r.name] = r.stargazers_count || 0; });
+        document.querySelectorAll('.proj-card').forEach(card => {
+          const repoName = card.getAttribute('data-repo');
+          if (repoMap[repoName] !== undefined) {
+            const starEl = card.querySelector('.proj-stars span');
+            if (starEl) starEl.textContent = repoMap[repoName];
+          }
+        });
+
+        // 实时更新语言统计
+        const nonForkRepos = allRepos.filter(r => !r.fork && r.name !== PORTFOLIO_REPO);
+        const langTotals = {};
+        let grand = 0;
+        for (const repo of nonForkRepos) {
+          try {
+            const langRes = await fetch(repo.languages_url);
+            if (!langRes.ok) continue;
+            const langs = await langRes.json();
+            Object.entries(langs).forEach(([lang, bytes]) => {
+              langTotals[lang] = (langTotals[lang] || 0) + bytes;
+              grand += bytes;
+            });
+          } catch (e) { /* skip */ }
+        }
+        if (grand > 0) {
+          const liveLangStats = Object.entries(langTotals)
+            .sort((a, b) => b[1] - a[1])
+            .filter(([, bytes]) => bytes / grand * 100 >= 0.5)
+            .slice(0, 6)
+            .map(([name, bytes]) => ({ name, count: 0, pct: Math.round(bytes / grand * 100) }));
+          const pctSum = liveLangStats.reduce((s, l) => s + l.pct, 0);
+          if (pctSum !== 100 && liveLangStats.length > 0) {
+            liveLangStats[0].pct += 100 - pctSum;
+          }
+          renderLangBars(liveLangStats);
+        }
+
+        // 实时更新总星标
+        const liveTotalStars = nonForkRepos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
+        const starsEl = document.getElementById('stat-stars');
+        if (starsEl) starsEl.textContent = liveTotalStars;
       } catch (e) {
         console.warn('GitHub API rate limited, using fallback data');
       }
@@ -1379,11 +1423,11 @@
       Rust: { bg: 'rgba(222,165,132,0.1)', color: '#dea584', dot: '#dea584' },
     };
 
-    function renderLangBars() {
+    function renderLangBars(overrideStats) {
       const container = document.getElementById('langBarsContainer');
       if (!container) return;
       container.innerHTML = '';
-      const langStats = (siteData && siteData.lang_stats) || [];
+      const langStats = overrideStats || ((siteData && siteData.lang_stats) || []);
       langStats.forEach((lang, i) => {
         const lc = LANG_COLORS[lang.name] || { color: '#00f5ff' };
         const item = document.createElement('div');
@@ -1538,6 +1582,7 @@
         const banner = PROJ_BANNERS[repoName];
         const card = document.createElement('a');
         card.className = 'proj-card animate-in';
+        card.setAttribute('data-repo', repoName);
         card.style.transitionDelay = (i * 80) + 'ms';
         card.href = proj.url;
         card.target = '_blank';
