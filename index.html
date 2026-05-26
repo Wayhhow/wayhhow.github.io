@@ -1367,8 +1367,12 @@
         document.querySelectorAll('.proj-card').forEach(card => {
           const repoName = card.getAttribute('data-repo');
           if (repoMap[repoName] !== undefined) {
-            const starEl = card.querySelector('.proj-stars span');
-            if (starEl) starEl.textContent = repoMap[repoName];
+            const starEl = card.querySelector('.proj-stars-num');
+            const starsContainer = card.querySelector('.proj-stars');
+            if (starEl) {
+              starEl.textContent = repoMap[repoName];
+              if (starsContainer) starsContainer.style.display = repoMap[repoName] > 0 ? 'flex' : 'none';
+            }
           }
         });
 
@@ -1609,7 +1613,7 @@
                 <span style="width:7px;height:7px;border-radius:50%;background:${lc.dot};display:inline-block;"></span>
                 ${proj.lang}
               </span>
-              ${proj.stars > 0 ? `<span class="proj-stars"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffe600" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${proj.stars}</span>` : ''}
+              <span class="proj-stars" style="display:${proj.stars > 0 ? 'flex' : 'none'};"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ffe600" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="proj-stars-num">${proj.stars}</span></span>
             </div>
           </div>
         `;
