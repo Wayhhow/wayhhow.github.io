@@ -17,22 +17,22 @@
   "lang_stats": [
     {
       "name": "JavaScript",
-      "count": 2,
-      "pct": 94
-    },
-    {
-      "name": "CSS",
-      "count": 2,
-      "pct": 2
-    },
-    {
-      "name": "HTML",
       "count": 3,
-      "pct": 2
+      "pct": 93
     },
     {
       "name": "Python",
       "count": 2,
+      "pct": 3
+    },
+    {
+      "name": "CSS",
+      "count": 3,
+      "pct": 2
+    },
+    {
+      "name": "HTML",
+      "count": 4,
       "pct": 2
     }
   ],
@@ -402,7 +402,7 @@
     "2026-05-27": 5,
     "2026-05-28": 0,
     "2026-05-29": 0,
-    "2026-05-30": 12
+    "2026-05-30": 18
   },
   "projects": [
     {
