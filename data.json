@@ -9,7 +9,7 @@
     "public_gists": 0
   },
   "stats": {
-    "total_stars": 6,
+    "total_stars": 7,
     "public_repos": 11,
     "languages_count": 4,
     "achievements": 1
@@ -32,7 +32,7 @@
     },
     {
       "name": "Python",
-      "count": 1,
+      "count": 2,
       "pct": 2
     }
   ],
@@ -402,7 +402,7 @@
     "2026-05-27": 5,
     "2026-05-28": 0,
     "2026-05-29": 0,
-    "2026-05-30": 7
+    "2026-05-30": 12
   },
   "projects": [
     {
@@ -411,6 +411,14 @@
       "lang": "JavaScript",
       "stars": 3,
       "url": "https://github.com/Wayhhow/survey-map",
+      "topics": []
+    },
+    {
+      "name": "Synapse",
+      "desc": "Synapse — a Python project by Wayhhow",
+      "lang": "Python",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/Synapse",
       "topics": []
     },
     {
@@ -443,14 +451,6 @@
       "lang": "HTML",
       "stars": 1,
       "url": "https://github.com/Wayhhow/electric-bike-system-for-display",
-      "topics": []
-    },
-    {
-      "name": "Synapse",
-      "desc": "Synapse — a code project by Wayhhow",
-      "lang": "Code",
-      "stars": 0,
-      "url": "https://github.com/Wayhhow/Synapse",
       "topics": []
     }
   ]
