@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-05-29",
+  "updated_at": "2026-05-30",
   "user": {
     "login": "Wayhhow",
     "name": "Weihao Wu",
-    "public_repos": 10,
+    "public_repos": 11,
     "followers": 0,
     "following": 3,
     "public_gists": 0
   },
   "stats": {
     "total_stars": 6,
-    "public_repos": 10,
+    "public_repos": 11,
     "languages_count": 4,
     "achievements": 1
   },
@@ -18,7 +18,7 @@
     {
       "name": "JavaScript",
       "count": 2,
-      "pct": 95
+      "pct": 94
     },
     {
       "name": "CSS",
@@ -33,11 +33,10 @@
     {
       "name": "Python",
       "count": 1,
-      "pct": 1
+      "pct": 2
     }
   ],
   "contributions": {
-    "2025-05-29": 0,
     "2025-05-30": 0,
     "2025-05-31": 0,
     "2025-06-01": 0,
@@ -402,7 +401,8 @@
     "2026-05-26": 13,
     "2026-05-27": 5,
     "2026-05-28": 0,
-    "2026-05-29": 0
+    "2026-05-29": 0,
+    "2026-05-30": 7
   },
   "projects": [
     {
@@ -422,6 +422,14 @@
       "topics": []
     },
     {
+      "name": "teleprompter",
+      "desc": "一个支持自动播放和语音跟读的桌面提词器应用。",
+      "lang": "Python",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/teleprompter",
+      "topics": []
+    },
+    {
       "name": "accessibility-standards",
       "desc": "南方科技大学致诚书院\"橙光\"志愿服务队的无障碍督导标准在线查询工具，供志愿队员在督导活动中实时查阅标准条文。",
       "lang": "JavaScript",
@@ -438,19 +446,11 @@
       "topics": []
     },
     {
-      "name": "teleprompter",
-      "desc": "一个支持自动播放和语音跟读的桌面提词器应用。",
-      "lang": "Python",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/teleprompter",
-      "topics": []
-    },
-    {
-      "name": "my-first-project",
-      "desc": "my-first-project — a code project by Wayhhow",
+      "name": "Synapse",
+      "desc": "Synapse — a code project by Wayhhow",
       "lang": "Code",
       "stars": 0,
-      "url": "https://github.com/Wayhhow/my-first-project",
+      "url": "https://github.com/Wayhhow/Synapse",
       "topics": []
     }
   ]
