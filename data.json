@@ -3,14 +3,14 @@
   "user": {
     "login": "Wayhhow",
     "name": "Weihao Wu",
-    "public_repos": 11,
+    "public_repos": 12,
     "followers": 0,
     "following": 3,
     "public_gists": 0
   },
   "stats": {
-    "total_stars": 7,
-    "public_repos": 11,
+    "total_stars": 8,
+    "public_repos": 12,
     "languages_count": 4,
     "achievements": 1
   },
@@ -18,7 +18,12 @@
     {
       "name": "JavaScript",
       "count": 3,
-      "pct": 93
+      "pct": 91
+    },
+    {
+      "name": "HTML",
+      "count": 5,
+      "pct": 4
     },
     {
       "name": "Python",
@@ -28,11 +33,6 @@
     {
       "name": "CSS",
       "count": 3,
-      "pct": 2
-    },
-    {
-      "name": "HTML",
-      "count": 4,
       "pct": 2
     }
   ],
@@ -402,7 +402,7 @@
     "2026-05-27": 5,
     "2026-05-28": 0,
     "2026-05-29": 0,
-    "2026-05-30": 22
+    "2026-05-30": 24
   },
   "projects": [
     {
@@ -411,6 +411,14 @@
       "lang": "JavaScript",
       "stars": 3,
       "url": "https://github.com/Wayhhow/survey-map",
+      "topics": []
+    },
+    {
+      "name": "CGVS",
+      "desc": "CGVS — a HTML project by Wayhhow",
+      "lang": "HTML",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/CGVS",
       "topics": []
     },
     {
@@ -443,14 +451,6 @@
       "lang": "JavaScript",
       "stars": 1,
       "url": "https://github.com/Wayhhow/accessibility-standards",
-      "topics": []
-    },
-    {
-      "name": "electric-bike-system-for-display",
-      "desc": "一个用于演示的电动自行车管理系统",
-      "lang": "HTML",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/electric-bike-system-for-display",
       "topics": []
     }
   ]
