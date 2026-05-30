@@ -414,19 +414,19 @@
       "topics": []
     },
     {
-      "name": "CGVS",
-      "desc": "CGVS — a HTML project by Wayhhow",
-      "lang": "HTML",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/CGVS",
-      "topics": []
-    },
-    {
       "name": "wayhhow.github.io",
       "desc": "Wayhhow Personal Portfolio — Cyberpunk Developer Page",
       "lang": "HTML",
       "stars": 1,
       "url": "https://github.com/Wayhhow/wayhhow.github.io",
+      "topics": []
+    },
+    {
+      "name": "CGVS",
+      "desc": "CGVS — a HTML project by Wayhhow",
+      "lang": "HTML",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/CGVS",
       "topics": []
     },
     {
