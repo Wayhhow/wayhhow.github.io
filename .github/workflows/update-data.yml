@@ -87,16 +87,10 @@ jobs:
                   });
                 }
                 // Data completeness check
-                const oneYearAgo = new Date();
-                oneYearAgo.setDate(oneYearAgo.getDate() - 365);
-                const cutoffYear = oneYearAgo.getFullYear();
-                const cutoffMonth = String(oneYearAgo.getMonth() + 1).padStart(2, '0');
-                const cutoffDay = String(oneYearAgo.getDate()).padStart(2, '0');
-                const cutoffDate = `${cutoffYear}-${cutoffMonth}-${cutoffDay}`;
-                const recentDays = Object.keys(contrib).filter(d => d >= cutoffDate).length;
-                console.log(`Primary API returned ${recentDays} days of contribution data`);
-                if (recentDays < 300) {
-                  console.warn('Primary API data appears incomplete (< 300 days), falling back to GraphQL');
+                const totalDays = Object.keys(contrib).length;
+                console.log(`Primary API returned ${totalDays} total days of contribution data`);
+                if (totalDays === 0) {
+                  console.warn('Primary API returned no contribution data, falling back to GraphQL');
                   return {};
                 }
                 return contrib;
