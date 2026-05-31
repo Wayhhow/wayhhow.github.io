@@ -3,14 +3,14 @@
   "user": {
     "login": "Wayhhow",
     "name": "Weihao Wu",
-    "public_repos": 12,
+    "public_repos": 11,
     "followers": 0,
     "following": 3,
     "public_gists": 0
   },
   "stats": {
-    "total_stars": 8,
-    "public_repos": 12,
+    "total_stars": 7,
+    "public_repos": 11,
     "languages_count": 4,
     "achievements": 1
   },
@@ -18,12 +18,7 @@
     {
       "name": "JavaScript",
       "count": 3,
-      "pct": 91
-    },
-    {
-      "name": "HTML",
-      "count": 5,
-      "pct": 4
+      "pct": 93
     },
     {
       "name": "Python",
@@ -33,6 +28,11 @@
     {
       "name": "CSS",
       "count": 3,
+      "pct": 2
+    },
+    {
+      "name": "HTML",
+      "count": 4,
       "pct": 2
     }
   ],
@@ -382,7 +382,7 @@
     "2026-05-08": 6,
     "2026-05-09": 1,
     "2026-05-10": 15,
-    "2026-05-11": 1,
+    "2026-05-11": 14,
     "2026-05-12": 0,
     "2026-05-13": 5,
     "2026-05-14": 13,
@@ -422,14 +422,6 @@
       "topics": []
     },
     {
-      "name": "CGVS",
-      "desc": "CGVS — a HTML project by Wayhhow",
-      "lang": "HTML",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/CGVS",
-      "topics": []
-    },
-    {
       "name": "Synapse",
       "desc": "Synapse 是一个自进化（Meta-Evolution）AI Agent 框架。当用户请求超出当前技能范围时，Synapse 会调用 LLM 自动生成新的 Python 技能文件，加载后立即执行——Agent 在运行时自己教自己新能力。",
       "lang": "Python",
@@ -451,6 +443,14 @@
       "lang": "JavaScript",
       "stars": 1,
       "url": "https://github.com/Wayhhow/accessibility-standards",
+      "topics": []
+    },
+    {
+      "name": "electric-bike-system-for-display",
+      "desc": "一个用于演示的电动自行车管理系统",
+      "lang": "HTML",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/electric-bike-system-for-display",
       "topics": []
     }
   ]
