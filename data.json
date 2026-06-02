@@ -402,7 +402,7 @@
     "2026-05-30": 24,
     "2026-05-31": 17,
     "2026-06-01": 0,
-    "2026-06-02": 0
+    "2026-06-02": 1
   },
   "projects": [
     {
@@ -414,19 +414,19 @@
       "topics": []
     },
     {
-      "name": "wayhhow.github.io",
-      "desc": "Wayhhow Personal Portfolio — Cyberpunk Developer Page",
-      "lang": "HTML",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/wayhhow.github.io",
-      "topics": []
-    },
-    {
       "name": "CGVST",
       "desc": "CGVST — a HTML project by Wayhhow",
       "lang": "HTML",
       "stars": 1,
       "url": "https://github.com/Wayhhow/CGVST",
+      "topics": []
+    },
+    {
+      "name": "wayhhow.github.io",
+      "desc": "Wayhhow Personal Portfolio — Cyberpunk Developer Page",
+      "lang": "HTML",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/wayhhow.github.io",
       "topics": []
     },
     {
