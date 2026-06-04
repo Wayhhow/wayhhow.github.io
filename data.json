@@ -3,14 +3,14 @@
   "user": {
     "login": "Wayhhow",
     "name": "Weihao Wu",
-    "public_repos": 12,
+    "public_repos": 13,
     "followers": 0,
     "following": 3,
     "public_gists": 0
   },
   "stats": {
-    "total_stars": 8,
-    "public_repos": 12,
+    "total_stars": 9,
+    "public_repos": 13,
     "languages_count": 4,
     "achievements": 1
   },
@@ -27,7 +27,7 @@
     },
     {
       "name": "Python",
-      "count": 2,
+      "count": 3,
       "pct": 3
     },
     {
@@ -402,7 +402,7 @@
     "2026-06-01": 0,
     "2026-06-02": 1,
     "2026-06-03": 0,
-    "2026-06-04": 0
+    "2026-06-04": 3
   },
   "projects": [
     {
@@ -411,6 +411,14 @@
       "lang": "JavaScript",
       "stars": 3,
       "url": "https://github.com/Wayhhow/survey-map",
+      "topics": []
+    },
+    {
+      "name": "ai-video-shot-prompt-skill",
+      "desc": "ai-video-shot-prompt-skill — a Python project by Wayhhow",
+      "lang": "Python",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/ai-video-shot-prompt-skill",
       "topics": []
     },
     {
@@ -443,14 +451,6 @@
       "lang": "Python",
       "stars": 1,
       "url": "https://github.com/Wayhhow/teleprompter",
-      "topics": []
-    },
-    {
-      "name": "accessibility-standards",
-      "desc": "南方科技大学致诚书院\"橙光\"志愿服务队的无障碍督导标准在线查询工具，供志愿队员在督导活动中实时查阅标准条文。",
-      "lang": "JavaScript",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/accessibility-standards",
       "topics": []
     }
   ]
