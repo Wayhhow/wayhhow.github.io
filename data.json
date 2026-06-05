@@ -402,7 +402,7 @@
     "2026-06-02": 1,
     "2026-06-03": 0,
     "2026-06-04": 3,
-    "2026-06-05": 3
+    "2026-06-05": 4
   },
   "projects": [
     {
@@ -451,6 +451,22 @@
       "lang": "Python",
       "stars": 1,
       "url": "https://github.com/Wayhhow/teleprompter",
+      "topics": []
+    },
+    {
+      "name": "accessibility-standards",
+      "desc": "南方科技大学致诚书院\"橙光\"志愿服务队的无障碍督导标准在线查询工具，供志愿队员在督导活动中实时查阅标准条文。",
+      "lang": "JavaScript",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/accessibility-standards",
+      "topics": []
+    },
+    {
+      "name": "electric-bike-system-for-display",
+      "desc": "一个用于演示的电动自行车管理系统",
+      "lang": "HTML",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/electric-bike-system-for-display",
       "topics": []
     }
   ]
