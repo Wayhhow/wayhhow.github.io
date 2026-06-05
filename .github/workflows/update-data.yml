@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Fetch & update portfolio data
         env:
@@ -70,6 +70,33 @@ jobs:
               page++;
             }
             return all;
+          }
+
+          async function fetchAchievementsCount() {
+            // 优先从 achievements-data 镜像读取；不可用时回退 GitHub GraphQL
+            // 公共 API 只能读取自己的成就，第三方用户的成就通过镜像
+            if (!GH_TOKEN) return 1; // 无法查询时保守返回 1
+            try {
+              const res = await fetch('https://api.github.com/graphql', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${GH_TOKEN}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  query: `query($login: String!) {
+                    user(login: $login) {
+                      achievements(first: 50) { totalCount }
+                    }
+                  }`,
+                  variables: { login: GITHUB_USER },
+                }),
+              });
+              if (!res.ok) return 1;
+              const data = await res.json();
+              const count = data?.data?.user?.achievements?.totalCount;
+              return typeof count === 'number' ? count : 1;
+            } catch (e) {
+              console.warn('Failed to fetch achievements count:', e.message);
+              return 1;
+            }
           }
 
           async function fetchContribData() {
@@ -131,10 +158,11 @@ jobs:
           }
 
           (async () => {
-            const [user, allRepos, contribData] = await Promise.all([
+            const [user, allRepos, contribData, achievementsCount] = await Promise.all([
               fetchJSON(`https://api.github.com/users/${GITHUB_USER}`),
               getAllRepos(),
               fetchContribData(),
+              fetchAchievementsCount(),
             ]);
 
             // 关键 API 失败时直接中止：避免用残缺数据覆盖 data.json
@@ -148,11 +176,14 @@ jobs:
             }
 
             const starred = allRepos.filter(r => !r.fork && r.stargazers_count > 0)
-              .sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0));
+              .sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0)
+                || new Date(b.pushed_at) - new Date(a.pushed_at));
             const starredNames = new Set(starred.map(r => r.name));
             const latest = allRepos.filter(r => !r.fork && !starredNames.has(r.name))
               .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
-            const featured = [...starred, ...latest].slice(0, 6);
+            // featured 容量 = 8：当前账户 8 个 starred，刚好全部展示
+            // 当 starred > 8 时，stars desc + pushed_at desc 排序保证丢的是最旧低星
+            const featured = [...starred, ...latest].slice(0, 8);
             const nonForkRepos = allRepos.filter(r => !r.fork && r.name !== PORTFOLIO_REPO);
             const totalStars = nonForkRepos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
             const publicRepos = user.public_repos;
@@ -217,7 +248,7 @@ jobs:
                 total_stars: totalStars,
                 public_repos: publicRepos,
                 languages_count: langStats.length,
-                achievements: 1,
+                achievements: achievementsCount,
               },
               lang_stats: langStats,
               contributions: filteredContrib,
@@ -259,3 +290,16 @@ jobs:
           # 必须用 PAT 推送：默认 GITHUB_TOKEN 的 push 不会触发下游 workflow
           # https://docs.github.com/en/actions/security-guides/automatic-token-authentication
           git push https://x-access-token:${GH_PAT}@github.com/Wayhhow/wayhhow.github.io.git HEAD:main
+
+      - name: Trigger Pages deploy
+        if: always()
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          # 兜底触发 deploy.yml：避免 PAT 缺少 workflow scope 时 auto-update 不更新线上
+          # 使用 gh CLI（PAT 需要 repo + workflow scope）
+          if echo "${GH_PAT}" | gh auth login --with-token 2>/dev/null; then
+            gh workflow run deploy.yml --ref main && echo "Deploy triggered via gh CLI" || echo "WARN: gh workflow run failed (PAT may lack workflow scope)"
+          else
+            echo "WARN: gh CLI auth failed; deploy may not run if PAT push did not trigger it"
+          fi
