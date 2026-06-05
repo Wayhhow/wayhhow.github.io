@@ -137,6 +137,16 @@ jobs:
               fetchContribData(),
             ]);
 
+            // 关键 API 失败时直接中止：避免用残缺数据覆盖 data.json
+            if (!user) {
+              console.error('FATAL: failed to fetch user profile from GitHub API. Aborting to keep existing data.json.');
+              process.exit(1);
+            }
+            if (!allRepos || allRepos.length === 0) {
+              console.error('FATAL: failed to fetch repository list from GitHub API. Aborting to keep existing data.json.');
+              process.exit(1);
+            }
+
             const starred = allRepos.filter(r => !r.fork && r.stargazers_count > 0)
               .sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0));
             const starredNames = new Set(starred.map(r => r.name));
