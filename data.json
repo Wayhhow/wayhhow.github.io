@@ -17,7 +17,7 @@
   "lang_stats": [
     {
       "name": "JavaScript",
-      "count": 3,
+      "count": 4,
       "pct": 89
     },
     {
@@ -402,7 +402,7 @@
     "2026-06-08": 0,
     "2026-06-09": 2,
     "2026-06-10": 0,
-    "2026-06-11": 0
+    "2026-06-11": 3
   },
   "projects": [
     {
@@ -422,19 +422,19 @@
       "topics": []
     },
     {
-      "name": "wayhhow.github.io",
-      "desc": "Wayhhow Personal Portfolio — Cyberpunk Developer Page",
-      "lang": "HTML",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/wayhhow.github.io",
-      "topics": []
-    },
-    {
       "name": "CGVST",
       "desc": "CGVST — a HTML project by Wayhhow",
       "lang": "HTML",
       "stars": 1,
       "url": "https://github.com/Wayhhow/CGVST",
+      "topics": []
+    },
+    {
+      "name": "wayhhow.github.io",
+      "desc": "Wayhhow Personal Portfolio — Cyberpunk Developer Page",
+      "lang": "HTML",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/wayhhow.github.io",
       "topics": []
     },
     {
