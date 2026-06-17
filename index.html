@@ -155,7 +155,7 @@
     .section {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 50px 5%;
+      padding: 60px 5%;
     }
 
     .section-label {
@@ -163,10 +163,23 @@
       font-size: clamp(1.2rem, 3vw, 1.6rem);
       font-weight: 700;
       color: #fff;
-      margin-bottom: 32px;
+      margin-bottom: 36px;
       display: flex;
       align-items: center;
       gap: 12px;
+      position: relative;
+      padding-bottom: 16px;
+    }
+
+    .section-label::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--cyan), transparent);
+      box-shadow: var(--glow-cyan);
     }
 
     .section-label .hash { color: var(--cyan); opacity: 0.5; }
@@ -438,12 +451,12 @@
     }
 
     /* ─── ABOUT SECTION ─────────────────────── */
-    .about-section { padding: 30px 5% 50px; max-width: 1100px; margin: 0 auto; }
+    .about-section { padding: 40px 5% 60px; max-width: 1100px; margin: 0 auto; }
 
     .about-grid {
       display: grid;
       grid-template-columns: 1.2fr 1fr;
-      gap: 16px;
+      gap: 20px;
     }
 
     .about-card {
@@ -471,12 +484,12 @@
     }
 
     /* ─── DASHBOARD / BENTO GRID ────────────── */
-    .dashboard-section { padding: 40px 5%; max-width: 1100px; margin: 0 auto; }
+    .dashboard-section { padding: 60px 5%; max-width: 1100px; margin: 0 auto; }
 
     .bento-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
+      gap: 16px;
     }
 
     .bento-cell {
@@ -640,7 +653,7 @@
     }
 
     /* ─── TERMINAL ─────────────────────────── */
-    .terminal-section { padding: 40px 5%; max-width: 1100px; margin: 0 auto; }
+    .terminal-section { padding: 60px 5%; max-width: 1100px; margin: 0 auto; }
 
     .terminal {
       background: #050508;
@@ -714,12 +727,12 @@
     }
 
     /* ─── PROJECTS ─────────────────────────── */
-    .projects-section { padding: 40px 5%; max-width: 1100px; margin: 0 auto; }
+    .projects-section { padding: 60px 5%; max-width: 1100px; margin: 0 auto; }
 
     .projects-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 16px;
+      gap: 20px;
     }
 
     .proj-card {
@@ -734,7 +747,10 @@
       gap: 10px;
       position: relative;
       overflow: hidden;
-      transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+      transition: border-color 0.35s cubic-bezier(0.4,0,0.2,1),
+                  background 0.35s cubic-bezier(0.4,0,0.2,1),
+                  box-shadow 0.35s cubic-bezier(0.4,0,0.2,1),
+                  transform 0.15s ease-out;
     }
 
     .proj-card:hover {
@@ -922,6 +938,7 @@
       .bento-grid { grid-template-columns: repeat(2, 1fr); }
       .bento-contrib { grid-column: span 2; }
       .bento-lang-detail { grid-column: span 2; }
+      .bento-radar { grid-column: span 2; min-height: 240px; }
       .nav-links { display: none; }
       .nav-links.open {
         display: flex;
@@ -937,13 +954,19 @@
         gap: 16px;
       }
       .nav-hamburger { display: flex; }
+      .nav-clock { display: none; }
+      .kbd-hint { display: none; }
+      .section-label { margin-bottom: 24px; }
+      .section, .about-section, .dashboard-section, .terminal-section, .projects-section { padding: 40px 5%; }
     }
 
     @media (max-width: 480px) {
       .bento-grid { grid-template-columns: 1fr; }
       .bento-contrib { grid-column: span 1; }
       .bento-lang-detail { grid-column: span 1; }
+      .bento-radar { grid-column: span 1; }
       .avatar-ring { width: 90px; height: 90px; }
+      .hero { padding: 80px 5% 40px; }
     }
 
     /* ─── ACCESSIBILITY ────────────────────── */
@@ -955,8 +978,119 @@
       }
       .avatar-ring { animation: none; }
       #matrix-canvas { display: none; }
+      #cursor-glow { display: none !important; }
       #boot { display: none !important; }
       #main { opacity: 1 !important; }
+      .proj-card { transform: none !important; }
+    }
+
+    /* ─── CURSOR GLOW ──────────────────────── */
+    #cursor-glow {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      background: radial-gradient(circle, rgba(0,245,255,0.06) 0%, transparent 60%);
+      transform: translate(-50%, -50%);
+      transition: opacity 0.3s ease;
+      opacity: 0;
+      mix-blend-mode: screen;
+    }
+
+    /* ─── 3D TILT PROJECT CARDS ────────────── */
+    .proj-card {
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .proj-card .proj-content,
+    .proj-card .proj-image {
+      transform: translateZ(20px);
+    }
+    .proj-card .proj-image-overlay {
+      transform: translateZ(10px);
+    }
+    .proj-card-tilt-glow {
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+      background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(0,245,255,0.08), transparent 50%);
+    }
+    .proj-card:hover .proj-card-tilt-glow { opacity: 1; }
+
+    /* ─── RADAR CHART ──────────────────────── */
+    .bento-radar {
+      grid-column: span 4;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+    }
+    #radarCanvas {
+      width: 100%;
+      flex: 1;
+      min-height: 240px;
+    }
+    .radar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .radar-title { font-size: 0.82rem; color: var(--muted); }
+    .radar-legend { display: flex; gap: 12px; font-size: 0.65rem; color: var(--muted); }
+    .radar-legend span { display: inline-flex; align-items: center; gap: 4px; }
+    .radar-legend .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* ─── LIVE CLOCK ───────────────────────── */
+    .nav-clock {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--green);
+      text-shadow: var(--glow-green);
+      letter-spacing: 1px;
+      opacity: 0.8;
+    }
+
+    /* ─── KEYBOARD HINT ────────────────────── */
+    .kbd-hint {
+      position: fixed;
+      bottom: 28px;
+      left: 28px;
+      background: rgba(10,10,20,0.85);
+      border: 1px solid rgba(0,245,255,0.15);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      z-index: 100;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.4s ease;
+      backdrop-filter: blur(10px);
+      max-width: 260px;
+    }
+    .kbd-hint.visible { opacity: 1; transform: translateY(0); }
+    .kbd-hint kbd {
+      display: inline-block;
+      background: rgba(0,245,255,0.1);
+      border: 1px solid rgba(0,245,255,0.25);
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--cyan);
+      margin: 0 2px;
+    }
+    .kbd-hint-title {
+      color: var(--cyan);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
     }
   </style>
 </head>
@@ -965,6 +1099,7 @@
   <!-- ── MATRIX RAIN ── -->
   <canvas id="matrix-canvas"></canvas>
   <div class="grid-bg"></div>
+  <div id="cursor-glow"></div>
 
   <!-- ── BOOT SCREEN ── -->
   <div id="boot">
@@ -988,6 +1123,7 @@
         <li><a href="#terminal">Terminal</a></li>
         <li><a href="#projects">Projects</a></li>
       </ul>
+      <span class="nav-clock" id="navClock">--:--:--</span>
       <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
@@ -1144,6 +1280,17 @@
           <div class="lang-detail-title">Language Distribution</div>
           <div id="langBarsContainer"></div>
         </div>
+        <!-- Row 3: Skills Radar Chart -->
+        <div class="bento-cell bento-radar" id="bento-radar">
+          <div class="radar-header">
+            <span class="radar-title">Skill Matrix</span>
+            <div class="radar-legend">
+              <span><span class="dot" style="background:var(--cyan);"></span>Proficiency</span>
+              <span><span class="dot" style="background:var(--pink);"></span>Target</span>
+            </div>
+          </div>
+          <canvas id="radarCanvas"></canvas>
+        </div>
       </div>
     </section>
 
@@ -1196,6 +1343,13 @@
   <button class="back-top" id="backTop" aria-label="Back to top">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
   </button>
+
+  <!-- Keyboard hint -->
+  <div class="kbd-hint" id="kbdHint">
+    <div class="kbd-hint-title">Shortcuts</div>
+    <div><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> Navigate sections</div>
+    <div style="margin-top:4px;"><kbd>T</kbd> Focus terminal · <kbd>Esc</kbd> Close menus</div>
+  </div>
 
   <script>
     // ══════════════════════════════════════════════
@@ -1258,11 +1412,15 @@
     //  MATRIX RAIN
     // ══════════════════════════════════════════════
     let matrixAnimId = null;
+    let matrixRunning = false;
 
     (function initMatrix() {
       const canvas = document.getElementById('matrix-canvas');
+      if (!canvas) return;
       const ctx = canvas.getContext('2d');
       let W, H, cols, drops;
+
+      const chars = '01寒光流码界破晓极客雾数据云端代码零壹贰叁肆伍陆柒捌玖拾网链密算符{}[]<>/\\|;:!@#$%^&*_+-=~`甲乙丙丁戊己庚辛壬癸';
 
       function resize() {
         W = canvas.width = window.innerWidth;
@@ -1273,59 +1431,48 @@
       resize();
       window.addEventListener('resize', resize);
 
-      const chars = '01寒光流码界破晓极客雾数据云端代码零壹贰叁肆伍陆柒捌玖拾网链密算符{}[]<>/\\|;:!@#$%^&*_+-=~`甲乙丙丁戊己庚辛壬癸';
-
       function draw() {
+        if (!matrixRunning) return;
         ctx.fillStyle = 'rgba(3,3,7,0.08)';
         ctx.fillRect(0, 0, W, H);
         ctx.font = '14px Share Tech Mono';
 
-        drops.forEach((y, i) => {
+        for (let i = 0; i < drops.length; i++) {
           const char = chars[Math.floor(Math.random() * chars.length)];
           const x = i * 16;
+          const y = drops[i] * 16;
           const hue = 170 + Math.random() * 30;
           ctx.fillStyle = `hsl(${hue}, 100%, 65%)`;
-          ctx.fillText(char, x, y * 16);
-          if (y * 16 > H && Math.random() > 0.975) drops[i] = 0;
+          ctx.fillText(char, x, y);
+          if (y > H && Math.random() > 0.975) drops[i] = 0;
           drops[i]++;
-        });
+        }
         matrixAnimId = requestAnimationFrame(draw);
       }
-      draw();
-    })();
 
-    // Visibility pause for Matrix Rain
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        if (matrixAnimId) cancelAnimationFrame(matrixAnimId);
-      } else {
-        // Resume by re-triggering draw loop
-        const canvas = document.getElementById('matrix-canvas');
-        const ctx = canvas.getContext('2d');
-        const W = canvas.width;
-        const H = canvas.height;
-        const cols = Math.floor(W / 16);
-        const drops = Array(cols).fill(1);
-        const chars = '01寒光流码界破晓极客雾数据云端代码零壹贰叁肆伍陆柒捌玖拾网链密算符{}[]<>/\\|;:!@#$%^&*_+-=~`甲乙丙丁戊己庚辛壬癸';
-
-        function draw() {
-          ctx.fillStyle = 'rgba(3,3,7,0.08)';
-          ctx.fillRect(0, 0, W, H);
-          ctx.font = '14px Share Tech Mono';
-          drops.forEach((y, i) => {
-            const char = chars[Math.floor(Math.random() * chars.length)];
-            const x = i * 16;
-            const hue = 170 + Math.random() * 30;
-            ctx.fillStyle = `hsl(${hue}, 100%, 65%)`;
-            ctx.fillText(char, x, y * 16);
-            if (y * 16 > H && Math.random() > 0.975) drops[i] = 0;
-            drops[i]++;
-          });
-          matrixAnimId = requestAnimationFrame(draw);
-        }
+      function start() {
+        if (matrixRunning) return;
+        matrixRunning = true;
         draw();
       }
-    });
+
+      function stop() {
+        matrixRunning = false;
+        if (matrixAnimId) cancelAnimationFrame(matrixAnimId);
+        matrixAnimId = null;
+      }
+
+      // Expose for terminal toggle command
+      window.__matrix = { start, stop, canvas };
+
+      // Pause when tab hidden, resume when visible (single loop, no duplicates)
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stop();
+        else start();
+      });
+
+      start();
+    })();
 
     // ══════════════════════════════════════════════
     //  GITHUB API DATA
@@ -1350,11 +1497,11 @@
 
         let page = 1;
         let allRepos = [];
-        while (true) {
+        while (page <= 10) { // safety cap to avoid infinite loops
           const reposRes = await fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&page=${page}&sort=updated`);
           if (!reposRes.ok) break;
           const repos = await reposRes.json();
-          if (!repos || !repos.length) break;
+          if (!Array.isArray(repos) || !repos.length) break;
           allRepos = allRepos.concat(repos);
           if (repos.length < 100) break;
           page++;
@@ -1366,7 +1513,7 @@
         allRepos.forEach(r => { repoMap[r.name] = r.stargazers_count || 0; });
         document.querySelectorAll('.proj-card').forEach(card => {
           const repoName = card.getAttribute('data-repo');
-          if (repoMap[repoName] !== undefined) {
+          if (repoName && repoMap[repoName] !== undefined) {
             const starEl = card.querySelector('.proj-stars-num');
             const starsContainer = card.querySelector('.proj-stars');
             if (starEl) {
@@ -1382,14 +1529,16 @@
         let grand = 0;
         for (const repo of nonForkRepos) {
           try {
+            if (!repo.languages_url) continue;
             const langRes = await fetch(repo.languages_url);
             if (!langRes.ok) continue;
             const langs = await langRes.json();
+            if (!langs || typeof langs !== 'object') continue;
             Object.entries(langs).forEach(([lang, bytes]) => {
               langTotals[lang] = (langTotals[lang] || 0) + bytes;
               grand += bytes;
             });
-          } catch (e) { /* skip */ }
+          } catch (e) { /* skip individual repo failures */ }
         }
         if (grand > 0) {
           const liveLangStats = Object.entries(langTotals)
@@ -1404,12 +1553,12 @@
           renderLangBars(liveLangStats);
         }
 
-        // 实时更新总星标
+        // 实时更新总星标 (animated)
         const liveTotalStars = nonForkRepos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
         const starsEl = document.getElementById('stat-stars');
-        if (starsEl) starsEl.textContent = liveTotalStars;
+        if (starsEl && liveTotalStars > 0) animateCount(starsEl, liveTotalStars);
       } catch (e) {
-        console.warn('GitHub API rate limited, using fallback data');
+        console.warn('GitHub API request failed, using fallback data:', e.message);
       }
 
       githubData.repos = githubData.repos || [];
@@ -1457,9 +1606,6 @@
       const langStats = (siteData && siteData.lang_stats) || [];
       // 数据为空或仅有 fallback 标记时，保留 HTML 内置静态标签（避免页面裸奔）
       if (langStats.length === 0) {
-        if (container.hasAttribute('data-fallback')) {
-          container.innerHTML = container.innerHTML; // keep static
-        }
         return;
       }
       container.removeAttribute('data-fallback');
@@ -1569,15 +1715,30 @@
       if (monthsEl) {
         monthsEl.innerHTML = '';
         const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        // Track which week column each month starts at, for accurate alignment
         let currentMonth = -1;
+        const monthPositions = []; // { month, weekIndex }
         dates.forEach((date, i) => {
           const m = new Date(date + 'T00:00:00').getMonth();
           if (m !== currentMonth) {
             currentMonth = m;
-            const span = document.createElement('span');
-            span.textContent = monthNames[m];
-            monthsEl.appendChild(span);
+            const weekIdx = Math.floor(i / 7);
+            monthPositions.push({ month: m, weekIdx });
           }
+        });
+        // Render month labels positioned by their starting week column
+        monthPositions.forEach((pos, idx) => {
+          const span = document.createElement('span');
+          span.textContent = monthNames[pos.month];
+          // Calculate width: distance to next month start (or end of grid)
+          const nextWeekIdx = idx + 1 < monthPositions.length
+            ? monthPositions[idx + 1].weekIdx
+            : maxWeeks;
+          const weekSpan = nextWeekIdx - pos.weekIdx;
+          // Each week column is 11px; offset by 28px label column
+          span.style.flex = String(weekSpan);
+          span.style.textAlign = 'left';
+          monthsEl.appendChild(span);
         });
       }
     }
@@ -1649,6 +1810,23 @@
       });
     }
 
+    // Animated count-up for stat numbers
+    function animateCount(el, target, duration = 1200) {
+      if (!el) return;
+      const start = 0;
+      const startTime = performance.now();
+      function tick(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease-out cubic for a satisfying deceleration
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(start + (target - start) * eased);
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(tick);
+    }
+
     function updateStats() {
       const starsEl = document.getElementById('stat-stars');
       const reposEl = document.getElementById('stat-repos');
@@ -1656,37 +1834,38 @@
       const langsEl = document.getElementById('stat-langs');
       const stats = (siteData && siteData.stats) || {};
 
-      if (githubData.user.public_repos !== undefined) {
-        reposEl.textContent = githubData.user.public_repos;
-      } else if (stats.public_repos) {
-        reposEl.textContent = stats.public_repos;
-      }
+      // Repositories
+      const repoCount = githubData.user.public_repos ?? stats.public_repos ?? 0;
+      if (reposEl && repoCount > 0) animateCount(reposEl, repoCount);
 
+      // Total stars (live from GitHub API, fallback to cached data)
       const totalStars = (githubData.repos || [])
         .filter(r => r.name !== PORTFOLIO_REPO && !r.fork)
         .reduce((s, r) => s + (r.stargazers_count || 0), 0);
+      const starCount = totalStars > 0 ? totalStars : (stats.total_stars ?? 0);
+      if (starsEl && starCount > 0) animateCount(starsEl, starCount);
 
-      if (totalStars > 0) {
-        starsEl.textContent = totalStars;
-      } else if (stats.total_stars !== undefined) {
-        starsEl.textContent = stats.total_stars;
+      // Achievements
+      if (achieveEl && stats.achievements !== undefined) {
+        animateCount(achieveEl, stats.achievements);
       }
 
-      if (stats.achievements !== undefined) {
-        achieveEl.textContent = stats.achievements;
-      }
-
-      if (stats.languages_count !== undefined) {
-        langsEl.textContent = stats.languages_count;
+      // Languages
+      if (langsEl && stats.languages_count !== undefined) {
+        animateCount(langsEl, stats.languages_count);
       }
     }
 
     function getProjects() { return (siteData && siteData.projects) || []; }
     function getLangStats() { return (siteData && siteData.lang_stats) || []; }
 
-    const PROJ_MAP = Object.fromEntries(
-      getProjects().map(p => [p.name, `${p.desc} [${p.lang}]`])
-    );
+    // Lazy-computed project map (siteData is loaded asynchronously, so this must
+    // be evaluated on demand, not at module load time).
+    function getProjMap() {
+      const map = {};
+      getProjects().forEach(p => { map[p.name] = `${p.desc} [${p.lang}]`; });
+      return map;
+    }
 
     const COMMANDS = {
       help: () => [
@@ -1725,6 +1904,7 @@
       ],
       cat: (args) => {
         const name = args[0];
+        const PROJ_MAP = getProjMap();
         if (!name) return ['usage: cat <project-name>', 'example: cat survey-map', '', 'Available: ' + Object.keys(PROJ_MAP).join(', '), ''];
         if (!PROJ_MAP[name]) return [`cat: ${name}: No such file or directory`, '', 'Available: ' + Object.keys(PROJ_MAP).join(', '), ''];
         const desc = PROJ_MAP[name];
@@ -1784,13 +1964,14 @@
       ],
       matrix: () => {
         const canvas = document.getElementById('matrix-canvas');
-        canvas.style.opacity = canvas.style.opacity === '0.35' ? '0.08' : '0.35';
-        return [`Matrix rain intensity: ${canvas.style.opacity === '0.35' ? 'HIGH' : 'NORMAL'}`, ''];
+        if (!canvas) return ['Matrix canvas not found', ''];
+        const isHigh = canvas.style.opacity === '0.35';
+        canvas.style.opacity = isHigh ? '0.08' : '0.35';
+        return [`Matrix rain intensity: ${isHigh ? 'NORMAL' : 'HIGH'}`, ''];
       },
       clear: () => { termBody.innerHTML = ''; return []; },
       'sudo': () => ['sudo: You do not have permission to run this command.', 'Nice try. 😄', ''],
-      'sudo rm -rf /': () => ['rm: cannot remove \'/\': Operation not permitted', 'Access denied. Nice try. 😄', ''],
-      'rm -rf /': () => ['rm: cannot remove \'/\': Operation not permitted', 'Access denied. Nice try. 😄', ''],
+      'rm': () => ['rm: cannot remove \'/\': Operation not permitted', 'Access denied. Nice try. 😄', ''],
     };
 
     function printLines(lines, cls = 'out') {
@@ -1828,8 +2009,9 @@
 
           if (COMMANDS[cmd]) {
             const result = COMMANDS[cmd](args);
-            const isSuccess = cmd !== 'sudo' && cmd !== 'rm -rf /';
-            printLines(result, isSuccess ? 'out' : 'err');
+            // 'sudo' and 'rm' are "error" commands for styling purposes
+            const isError = cmd === 'sudo' || cmd === 'rm';
+            printLines(result, isError ? 'err' : 'out');
           } else {
             printLines([`command not found: ${cmd}`, 'Type \'help\' for available commands.', ''], 'err');
           }
@@ -1924,6 +2106,273 @@
       });
     });
 
+    // ══════════════════════════════════════════════
+    //  CURSOR GLOW
+    // ══════════════════════════════════════════════
+    (function initCursorGlow() {
+      const glow = document.getElementById('cursor-glow');
+      if (!glow) return;
+      let visible = false;
+      document.addEventListener('mousemove', (e) => {
+        glow.style.left = e.clientX + 'px';
+        glow.style.top = e.clientY + 'px';
+        if (!visible) { glow.style.opacity = '1'; visible = true; }
+      });
+      document.addEventListener('mouseleave', () => {
+        glow.style.opacity = '0';
+        visible = false;
+      });
+    })();
+
+    // ══════════════════════════════════════════════
+    //  3D TILT ON PROJECT CARDS
+    // ══════════════════════════════════════════════
+    function initTiltCards() {
+      const cards = document.querySelectorAll('.proj-card');
+      cards.forEach(card => {
+        // Inject glow overlay element
+        if (!card.querySelector('.proj-card-tilt-glow')) {
+          const glow = document.createElement('div');
+          glow.className = 'proj-card-tilt-glow';
+          card.appendChild(glow);
+        }
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const cx = rect.width / 2;
+          const cy = rect.height / 2;
+          const rotateY = ((x - cx) / cx) * 6;
+          const rotateX = -((y - cy) / cy) * 6;
+          card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+          card.style.setProperty('--mx', (x / rect.width * 100) + '%');
+          card.style.setProperty('--my', (y / rect.height * 100) + '%');
+        });
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = '';
+        });
+      });
+    }
+
+    // ══════════════════════════════════════════════
+    //  SKILLS RADAR CHART
+    // ══════════════════════════════════════════════
+    function renderRadarChart() {
+      const canvas = document.getElementById('radarCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width === 0) return;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const W = rect.width;
+      const H = rect.height;
+      const cx = W / 2;
+      const cy = H / 2;
+      const radius = Math.max(10, Math.min(W, H) / 2 - 50);
+
+      // Derive skill data from lang_stats, with sensible defaults
+      const langStats = (siteData && siteData.lang_stats) || [];
+      const defaultSkills = [
+        { name: 'JavaScript', value: 0.85, target: 0.95 },
+        { name: 'Python', value: 0.70, target: 0.90 },
+        { name: 'HTML/CSS', value: 0.80, target: 0.92 },
+        { name: 'Verilog', value: 0.60, target: 0.85 },
+        { name: 'Systems', value: 0.72, target: 0.88 },
+        { name: 'Tooling', value: 0.78, target: 0.90 },
+      ];
+
+      // If we have lang_stats, adjust the first skill's value proportionally
+      let skills = defaultSkills;
+      if (langStats.length > 0) {
+        const jsStat = langStats.find(l => l.name === 'JavaScript');
+        if (jsStat) skills[0].value = Math.min(0.95, 0.5 + jsStat.pct / 200);
+      }
+
+      const n = skills.length;
+      const angleStep = (Math.PI * 2) / n;
+
+      // Animation progress (0 → 1)
+      let progress = 0;
+      const animDuration = 1200;
+      let startTime = null;
+
+      function draw(timestamp) {
+        if (!startTime) startTime = timestamp;
+        progress = Math.min((timestamp - startTime) / animDuration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+
+        ctx.clearRect(0, 0, W, H);
+
+        // Draw grid rings
+        for (let ring = 1; ring <= 4; ring++) {
+          const r = (radius / 4) * ring;
+          ctx.beginPath();
+          for (let i = 0; i <= n; i++) {
+            const angle = -Math.PI / 2 + i * angleStep;
+            const x = cx + Math.cos(angle) * r;
+            const y = cy + Math.sin(angle) * r;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.strokeStyle = `rgba(0,245,255,${0.05 + ring * 0.02})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // Draw axis lines
+        for (let i = 0; i < n; i++) {
+          const angle = -Math.PI / 2 + i * angleStep;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
+          ctx.strokeStyle = 'rgba(0,245,255,0.08)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // Draw target polygon (pink, dashed)
+        ctx.beginPath();
+        for (let i = 0; i <= n; i++) {
+          const idx = i % n;
+          const angle = -Math.PI / 2 + idx * angleStep;
+          const r = radius * skills[idx].target * eased;
+          const x = cx + Math.cos(angle) * r;
+          const y = cy + Math.sin(angle) * r;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = 'rgba(255,45,120,0.4)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Draw proficiency polygon (cyan, filled)
+        ctx.beginPath();
+        for (let i = 0; i <= n; i++) {
+          const idx = i % n;
+          const angle = -Math.PI / 2 + idx * angleStep;
+          const r = radius * skills[idx].value * eased;
+          const x = cx + Math.cos(angle) * r;
+          const y = cy + Math.sin(angle) * r;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+        gradient.addColorStop(0, 'rgba(0,245,255,0.2)');
+        gradient.addColorStop(1, 'rgba(0,245,255,0.05)');
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,245,255,0.8)';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = 'rgba(0,245,255,0.5)';
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Draw vertices and labels
+        for (let i = 0; i < n; i++) {
+          const angle = -Math.PI / 2 + i * angleStep;
+          const r = radius * skills[i].value * eased;
+          const x = cx + Math.cos(angle) * r;
+          const y = cy + Math.sin(angle) * r;
+
+          // Vertex dot
+          ctx.beginPath();
+          ctx.arc(x, y, 3, 0, Math.PI * 2);
+          ctx.fillStyle = '#00f5ff';
+          ctx.shadowColor = 'rgba(0,245,255,0.8)';
+          ctx.shadowBlur = 6;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Label
+          const labelR = radius + 22;
+          const lx = cx + Math.cos(angle) * labelR;
+          const ly = cy + Math.sin(angle) * labelR;
+          ctx.fillStyle = '#c0c8d0';
+          ctx.font = '10px "Share Tech Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(skills[i].name, lx, ly);
+
+          // Percentage
+          ctx.fillStyle = 'rgba(0,245,255,0.6)';
+          ctx.font = '9px "Share Tech Mono", monospace';
+          ctx.fillText(Math.round(skills[i].value * 100) + '%', lx, ly + 12);
+        }
+
+        if (progress < 1) requestAnimationFrame(draw);
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    // ══════════════════════════════════════════════
+    //  LIVE CLOCK
+    // ══════════════════════════════════════════════
+    (function initClock() {
+      const clockEl = document.getElementById('navClock');
+      if (!clockEl) return;
+      function update() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        clockEl.textContent = `${h}:${m}:${s}`;
+      }
+      update();
+      setInterval(update, 1000);
+    })();
+
+    // ══════════════════════════════════════════════
+    //  KEYBOARD SHORTCUTS
+    // ══════════════════════════════════════════════
+    (function initKeyboard() {
+      const kbdHint = document.getElementById('kbdHint');
+      const navMap = {
+        '1': 'about',
+        '2': 'dashboard',
+        '3': 'terminal',
+        '4': 'projects',
+      };
+
+      // Show hint after 3s, hide after 8s
+      setTimeout(() => { if (kbdHint) kbdHint.classList.add('visible'); }, 3000);
+      setTimeout(() => { if (kbdHint) kbdHint.classList.remove('visible'); }, 11000);
+
+      document.addEventListener('keydown', (e) => {
+        // Don't intercept when typing in terminal input
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+          if (e.key === 'Escape') e.target.blur();
+          return;
+        }
+
+        if (navMap[e.key]) {
+          e.preventDefault();
+          const target = document.getElementById(navMap[e.key]);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (e.key === 't' || e.key === 'T') {
+          e.preventDefault();
+          const input = document.getElementById('termInput');
+          const termSection = document.getElementById('terminal');
+          if (termSection) termSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setTimeout(() => { if (input) input.focus(); }, 500);
+        } else if (e.key === 'Escape') {
+          // Close mobile menu
+          const hamburger = document.getElementById('navHamburger');
+          const navLinks = document.getElementById('navLinks');
+          if (hamburger) hamburger.classList.remove('active');
+          if (navLinks) navLinks.classList.remove('open');
+        }
+      });
+    })();
+
     const BIO_TEXT = 'Building tools at the intersection of hardware and software. Passionate about accessibility systems, automation infrastructure, and low-level systems programming. Turning complex problems into elegant solutions.';
 
     function typeWriter() {
@@ -1958,6 +2407,25 @@
           renderHeroTags();
           renderContribGraph();
           updateStats();
+          // Initialize 3D tilt after project cards are rendered
+          requestAnimationFrame(() => initTiltCards());
+          // Render radar chart when dashboard scrolls into view
+          const radarObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+              if (e.isIntersecting) {
+                renderRadarChart();
+                radarObserver.unobserve(e.target);
+              }
+            });
+          }, { threshold: 0.2 });
+          const radarEl = document.getElementById('bento-radar');
+          if (radarEl) radarObserver.observe(radarEl);
+          // Re-render radar on resize
+          let radarResizeTimer = null;
+          window.addEventListener('resize', () => {
+            clearTimeout(radarResizeTimer);
+            radarResizeTimer = setTimeout(() => renderRadarChart(), 200);
+          });
           return fetchGitHubData();
         })
         .then(() => {
@@ -1969,6 +2437,7 @@
           renderHeroTags();
           renderContribGraph();
           updateStats();
+          requestAnimationFrame(() => initTiltCards());
         })
         .finally(() => {
           typeWriter();
