@@ -18,7 +18,7 @@
     {
       "name": "JavaScript",
       "count": 4,
-      "pct": 89
+      "pct": 88
     },
     {
       "name": "HTML",
@@ -28,7 +28,7 @@
     {
       "name": "Python",
       "count": 3,
-      "pct": 4
+      "pct": 5
     },
     {
       "name": "CSS",
@@ -402,7 +402,7 @@
     "2026-06-26": 0,
     "2026-06-27": 0,
     "2026-06-28": 0,
-    "2026-06-29": 0
+    "2026-06-29": 5
   },
   "projects": [
     {
@@ -422,6 +422,14 @@
       "topics": []
     },
     {
+      "name": "Synapse",
+      "desc": "Synapse 是一个自进化（Meta-Evolution）AI Agent 框架。当用户请求超出当前技能范围时，Synapse 会调用 LLM 自动生成新的 Python 技能文件，加载后立即执行——Agent 在运行时自己教自己新能力。",
+      "lang": "Python",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/Synapse",
+      "topics": []
+    },
+    {
       "name": "wayhhow.github.io",
       "desc": "Wayhhow Personal Portfolio — Cyberpunk Developer Page",
       "lang": "HTML",
@@ -435,14 +443,6 @@
       "lang": "HTML",
       "stars": 1,
       "url": "https://github.com/Wayhhow/CGVST",
-      "topics": []
-    },
-    {
-      "name": "Synapse",
-      "desc": "Synapse 是一个自进化（Meta-Evolution）AI Agent 框架。当用户请求超出当前技能范围时，Synapse 会调用 LLM 自动生成新的 Python 技能文件，加载后立即执行——Agent 在运行时自己教自己新能力。",
-      "lang": "Python",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/Synapse",
       "topics": []
     },
     {
