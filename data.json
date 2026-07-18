@@ -402,7 +402,7 @@
     "2026-07-15": 0,
     "2026-07-16": 0,
     "2026-07-17": 0,
-    "2026-07-18": 0
+    "2026-07-18": 4
   },
   "projects": [
     {
@@ -419,6 +419,14 @@
       "lang": "JavaScript",
       "stars": 3,
       "url": "https://github.com/Wayhhow/survey-map",
+      "topics": []
+    },
+    {
+      "name": "CGVST",
+      "desc": "CGVST — a HTML project by Wayhhow",
+      "lang": "HTML",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/CGVST",
       "topics": []
     },
     {
@@ -443,14 +451,6 @@
       "lang": "Python",
       "stars": 1,
       "url": "https://github.com/Wayhhow/Synapse",
-      "topics": []
-    },
-    {
-      "name": "CGVST",
-      "desc": "CGVST — a HTML project by Wayhhow",
-      "lang": "HTML",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/CGVST",
       "topics": []
     },
     {
