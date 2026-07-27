@@ -3,26 +3,26 @@
   "user": {
     "login": "Wayhhow",
     "name": "Weihao Wu",
-    "public_repos": 14,
+    "public_repos": 15,
     "followers": 1,
     "following": 6,
     "public_gists": 0
   },
   "stats": {
     "total_stars": 24,
-    "public_repos": 14,
+    "public_repos": 15,
     "languages_count": 4,
     "achievements": 1
   },
   "lang_stats": [
     {
       "name": "JavaScript",
-      "count": 5,
-      "pct": 85
+      "count": 6,
+      "pct": 84
     },
     {
       "name": "HTML",
-      "count": 6,
+      "count": 7,
       "pct": 7
     },
     {
@@ -32,8 +32,8 @@
     },
     {
       "name": "CSS",
-      "count": 4,
-      "pct": 2
+      "count": 5,
+      "pct": 3
     }
   ],
   "contributions": {
@@ -402,7 +402,7 @@
     "2026-07-24": 0,
     "2026-07-25": 0,
     "2026-07-26": 4,
-    "2026-07-27": 5
+    "2026-07-27": 7
   },
   "projects": [
     {
@@ -422,19 +422,19 @@
       "topics": []
     },
     {
-      "name": "CGVST",
-      "desc": "CGVST — a HTML project by Wayhhow",
-      "lang": "HTML",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/CGVST",
-      "topics": []
-    },
-    {
       "name": "wayhhow.github.io",
       "desc": "Wayhhow Personal Portfolio — Cyberpunk Developer Page",
       "lang": "HTML",
       "stars": 1,
       "url": "https://github.com/Wayhhow/wayhhow.github.io",
+      "topics": []
+    },
+    {
+      "name": "CGVST",
+      "desc": "CGVST — a HTML project by Wayhhow",
+      "lang": "HTML",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/CGVST",
       "topics": []
     },
     {
