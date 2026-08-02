@@ -402,7 +402,7 @@
     "2026-07-30": 0,
     "2026-07-31": 8,
     "2026-08-01": 0,
-    "2026-08-02": 12
+    "2026-08-02": 13
   },
   "projects": [
     {
@@ -422,19 +422,19 @@
       "topics": []
     },
     {
-      "name": "mathforkids",
-      "desc": "mathforkids — a JavaScript project by Wayhhow",
-      "lang": "JavaScript",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/mathforkids",
-      "topics": []
-    },
-    {
       "name": "wayhhow.github.io",
       "desc": "Wayhhow Personal Portfolio — Cyberpunk Developer Page",
       "lang": "HTML",
       "stars": 1,
       "url": "https://github.com/Wayhhow/wayhhow.github.io",
+      "topics": []
+    },
+    {
+      "name": "mathforkids",
+      "desc": "mathforkids — a JavaScript project by Wayhhow",
+      "lang": "JavaScript",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/mathforkids",
       "topics": []
     },
     {
