@@ -3,14 +3,14 @@
   "user": {
     "login": "Wayhhow",
     "name": "Weihao Wu",
-    "public_repos": 15,
+    "public_repos": 16,
     "followers": 1,
     "following": 6,
     "public_gists": 0
   },
   "stats": {
-    "total_stars": 25,
-    "public_repos": 15,
+    "total_stars": 26,
+    "public_repos": 16,
     "languages_count": 4,
     "achievements": 1
   },
@@ -402,7 +402,7 @@
     "2026-07-31": 8,
     "2026-08-01": 0,
     "2026-08-02": 13,
-    "2026-08-03": 0
+    "2026-08-03": 1
   },
   "projects": [
     {
@@ -419,6 +419,14 @@
       "lang": "JavaScript",
       "stars": 3,
       "url": "https://github.com/Wayhhow/survey-map",
+      "topics": []
+    },
+    {
+      "name": "Socratic-Questioning-Engine-Skill",
+      "desc": "Socratic-Questioning-Engine-Skill — a code project by Wayhhow",
+      "lang": "Code",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/Socratic-Questioning-Engine-Skill",
       "topics": []
     },
     {
@@ -459,14 +467,6 @@
       "lang": "HTML",
       "stars": 1,
       "url": "https://github.com/Wayhhow/EyeBuddy",
-      "topics": []
-    },
-    {
-      "name": "teleprompter",
-      "desc": "一个支持自动播放和语音跟读的桌面提词器应用。",
-      "lang": "Python",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/teleprompter",
       "topics": []
     }
   ]
