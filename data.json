@@ -407,7 +407,7 @@
   "projects": [
     {
       "name": "ai-video-shot-prompt-skill",
-      "desc": "一套把\"原子朋克丧尸清道夫\"风格方法论，封装成可复用 Agent Skill 的提示词工程工作流。",
+      "desc": "一套把\"原子朋克丧尸清道夫\"风格方法论，封装成可复用 Agent Skill 的视频提示词工程工作流。",
       "lang": "Python",
       "stars": 17,
       "url": "https://github.com/Wayhhow/ai-video-shot-prompt-skill",
