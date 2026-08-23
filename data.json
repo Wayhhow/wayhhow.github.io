@@ -9,7 +9,7 @@
     "public_gists": 0
   },
   "stats": {
-    "total_stars": 29,
+    "total_stars": 30,
     "public_repos": 17,
     "languages_count": 4,
     "achievements": 1
@@ -17,7 +17,7 @@
   "lang_stats": [
     {
       "name": "JavaScript",
-      "count": 6,
+      "count": 7,
       "pct": 84
     },
     {
@@ -402,7 +402,7 @@
     "2026-08-20": 5,
     "2026-08-21": 2,
     "2026-08-22": 4,
-    "2026-08-23": 0
+    "2026-08-23": 4
   },
   "projects": [
     {
@@ -419,6 +419,14 @@
       "lang": "JavaScript",
       "stars": 3,
       "url": "https://github.com/Wayhhow/survey-map",
+      "topics": []
+    },
+    {
+      "name": "trae-forum-enhancer",
+      "desc": "TRAE 官方中文论坛油猴增强脚本：暗黑模式 / 热度温度计 / 随机漫游",
+      "lang": "JavaScript",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/trae-forum-enhancer",
       "topics": []
     },
     {
@@ -459,14 +467,6 @@
       "lang": "Python",
       "stars": 1,
       "url": "https://github.com/Wayhhow/Synapse",
-      "topics": []
-    },
-    {
-      "name": "EyeBuddy",
-      "desc": "瞳伴 EyeBuddy：一个插件，四种功能，一站解决视障人群上网的视觉障碍。",
-      "lang": "HTML",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/EyeBuddy",
       "topics": []
     }
   ]
