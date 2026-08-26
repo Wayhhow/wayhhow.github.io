@@ -11,6 +11,11 @@ permissions:
   id-token: write
   actions: read
 
+# 每小时调度可能与前一个运行重叠；串行化避免 git push / 部署互相冲突（保留最新一次运行）。
+concurrency:
+  group: auto-deploy
+  cancel-in-progress: true
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -291,15 +296,13 @@ jobs:
           # https://docs.github.com/en/actions/security-guides/automatic-token-authentication
           git push https://x-access-token:${GH_PAT}@github.com/Wayhhow/wayhhow.github.io.git HEAD:main
 
-      - name: Trigger Pages deploy
-        if: always()
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-        run: |
-          # 兜底触发 deploy.yml：避免 PAT 缺少 workflow scope 时 auto-update 不更新线上
-          # 使用 gh CLI（PAT 需要 repo + workflow scope）
-          if echo "${GH_PAT}" | gh auth login --with-token 2>/dev/null; then
-            gh workflow run deploy.yml --ref main && echo "Deploy triggered via gh CLI" || echo "WARN: gh workflow run failed (PAT may lack workflow scope)"
-          else
-            echo "WARN: gh CLI auth failed; deploy may not run if PAT push did not trigger it"
-          fi
+      # 直接在本 workflow 内部署，不依赖跨 workflow 的 push 触发。
+      # 历史原因：GH_PAT 推送 + gh dispatch 都无法稳定触发 deploy.yml，导致线上冻结。
+      # 这里上传产物并部署（已具备 pages:write + id-token:write 权限）。
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
