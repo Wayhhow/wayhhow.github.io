@@ -9,7 +9,7 @@
     "public_gists": 0
   },
   "stats": {
-    "total_stars": 31,
+    "total_stars": 32,
     "public_repos": 18,
     "languages_count": 4,
     "achievements": 1
@@ -414,19 +414,19 @@
       "topics": []
     },
     {
+      "name": "trae-forum-enhancer",
+      "desc": "TRAE 官方中文论坛油猴增强脚本：暗黑模式 / 热度温度计 / 随机漫游",
+      "lang": "JavaScript",
+      "stars": 3,
+      "url": "https://github.com/Wayhhow/trae-forum-enhancer",
+      "topics": []
+    },
+    {
       "name": "survey-map",
       "desc": "GitHub Pages 托管的地图网站，用于可视化橙光队的无障碍督导路线。支持线路展示、类型区分、长度统计等功能，为无障碍督导工作提供直观的路线管理工具。",
       "lang": "JavaScript",
       "stars": 3,
       "url": "https://github.com/Wayhhow/survey-map",
-      "topics": []
-    },
-    {
-      "name": "trae-forum-enhancer",
-      "desc": "TRAE 官方中文论坛油猴增强脚本：暗黑模式 / 热度温度计 / 随机漫游",
-      "lang": "JavaScript",
-      "stars": 2,
-      "url": "https://github.com/Wayhhow/trae-forum-enhancer",
       "topics": []
     },
     {
