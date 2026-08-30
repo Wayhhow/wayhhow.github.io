@@ -402,7 +402,7 @@
     "2026-08-27": 3,
     "2026-08-28": 1,
     "2026-08-29": 0,
-    "2026-08-30": 2
+    "2026-08-30": 4
   },
   "projects": [
     {
@@ -430,6 +430,14 @@
       "topics": []
     },
     {
+      "name": "CGVST",
+      "desc": "CGVST — a HTML project by Wayhhow",
+      "lang": "HTML",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/CGVST",
+      "topics": []
+    },
+    {
       "name": "wayhhow.github.io",
       "desc": "Wayhhow Personal Portfolio 关于我",
       "lang": "CSS",
@@ -451,14 +459,6 @@
       "lang": "JavaScript",
       "stars": 1,
       "url": "https://github.com/Wayhhow/mathforkids",
-      "topics": []
-    },
-    {
-      "name": "CGVST",
-      "desc": "CGVST — a HTML project by Wayhhow",
-      "lang": "HTML",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/CGVST",
       "topics": []
     },
     {
