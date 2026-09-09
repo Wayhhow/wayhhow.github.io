@@ -402,7 +402,7 @@
     "2026-09-06": 1,
     "2026-09-07": 0,
     "2026-09-08": 0,
-    "2026-09-09": 0
+    "2026-09-09": 2
   },
   "projects": [
     {
@@ -430,19 +430,19 @@
       "topics": []
     },
     {
-      "name": "wayhhow.github.io",
-      "desc": "Wayhhow Personal Portfolio 关于我",
-      "lang": "CSS",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/wayhhow.github.io",
-      "topics": []
-    },
-    {
       "name": "Synapse",
       "desc": "Synapse 是一个自进化（Meta-Evolution）AI Agent 框架。",
       "lang": "Python",
       "stars": 1,
       "url": "https://github.com/Wayhhow/Synapse",
+      "topics": []
+    },
+    {
+      "name": "wayhhow.github.io",
+      "desc": "Wayhhow Personal Portfolio 关于我",
+      "lang": "CSS",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/wayhhow.github.io",
       "topics": []
     },
     {
