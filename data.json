@@ -3,14 +3,14 @@
   "user": {
     "login": "Wayhhow",
     "name": "Weihao Wu",
-    "public_repos": 18,
+    "public_repos": 19,
     "followers": 0,
     "following": 6,
     "public_gists": 0
   },
   "stats": {
-    "total_stars": 30,
-    "public_repos": 18,
+    "total_stars": 31,
+    "public_repos": 19,
     "languages_count": 4,
     "achievements": 1
   },
@@ -18,17 +18,17 @@
     {
       "name": "JavaScript",
       "count": 7,
-      "pct": 83
-    },
-    {
-      "name": "Python",
-      "count": 3,
-      "pct": 8
+      "pct": 81
     },
     {
       "name": "HTML",
-      "count": 7,
-      "pct": 6
+      "count": 8,
+      "pct": 8
+    },
+    {
+      "name": "Python",
+      "count": 4,
+      "pct": 8
     },
     {
       "name": "CSS",
@@ -402,7 +402,7 @@
     "2026-09-14": 2,
     "2026-09-15": 0,
     "2026-09-16": 0,
-    "2026-09-17": 0
+    "2026-09-17": 1
   },
   "projects": [
     {
@@ -427,6 +427,14 @@
       "lang": "JavaScript",
       "stars": 3,
       "url": "https://github.com/Wayhhow/trae-forum-enhancer",
+      "topics": []
+    },
+    {
+      "name": "trae-job-card",
+      "desc": "trae-job-card — a HTML project by Wayhhow",
+      "lang": "HTML",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/trae-job-card",
       "topics": []
     },
     {
@@ -459,14 +467,6 @@
       "lang": "Code",
       "stars": 1,
       "url": "https://github.com/Wayhhow/Socratic-Questioning-Engine-Skill",
-      "topics": []
-    },
-    {
-      "name": "mathforkids",
-      "desc": "mathforkids — a JavaScript project by Wayhhow",
-      "lang": "JavaScript",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/mathforkids",
       "topics": []
     }
   ]
