@@ -430,19 +430,19 @@
       "topics": []
     },
     {
-      "name": "trae-job-card",
-      "desc": "trae-job-card — a HTML project by Wayhhow",
-      "lang": "HTML",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/trae-job-card",
-      "topics": []
-    },
-    {
       "name": "wayhhow.github.io",
       "desc": "Wayhhow Personal Portfolio 关于我",
       "lang": "CSS",
       "stars": 1,
       "url": "https://github.com/Wayhhow/wayhhow.github.io",
+      "topics": []
+    },
+    {
+      "name": "trae-job-card",
+      "desc": "trae-job-card — a HTML project by Wayhhow",
+      "lang": "HTML",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/trae-job-card",
       "topics": []
     },
     {
