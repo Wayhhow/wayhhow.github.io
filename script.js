@@ -272,6 +272,11 @@
         setTimeout(() => $$(".day", wEl).forEach(d => d.classList.add("on")), 80 + i * 14);
       });
     }
+    // Start the strip at the latest week so recent activity is visible first.
+    requestAnimationFrame(() => {
+      const scroller = grid.parentElement;
+      if (scroller) scroller.scrollLeft = scroller.scrollWidth;
+    });
     bindContribTips();
   }
 
@@ -287,8 +292,12 @@
     });
     grid.addEventListener("mousemove", e => {
       if (!tip.classList.contains("show")) return;
-      tip.style.left = e.clientX + "px";
-      tip.style.top = e.clientY + "px";
+      // Keep the tooltip inside the viewport horizontally.
+      let x = e.clientX;
+      if (x < 90) x = 90;
+      if (x > innerWidth - 90) x = innerWidth - 90;
+      tip.style.left = x + "px";
+      tip.style.top = (e.clientY - 14) + "px";
     });
     grid.addEventListener("mouseleave", () => tip.classList.remove("show"));
   }
@@ -299,7 +308,7 @@
     if (!wrap || !Array.isArray(langs) || !langs.length) return;
     wrap.innerHTML = langs.map(l =>
       '<div class="lang-row">' +
-        '<span class="name"><span class="swatch" style="background:var(--ink)"></span>' + esc(l.name) + "</span>" +
+        '<span class="name"><span class="swatch"></span>' + esc(l.name) + "</span>" +
         '<span class="track"><span class="fill" style="width:0%"></span></span>' +
         '<span class="pct">' + l.pct + "%</span>" +
       "</div>"
@@ -348,9 +357,12 @@
       dot.style.transform = "translate(" + (mx - 4) + "px," + (my - 4) + "px)";
       ring.style.transform = "translate(" + (rx - ring.offsetWidth / 2) + "px," + (ry - ring.offsetHeight / 2) + "px)";
       if (coverOn) {
-        cx += (mx - cx) * 0.14;
-        cy += (my - cy) * 0.14;
-        cover.style.transform = "translate(" + (cx + 26) + "px," + (cy - 200) + "px) rotate(-2deg) scale(1)";
+        const vx = mx - cx, vy = my - cy;
+        cx += vx * 0.14;
+        cy += vy * 0.14;
+        // Tilt the floating cover with cursor velocity, like paper being dragged.
+        const tilt = Math.max(-6, Math.min(6, vx * 0.05));
+        cover.style.transform = "translate(" + (cx + 26) + "px," + (cy - 200) + "px) rotate(" + (-2 + tilt) + "deg) scale(1)";
       }
       requestAnimationFrame(loop);
     })();
@@ -420,6 +432,22 @@
       if (nav) nav.classList.toggle("scrolled", scrollY > 30);
     }, { passive: true });
 
+    // Highlight the nav link of the section currently in view.
+    const navAnchors = $$(".nav-links a[href^='#']");
+    const sections = navAnchors
+      .map(a => { const sec = $(a.getAttribute("href")); return sec ? { a, sec } : null; })
+      .filter(Boolean);
+    if ("IntersectionObserver" in window && sections.length) {
+      const navIO = new IntersectionObserver(entries => {
+        entries.forEach(en => {
+          if (en.isIntersecting) {
+            sections.forEach(s2 => s2.a.classList.toggle("active", s2.sec === en.target));
+          }
+        });
+      }, { rootMargin: "-30% 0px -55% 0px" });
+      sections.forEach(s2 => navIO.observe(s2.sec));
+    }
+
     const burger = $("#navBurger");
     const overlay = $("#menuOverlay");
     function setMenu(open) {
@@ -464,6 +492,158 @@
     };
   }
 
+  /* ═══════════ micro-interactions (award-site motion) ═══════════ */
+
+  /* (1) Roll-up text: split [data-roll] text into per-char roll rows. */
+  function initRollText() {
+    if (!FINE_POINTER || REDUCED) return;
+    $$("[data-roll]").forEach(el => {
+      const text = el.textContent;
+      el.textContent = "";
+      el.setAttribute("aria-label", text);
+      const roll = document.createElement("span");
+      roll.className = "roll";
+      roll.setAttribute("aria-hidden", "true");
+      text.split("").forEach(ch => {
+        const c = document.createElement("span");
+        c.className = "roll-in";
+        c.dataset.ch = ch;
+        c.textContent = ch;
+        roll.appendChild(c);
+      });
+      el.appendChild(roll);
+    });
+  }
+
+  /* (2) Magnetic elements: [data-magnetic] gently follows the cursor. */
+  function initMagnetic() {
+    if (!FINE_POINTER || REDUCED) return;
+    $$("[data-magnetic]").forEach(el => {
+      const strength = parseFloat(el.dataset.magnetic) || 0.35;
+      const inner = el.firstElementChild;
+      el.addEventListener("mousemove", e => {
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left - r.width / 2) * strength;
+        const y = (e.clientY - r.top - r.height / 2) * strength;
+        el.style.transform = "translate(" + x + "px," + y + "px)";
+        if (inner) inner.style.transform = "translate(" + (x * 0.4) + "px," + (y * 0.4) + "px)";
+      });
+      el.addEventListener("mouseleave", () => {
+        el.style.transform = "";
+        if (inner) inner.style.transform = "";
+      });
+    });
+  }
+
+  /* (3) Velocity marquee: scroll speed drives marquee speed & direction. */
+  function initVelocityMarquee() {
+    if (REDUCED) return;
+    const track = $(".marquee-track");
+    if (!track) return;
+    let lastY = scrollY, vel = 0;
+    addEventListener("scroll", () => {
+      vel += Math.abs(scrollY - lastY);
+      lastY = scrollY;
+    }, { passive: true });
+    (function tick() {
+      vel *= 0.92; // decay
+      const dur = Math.max(6, 26 - vel * 0.05);
+      track.style.setProperty("--marquee-dur", dur.toFixed(2) + "s");
+      requestAnimationFrame(tick);
+    })();
+  }
+
+  /* (4) Scroll parallax on doodles: each floats at its own rate. */
+  function initDoodleParallax() {
+    if (REDUCED) return;
+    const items = [
+      { sel: ".doodle-star-1", speed: 0.18, rot: 14 },
+      { sel: ".doodle-flower", speed: -0.12, rot: -10 },
+      { sel: ".doodle-arrow-hero", speed: 0.22, rot: -8 },
+      { sel: ".doodle-scribble", speed: -0.16, rot: -6 },
+      { sel: ".footer .doodle-arrow-big", speed: 0.1, rot: 12 },
+      { sel: ".footer .doodle-spark-2", speed: -0.14, rot: -14 },
+      { sel: ".footer .doodle-ring", speed: 0.16, rot: 0 }
+    ].map(d => ({ el: $(d.sel), speed: d.speed, rot: d.rot })).filter(d => d.el);
+    if (!items.length) return;
+    let ticking = false;
+    function apply() {
+      const y = scrollY;
+      items.forEach(d => {
+        d.el.style.transform = "translateY(" + (y * d.speed) + "px) rotate(" + d.rot + "deg)";
+      });
+      ticking = false;
+    }
+    addEventListener("scroll", () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(apply); }
+    }, { passive: true });
+  }
+
+  /* (6) Line-art sketches: measure each stroke, then draw it in on scroll. */
+  function initSketches() {
+    const sketches = $$(".sketch");
+    if (!sketches.length) return;
+    sketches.forEach(svg => {
+      const use = svg.querySelector("use");
+      if (!use) return;
+      const ref = document.querySelector(use.getAttribute("href"));
+      if (!ref) return;
+      // Clone symbol children into the svg so we can measure real stroke lengths.
+      // Carry over the symbol's stroke context (width / caps / join).
+      const sw = ref.getAttribute("stroke-width") || "4";
+      const lc = ref.getAttribute("stroke-linecap") || "round";
+      const lj = ref.getAttribute("stroke-linejoin") || "round";
+      Array.from(ref.children).forEach(node => {
+        const clone = node.cloneNode(true);
+        if (!clone.getAttribute("stroke")) clone.setAttribute("stroke", "currentColor");
+        if (!clone.getAttribute("fill")) clone.setAttribute("fill", "none");
+        if (!clone.getAttribute("stroke-width")) clone.setAttribute("stroke-width", sw);
+        clone.setAttribute("stroke-linecap", lc);
+        clone.setAttribute("stroke-linejoin", lj);
+        svg.appendChild(clone);
+      });
+      use.style.display = "none";
+      $$("path, circle, rect", svg).forEach(shape => {
+        let len = 600;
+        try { if (shape.getTotalLength) len = shape.getTotalLength(); } catch (e) {}
+        shape.style.setProperty("--len", len);
+      });
+    });
+    if (REDUCED || !("IntersectionObserver" in window)) {
+      sketches.forEach(s => s.classList.add("drawn"));
+      return;
+    }
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (en.isIntersecting) { en.target.classList.add("drawn"); io.unobserve(en.target); }
+      });
+    }, { rootMargin: "0px 0px -12% 0px" });
+    sketches.forEach(s => io.observe(s));
+  }
+
+  /* (5) Split work-row names into chars for the hover stagger wave. */
+  function initWorkNameChars() {
+    if (!FINE_POINTER || REDUCED) return;
+    $$(".work-row .name").forEach(name => {
+      const arrow = name.querySelector(".arrow-svg");
+      const textNode = name.firstChild;
+      if (!textNode || textNode.nodeType !== 3) return;
+      const text = textNode.textContent;
+      const frag = document.createDocumentFragment();
+      let j = 0;
+      text.split("").forEach(ch => {
+        if (ch === " ") { frag.appendChild(document.createTextNode(" ")); return; }
+        const c = document.createElement("span");
+        c.className = "ch-n";
+        c.style.setProperty("--j", j++);
+        c.textContent = ch;
+        frag.appendChild(c);
+      });
+      name.replaceChild(frag, textNode);
+      if (arrow) name.appendChild(arrow);
+    });
+  }
+
   /* ═══════════ boot ═══════════ */
   async function init() {
     runLoader();
@@ -473,6 +653,11 @@
     initReveals();
     initCursor();
     initBursts();
+    initRollText();
+    initMagnetic();
+    initVelocityMarquee();
+    initDoodleParallax();
+    initSketches();
 
     const data = await loadData();
     renderStats(data.stats);
@@ -480,6 +665,8 @@
     renderContrib(data.contributions);
     renderLangs(data.lang_stats);
     bindRowPreview();
+    // Must run after dynamic rows exist so their names get split too.
+    initWorkNameChars();
   }
 
   if (document.readyState === "loading") {

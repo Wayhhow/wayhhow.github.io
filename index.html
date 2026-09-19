@@ -91,6 +91,59 @@
         <path d="M50 22 C40 14 24 12 10 14 L10 80 C24 78 40 80 50 88 C60 80 76 78 90 80 L90 14 C76 12 60 14 50 22 Z"/>
         <path d="M50 22 L50 88"/>
       </symbol>
+
+      <!-- ── thematic line-art sketches (draw-on-scroll) ── -->
+      <symbol id="sym-chip" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="26" y="26" width="48" height="48" rx="7"/>
+        <rect x="40" y="40" width="20" height="20" rx="3"/>
+        <path d="M38 26 V12 M50 26 V9 M62 26 V12"/>
+        <path d="M38 74 V88 M50 74 V91 M62 74 V88"/>
+        <path d="M26 38 H12 M26 50 H9 M26 62 H12"/>
+        <path d="M74 38 H88 M74 50 H91 M74 62 H88"/>
+        <circle cx="50" cy="50" r="3.5"/>
+      </symbol>
+      <symbol id="sym-map" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 24 L38 16 L62 24 L88 16 L88 76 L62 84 L38 76 L12 84 Z"/>
+        <path d="M38 16 V76 M62 24 V84"/>
+        <path d="M22 60 C34 50 44 58 52 48 C60 38 70 44 78 34" stroke-dasharray="1 7"/>
+        <circle cx="78" cy="32" r="5"/>
+      </symbol>
+      <symbol id="sym-laptop" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="18" y="20" width="64" height="44" rx="5"/>
+        <path d="M10 76 H90 L84 64 H16 Z"/>
+        <path d="M34 34 L26 42 L34 50"/>
+        <path d="M46 50 L58 34"/>
+        <path d="M66 34 L74 42 L66 50"/>
+      </symbol>
+      <symbol id="sym-coffee" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 40 H74 V66 C74 78 64 86 48 86 C32 86 22 78 22 66 Z"/>
+        <path d="M74 46 C84 44 90 50 88 58 C86 66 78 68 73 66"/>
+        <path d="M36 32 C36 26 42 26 42 20 C42 14 36 14 36 8"/>
+        <path d="M52 32 C52 26 58 26 58 20 C58 14 52 14 52 8"/>
+      </symbol>
+      <symbol id="sym-pencil" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 82 L24 60 L66 18 C70 14 76 14 80 18 C84 22 84 28 80 32 L38 74 Z"/>
+        <path d="M24 60 L38 74"/>
+        <path d="M66 18 L80 32"/>
+        <path d="M18 82 L14 88 L22 86"/>
+      </symbol>
+      <symbol id="sym-satellite" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="40" y="40" width="20" height="20" rx="3" transform="rotate(45 50 50)"/>
+        <rect x="8" y="34" width="22" height="14" rx="2" transform="rotate(45 19 41)"/>
+        <rect x="70" y="52" width="22" height="14" rx="2" transform="rotate(45 81 59)"/>
+        <path d="M50 28 V14 M46 18 L54 18"/>
+        <circle cx="50" cy="80" r="5"/>
+        <path d="M58 72 C64 68 68 62 70 56" stroke-dasharray="1 6"/>
+      </symbol>
+      <symbol id="sym-portrait" viewBox="0 0 120 140" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="60" cy="46" r="26"/>
+        <path d="M34 40 C32 22 46 12 60 12 C76 12 88 24 86 42"/>
+        <path d="M50 46 h1 M70 46 h1" stroke-width="5"/>
+        <path d="M54 58 C58 62 62 62 66 58"/>
+        <path d="M60 72 V86"/>
+        <path d="M30 128 C30 104 44 92 60 92 C76 92 90 104 90 128"/>
+        <path d="M22 128 H98" stroke-dasharray="2 6"/>
+      </symbol>
     </defs>
   </svg>
 
@@ -115,10 +168,10 @@
     <div class="nav-inner">
       <a href="#top" class="nav-logo">WAYHHOW<svg viewBox="0 0 100 100"><use href="#sym-mark"/></svg></a>
       <ul class="nav-links">
-        <li><a href="#about"><span class="idx">01</span>About</a></li>
-        <li><a href="#work"><span class="idx">02</span>Work</a></li>
-        <li><a href="#numbers"><span class="idx">03</span>Numbers</a></li>
-        <li><a href="#contact"><span class="idx">04</span>Contact</a></li>
+        <li><a href="#about"><span class="idx">01</span><span data-roll>About</span></a></li>
+        <li><a href="#work"><span class="idx">02</span><span data-roll>Work</span></a></li>
+        <li><a href="#numbers"><span class="idx">03</span><span data-roll>Numbers</span></a></li>
+        <li><a href="#contact"><span class="idx">04</span><span data-roll>Contact</span></a></li>
       </ul>
       <span class="nav-clock" id="navClock">--:--:--</span>
       <button class="nav-burger" id="navBurger" aria-label="Open menu" aria-expanded="false">
@@ -170,7 +223,7 @@
 
         <div class="hero-row">
           <p class="hero-bio">I build tools between <em>hardware</em> and <em>software</em> — web maps, scripts &amp; circuits, shipped open source.</p>
-          <div class="badge-wrap" aria-hidden="true">
+          <div class="badge-wrap" data-magnetic="0.3" aria-hidden="true">
             <svg class="badge" viewBox="0 0 200 200">
               <defs><path id="badge-circ" d="M100 100 m -78 0 a 78 78 0 1 1 156 0 a 78 78 0 1 1 -156 0"/></defs>
               <text fill="currentColor" font-family="Space Mono, monospace" font-size="13.5" letter-spacing="2.6">
@@ -200,6 +253,8 @@
       <div class="wrap sec-grid">
         <div class="sec-head-sticky">
           <p class="sec-label"><span class="no">01</span><span class="rule"></span>ABOUT</p>
+          <svg class="sketch sketch-map" viewBox="0 0 100 100" aria-hidden="true"><use href="#sym-map"/></svg>
+          <svg class="sketch sketch-pencil" viewBox="0 0 100 100" aria-hidden="true"><use href="#sym-pencil"/></svg>
         </div>
         <div>
           <h2 class="about-quote reveal">Good software should feel <span class="hl">invisible<svg class="scribble" viewBox="0 0 100 100" preserveAspectRatio="none"><use href="#sym-scribble"/></svg></span> — it just works, and gets out of the way.</h2>
@@ -232,6 +287,8 @@
         <div class="sec-head-sticky">
           <p class="sec-label"><span class="no">02</span><span class="rule"></span>SELECTED WORK</p>
           <p class="mono" style="margin-top:14px;color:var(--ink-soft)">(08) REPOS — <span class="only-desktop">HOVER<br>FOR A CLOSER LOOK</span><span class="only-mobile">TAP FOR THE CODE</span></p>
+          <svg class="sketch sketch-laptop" viewBox="0 0 100 100" aria-hidden="true"><use href="#sym-laptop"/></svg>
+          <svg class="sketch sketch-chip" viewBox="0 0 100 100" aria-hidden="true"><use href="#sym-chip"/></svg>
         </div>
         <div>
           <div class="work-list" id="workList">
@@ -293,6 +350,8 @@
       <div class="wrap sec-grid">
         <div class="sec-head-sticky">
           <p class="sec-label"><span class="no">03</span><span class="rule"></span>GITHUB, ON PAPER</p>
+          <svg class="sketch sketch-satellite" viewBox="0 0 100 100" aria-hidden="true"><use href="#sym-satellite"/></svg>
+          <svg class="sketch sketch-coffee" viewBox="0 0 100 100" aria-hidden="true"><use href="#sym-coffee"/></svg>
         </div>
         <div>
           <div class="stats-row reveal">
@@ -354,6 +413,7 @@
 
       <div class="wrap">
         <p class="sec-label"><span class="no">04</span><span class="rule"></span>CONTACT</p>
+        <svg class="sketch sketch-portrait" viewBox="0 0 120 140" aria-hidden="true"><use href="#sym-portrait"/></svg>
 
         <div class="footer-cta">
           <p class="kicker mono">
@@ -361,16 +421,16 @@
             GOT AN IDEA, A MAP, OR A CIRCUIT?
           </p>
           <p class="footer-giant">
-            <span>LET'S BUILD</span>
+            <span data-roll>LET'S BUILD</span>
             <span class="serif">something together</span>
           </p>
           <div class="footer-links-row">
-            <a class="footer-link" href="https://github.com/Wayhhow" target="_blank" rel="noopener">
-              GITHUB.COM/WAYHHOW
+            <a class="footer-link" data-magnetic="0.4" href="https://github.com/Wayhhow" target="_blank" rel="noopener">
+              <span data-roll>GITHUB.COM/WAYHHOW</span>
               <svg viewBox="0 0 100 100"><use href="#sym-up-right"/></svg>
             </a>
-            <a class="footer-link" href="https://github.com/Wayhhow/wayhhow.github.io/issues" target="_blank" rel="noopener">
-              OPEN AN ISSUE
+            <a class="footer-link" data-magnetic="0.4" href="https://github.com/Wayhhow/wayhhow.github.io/issues" target="_blank" rel="noopener">
+              <span data-roll>OPEN AN ISSUE</span>
               <svg viewBox="0 0 100 100"><use href="#sym-arrow-up"/></svg>
             </a>
           </div>
@@ -380,7 +440,7 @@
           <span>© 2025–2026 WEIHAO WU</span>
           <span class="hide-s">DESIGNED ON PAPER — SHIPPED WITH CODE <span class="heart">*</span></span>
           <span>LOCAL <span id="footClock">--:--</span></span>
-          <button class="to-top" id="toTop">BACK TO TOP <svg viewBox="0 0 100 100"><use href="#sym-arrow-up"/></svg></button>
+          <button class="to-top" id="toTop" data-magnetic="0.5">BACK TO TOP <svg viewBox="0 0 100 100"><use href="#sym-arrow-up"/></svg></button>
         </div>
       </div>
     </footer>
