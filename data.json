@@ -435,19 +435,19 @@
       "topics": []
     },
     {
-      "name": "CGVST",
-      "desc": "南方科技大学致诚书院“橙光”志愿服务队介绍网站",
-      "lang": "HTML",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/CGVST",
-      "topics": []
-    },
-    {
       "name": "wayhhow.github.io",
       "desc": "Wayhhow Personal Portfolio 关于我",
       "lang": "CSS",
       "stars": 1,
       "url": "https://github.com/Wayhhow/wayhhow.github.io",
+      "topics": []
+    },
+    {
+      "name": "CGVST",
+      "desc": "南方科技大学致诚书院“橙光”志愿服务队介绍网站",
+      "lang": "HTML",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/CGVST",
       "topics": []
     },
     {
