@@ -435,6 +435,14 @@
       "topics": []
     },
     {
+      "name": "Socratic-Questioning-Engine-Skill",
+      "desc": "Socratic-Questioning-Engine-Skill — a code project by Wayhhow",
+      "lang": "Code",
+      "stars": 1,
+      "url": "https://github.com/Wayhhow/Socratic-Questioning-Engine-Skill",
+      "topics": []
+    },
+    {
       "name": "wayhhow.github.io",
       "desc": "Wayhhow Personal Portfolio 关于我",
       "lang": "CSS",
@@ -468,14 +476,6 @@
       "lang": "HTML",
       "stars": 1,
       "url": "https://github.com/Wayhhow/trae-job-card",
-      "topics": []
-    },
-    {
-      "name": "Socratic-Questioning-Engine-Skill",
-      "desc": "Socratic-Questioning-Engine-Skill — a code project by Wayhhow",
-      "lang": "Code",
-      "stars": 1,
-      "url": "https://github.com/Wayhhow/Socratic-Questioning-Engine-Skill",
       "topics": []
     }
   ]
