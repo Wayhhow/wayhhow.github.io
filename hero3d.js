@@ -85,9 +85,9 @@ if (stage && canvas) {
 
   const starGroup = new THREE.Group();
   starGroup.add(star, discFront, discBack);
-  starGroup.scale.setScalar(0.064);
+  starGroup.scale.setScalar(0.052);
   star.scale.setScalar(1);
-  const STAR_BASE = { x: 0, y: 2.5, z: 0 };
+  const STAR_BASE = { x: 0.55, y: 2.5, z: 0 };
   starGroup.position.set(STAR_BASE.x, STAR_BASE.y, STAR_BASE.z);
   starGroup.rotation.x = -0.3;
   rig.add(starGroup);
@@ -145,7 +145,7 @@ if (stage && canvas) {
 
   let dragging = false;
   let lastX = 0, lastY = 0;
-  let yaw = 0, pitch = 0;
+  let yawOff = 0, pitch = 0;
   let yawVel = 0;
   const PITCH_MIN = -0.34, PITCH_MAX = 0.1;
   const PITCH_BASE = -0.1;
@@ -172,7 +172,7 @@ if (stage && canvas) {
     const dx = e.clientX - lastX, dy = e.clientY - lastY;
     lastX = e.clientX; lastY = e.clientY;
     yawVel = dx * 0.0038;
-    yaw += yawVel;
+    yawOff += yawVel;
     pitch = Math.min(PITCH_MAX, Math.max(PITCH_MIN, pitch + dy * 0.0022));
   });
   const endDrag = () => { dragging = false; stage.classList.remove("dragging"); };
@@ -197,9 +197,9 @@ if (stage && canvas) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    // 竖向舞台（移动端）时把内容居中并拉近
+    // 竖向舞台（移动端）时把内容居中并拉近；桌面右移让开文字区
     const portrait = w / h < 1.05;
-    rig.position.x = portrait ? 0 : 1.2;
+    rig.position.x = portrait ? 0 : 2.0;
     rig.position.z = portrait ? 1.5 : 0;
     // setSize 会清空画布：循环暂停时补渲一帧，避免 resize 后舞台空白
     if (running) return;
@@ -236,11 +236,11 @@ if (stage && canvas) {
         const h = waveAt(x, z, t) + rippleAt(x, z, t);
         // 屏幕空间边缘渐隐：点投影到 NDC 后按到画布边缘的距离淡出。
         // 本地坐标的渐隐会随拖拽旋转错位，导致边界生硬割切。
-        // 左缘渐隐带更宽，给标题区留白。
+        // 左缘渐隐带最宽——标题/正文区基本无点，保文字阅读。
         tmpV.set(x, h, z).applyMatrix4(dots.matrixWorld).project(camera);
         const fade = Math.min(
           1,
-          Math.max(0, (tmpV.x + 1) / 0.55),
+          Math.max(0, (tmpV.x + 0.62) / 0.42),
           Math.max(0, (1 - tmpV.x) / 0.22),
           Math.max(0, (1 - tmpV.y) / 0.3),
           Math.max(0, (tmpV.y + 1) / 0.45)
@@ -263,10 +263,12 @@ if (stage && canvas) {
   function updateStar(t, dt) {
     if (!dragging) {
       yawVel *= 0.94;
-      yaw += yawVel + 0.0022; // 空闲慢漂移
+      yawOff += yawVel;
+      // 拖拽偏移缓慢回正 + 正弦摇摆：品牌正面绝大部分时间朝向观众
+      yawOff += (0 - yawOff) * 0.004;
       pitch += (PITCH_BASE - pitch) * 0.02;
     }
-    rig.rotation.y = yaw;
+    rig.rotation.y = yawOff + Math.sin(t * 0.22) * 0.32;
     rig.rotation.x = pitch;
     // 星标朝指针轻微倾斜 + 呼吸浮动（指针未进场时保持中立，避免加载后自翻倒）
     const px = hasPointer ? pointerNDC.x : 0;
@@ -307,8 +309,8 @@ if (stage && canvas) {
 
   if (REDUCED) {
     // 单帧静置：一个好看的姿态
-    yaw = 0.5; pitch = -0.12;
-    rig.rotation.y = yaw; rig.rotation.x = pitch;
+    yawOff = 0.35; pitch = -0.12;
+    rig.rotation.y = yawOff; rig.rotation.x = pitch;
     starGroup.position.y = STAR_BASE.y;
     updateDots(clockT);
     renderer.render(scene, camera);
