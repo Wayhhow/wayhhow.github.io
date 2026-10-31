@@ -87,7 +87,7 @@ if (stage && canvas) {
   starGroup.add(star, discFront, discBack);
   starGroup.scale.setScalar(0.064);
   star.scale.setScalar(1);
-  const STAR_BASE = { x: 0, y: 2.8, z: 0 };
+  const STAR_BASE = { x: 0, y: 2.5, z: 0 };
   starGroup.position.set(STAR_BASE.x, STAR_BASE.y, STAR_BASE.z);
   starGroup.rotation.x = -0.3;
   rig.add(starGroup);
@@ -183,6 +183,7 @@ if (stage && canvas) {
   /* ── 4. 渲染 ── */
   const tmpM = new THREE.Matrix4();
   const tmpC = new THREE.Color();
+  const tmpV = new THREE.Vector3();
   const redInk = new THREE.Color(INK.red);
   const quiet = new THREE.Color(INK.dotQuiet);
 
@@ -233,10 +234,16 @@ if (stage && canvas) {
         const x = u * SPAN_X;
         const z = v * SPAN_Z;
         const h = waveAt(x, z, t) + rippleAt(x, z, t);
-        // 边缘消隐：左/右/前三缘的点缩没，避免画布边界生硬裁切
+        // 屏幕空间边缘渐隐：点投影到 NDC 后按到画布边缘的距离淡出。
+        // 本地坐标的渐隐会随拖拽旋转错位，导致边界生硬割切。
+        // 左缘渐隐带更宽，给标题区留白。
+        tmpV.set(x, h, z).applyMatrix4(dots.matrixWorld).project(camera);
         const fade = Math.min(
           1,
-          Math.max(0, Math.min((0.5 - Math.abs(u)) / 0.12, (0.5 - v) / 0.12))
+          Math.max(0, (tmpV.x + 1) / 0.55),
+          Math.max(0, (1 - tmpV.x) / 0.22),
+          Math.max(0, (1 - tmpV.y) / 0.3),
+          Math.max(0, (tmpV.y + 1) / 0.45)
         );
         const s = fade * (0.9 + 0.35 * Math.max(0, h + 0.3));
         tmpM.makeScale(Math.max(0.001, s), Math.max(0.001, s), Math.max(0.001, s));

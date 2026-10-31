@@ -281,13 +281,10 @@ body.menu-open .nav { background: transparent; box-shadow: none; backdrop-filter
 }
 .hero-main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-block: 48px 28px; }
 
-/* 3D 舞台：桌面占右侧，标题让位（见 .hero-title 缩放） */
+/* 3D 舞台：铺满整个 hero（墨点可从文字下穿过），内容偏右构图 */
 .hero-stage {
   position: absolute;
-  top: 64px;
-  right: 0;
-  bottom: 96px;
-  width: min(56vw, 780px);
+  inset: 0;
   z-index: 0;
   pointer-events: auto;
 }
@@ -299,6 +296,11 @@ body.menu-open .nav { background: transparent; box-shadow: none; backdrop-filter
   touch-action: pan-y;
 }
 .hero-stage.dragging canvas { cursor: grabbing; }
+/* hero 文案层无任何可点元素：放行指针事件，拖拽可从任意位置开始 */
+.hero-main,
+.hero > .wrap:not(.hero-main) {
+  pointer-events: none;
+}
 
 .hero-kicker {
   display: flex;
