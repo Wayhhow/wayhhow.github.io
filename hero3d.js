@@ -27,7 +27,7 @@ if (stage && canvas) {
 
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
   } catch (e) {
     stage.style.display = "none";
     throw e;
@@ -189,12 +189,15 @@ if (stage && canvas) {
 
   let running = true;
   let clockT = REDUCED ? 2.6 : 0;
+  let lastSim = 0;
   const clock = new THREE.Clock();
+  const ftimes = [];
+  let perfChecked = false;
 
   function layout() {
     const w = stage.clientWidth || 1, h = stage.clientHeight || 1;
     renderer.setSize(w, h, false);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5)); // 像素预算：平涂风格 1.5 已足够细腻
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     // 竖向舞台（移动端）时把内容居中并拉近；桌面右移让开文字区
@@ -287,8 +290,22 @@ if (stage && canvas) {
     if (!running) return;
     const dt = Math.min(clock.getDelta(), 0.05);
     clockT += dt;
-    updateDots(clockT);
+    // 墨点模拟 ~30Hz 时间节流（高刷屏上 %2 会反向超频），渲染跟随显示器
+    if (clockT - lastSim >= 0.033) { updateDots(clockT); lastSim = clockT; }
     updateStar(clockT, dt);
+    // 弱机自适应：预热 70 帧后采样 70 帧，均值 <45fps 则降像素比一次
+    if (!perfChecked) {
+      ftimes.push(performance.now());
+      if (ftimes.length > 140) ftimes.shift();
+      if (ftimes.length === 140) {
+        perfChecked = true;
+        const fps = 69 / ((ftimes[139] - ftimes[70]) / 1000);
+        if (fps < 45 && renderer.getPixelRatio() > 1.25) {
+          renderer.setPixelRatio(1.25);
+          console.info("hero3d: low FPS detected, pixel ratio -> 1.25");
+        }
+      }
+    }
     renderer.render(scene, camera);
     requestAnimationFrame(frame);
   }

@@ -363,6 +363,9 @@
     let rx = mx, ry = my;
     let cx = mx, cy = my;
     let coverOn = false;
+    // 光标环尺寸缓存：循环里读 offsetWidth 会每帧强制回流
+    let ringW = ring.offsetWidth, ringH = ring.offsetHeight;
+    addEventListener("resize", () => { ringW = ring.offsetWidth; ringH = ring.offsetHeight; }, { passive: true });
 
     addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; }, { passive: true });
 
@@ -370,7 +373,7 @@
       rx += (mx - rx) * 0.22;
       ry += (my - ry) * 0.22;
       dot.style.transform = "translate(" + (mx - 4) + "px," + (my - 4) + "px)";
-      ring.style.transform = "translate(" + (rx - ring.offsetWidth / 2) + "px," + (ry - ring.offsetHeight / 2) + "px)";
+      ring.style.transform = "translate(" + (rx - ringW / 2) + "px," + (ry - ringH / 2) + "px)";
       if (coverOn) {
         const vx = mx - cx, vy = my - cy;
         cx += vx * 0.14;
@@ -562,7 +565,7 @@
     if (REDUCED) return;
     const track = $(".marquee-track");
     if (!track) return;
-    let lastY = scrollY, vel = 0;
+    let lastY = scrollY, vel = 0, lastDur = 26;
     addEventListener("scroll", () => {
       vel += Math.abs(scrollY - lastY);
       lastY = scrollY;
@@ -570,7 +573,10 @@
     (function tick() {
       vel *= 0.92; // decay
       const dur = Math.max(6, 26 - vel * 0.05);
-      track.style.setProperty("--marquee-dur", dur.toFixed(2) + "s");
+      if (Math.abs(dur - lastDur) > 0.05) { // 值几乎不变时跳过样式写入
+        track.style.setProperty("--marquee-dur", dur.toFixed(2) + "s");
+        lastDur = dur;
+      }
       requestAnimationFrame(tick);
     })();
   }
