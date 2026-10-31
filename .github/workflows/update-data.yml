@@ -8,6 +8,10 @@ on:
     # 数据无变化时运行快速空转退出，几乎零成本。
     - cron: '4,19,34,49 * * * *'
   workflow_dispatch:
+  # 自己 push（提交代码=产生贡献）时立即刷新数据；bot 的 push 不会触发
+  # workflow（实测与 deploy.yml 一致），因此不会自我循环。
+  push:
+    branches: [main]
 
 permissions:
   contents: write
