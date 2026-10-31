@@ -407,7 +407,7 @@
     "2026-10-28": 0,
     "2026-10-29": 2,
     "2026-10-30": 1,
-    "2026-10-31": 5
+    "2026-10-31": 11
   },
   "projects": [
     {
@@ -437,7 +437,7 @@
     {
       "name": "wayhhow.github.io",
       "desc": "Wayhhow Personal Portfolio 关于我",
-      "lang": "CSS",
+      "lang": "JavaScript",
       "stars": 1,
       "url": "https://github.com/Wayhhow/wayhhow.github.io",
       "topics": []
