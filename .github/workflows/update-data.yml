@@ -19,10 +19,13 @@ permissions:
   id-token: write
   actions: read
 
-# 每小时调度可能与前一个运行重叠；串行化避免 git push / 部署互相冲突（保留最新一次运行）。
+# 与 deploy.yml 共用 "pages" 组，把两个 workflow 的 Pages 部署串行化：
+# 同一环境的并发 deploy 会互相冲突/覆盖（实测用户 push 同时触发两个 workflow
+# 时，update-data 部署的新数据会被 deploy.yml 部署的旧内容盖掉）。
+# 本 workflow 排在 deploy.yml 之后运行，最终总是以最新内容收尾。
 concurrency:
-  group: auto-deploy
-  cancel-in-progress: true
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   update:
