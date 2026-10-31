@@ -299,10 +299,23 @@ jobs:
       # 直接在本 workflow 内部署，不依赖跨 workflow 的 push 触发。
       # 历史原因：GH_PAT 推送 + gh dispatch 都无法稳定触发 deploy.yml，导致线上冻结。
       # 这里上传产物并部署（已具备 pages:write + id-token:write 权限）。
+      # 只部署站点文件本身；.learnings / .trae 等仓库内部文档不能变成公开 URL。
+      - name: Stage site files
+        run: |
+          mkdir -p _site
+          rsync -a \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude '.learnings' \
+            --exclude '.trae' \
+            --exclude '.trae-html-share-packages' \
+            --exclude '_site' \
+            ./ _site/
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: '_site'
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
