@@ -529,7 +529,10 @@ body:not(.loaded) .hero-note { opacity: 0; }
   position: relative;
   display: grid;
   grid-template-columns: 64px 1fr auto;
-  gap: clamp(14px, 3vw, 40px);
+  /* 列间距管三栏水平空隙；行间距置 0，让 .desc 的 margin-top 控制标题-描述的
+     紧凑节奏（否则 3vw 的列间距会把描述垂直推离标题 40px）。 */
+  column-gap: clamp(14px, 3vw, 40px);
+  row-gap: 0;
   align-items: baseline;
   padding: clamp(22px, 3.4vh, 34px) 8px;
   border-bottom: 1px solid var(--line-strong);
@@ -878,7 +881,8 @@ body.loaded .hero-title:hover .ch { animation: ch-bounce 0.6s var(--ease-out); a
 .hero .wrap { position: relative; z-index: 1; }
 
 /* About: quote sits on a faint halftone field; body gets an ink-bleed wash. */
-#about { position: relative; overflow: hidden; }
+/* overflow: clip（而非 hidden）—— hidden 会创建滚动容器，破坏子元素的 sticky。 */
+#about { position: relative; overflow: clip; }
 #about::before {
   content: "";
   position: absolute;
@@ -905,7 +909,7 @@ body.loaded .hero-title:hover .ch { animation: ch-bounce 0.6s var(--ease-out); a
 #work .wrap { position: relative; z-index: 1; }
 
 /* Numbers: uneven ink density over the paper-2 block + top/bottom tick rules. */
-.numbers-section { position: relative; overflow: hidden; }
+.numbers-section { position: relative; overflow: clip; }
 .numbers-section::before {
   content: "";
   position: absolute;

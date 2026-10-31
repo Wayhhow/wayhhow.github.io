@@ -525,6 +525,8 @@
       roll.className = "roll";
       roll.setAttribute("aria-hidden", "true");
       text.split("").forEach(ch => {
+        // 空格不能包进 inline-block（会塌缩为零宽度，"LET'S BUILD" 变 "LET'SBUILD"）。
+        if (ch === " ") { roll.appendChild(document.createTextNode(" ")); return; }
         const c = document.createElement("span");
         c.className = "roll-in";
         c.dataset.ch = ch;
