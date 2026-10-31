@@ -12,7 +12,7 @@
     "total_stars": 32,
     "public_repos": 20,
     "languages_count": 5,
-    "achievements": 1
+    "achievements": 5
   },
   "lang_stats": [
     {
@@ -407,7 +407,7 @@
     "2026-10-28": 0,
     "2026-10-29": 2,
     "2026-10-30": 1,
-    "2026-10-31": 1
+    "2026-10-31": 5
   },
   "projects": [
     {
@@ -472,7 +472,7 @@
     },
     {
       "name": "trae-job-card",
-      "desc": "trae-job-card — a HTML project by Wayhhow",
+      "desc": "trae-job-card — an HTML project by Wayhhow",
       "lang": "HTML",
       "stars": 1,
       "url": "https://github.com/Wayhhow/trae-job-card",
