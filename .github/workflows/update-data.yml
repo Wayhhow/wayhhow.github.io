@@ -2,7 +2,11 @@ name: Update Portfolio Data
 
 on:
   schedule:
-    - cron: '0 */1 * * *'
+    # GitHub 对 schedule 事件没有时效 SLA：负载高时大部分事件会被直接丢弃
+    # （实测 2026-08-26 起每小时 cron 从 24 次/天跌到 4-7 次/天，延迟为 0 说明
+    # 是事件未生成而非排队）。改为每小时 4 个错峰槽位对冲丢弃率，
+    # 数据无变化时运行快速空转退出，几乎零成本。
+    - cron: '4,19,34,49 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -285,22 +289,33 @@ jobs:
           node /tmp/update-data.js
 
       - name: Commit and push
+        id: commit
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add -A
-          git diff --staged --quiet || git commit -m "ci: auto-update portfolio data $(date -u +%Y-%m-%d)"
-          # 必须用 PAT 推送：默认 GITHUB_TOKEN 的 push 不会触发下游 workflow
-          # https://docs.github.com/en/actions/security-guides/automatic-token-authentication
-          git push https://x-access-token:${GH_PAT}@github.com/Wayhhow/wayhhow.github.io.git HEAD:main
+          if git diff --staged --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "data.json unchanged — skipping commit and deploy"
+          else
+            git commit -m "ci: auto-update portfolio data $(date -u +%Y-%m-%d)"
+            # 必须用 PAT 推送：默认 GITHUB_TOKEN 的 push 不会触发下游 workflow
+            # https://docs.github.com/en/actions/security-guides/automatic-token-authentication
+            if ! git push https://x-access-token:${GH_PAT}@github.com/Wayhhow/wayhhow.github.io.git HEAD:main; then
+              git pull --rebase origin main
+              git push https://x-access-token:${GH_PAT}@github.com/Wayhhow/wayhhow.github.io.git HEAD:main
+            fi
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
 
       # 直接在本 workflow 内部署，不依赖跨 workflow 的 push 触发。
       # 历史原因：GH_PAT 推送 + gh dispatch 都无法稳定触发 deploy.yml，导致线上冻结。
-      # 这里上传产物并部署（已具备 pages:write + id-token:write 权限）。
+      # 仅在数据有变化（或手动触发）时部署，让高频空转运行零成本。
       # 只部署站点文件本身；.learnings / .trae 等仓库内部文档不能变成公开 URL。
       - name: Stage site files
+        if: steps.commit.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           mkdir -p _site
           rsync -a \
@@ -313,9 +328,11 @@ jobs:
             ./ _site/
 
       - name: Upload Pages artifact
+        if: steps.commit.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-pages-artifact@v3
         with:
           path: '_site'
 
       - name: Deploy to GitHub Pages
+        if: steps.commit.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/deploy-pages@v4
