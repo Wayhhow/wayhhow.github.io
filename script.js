@@ -13,7 +13,7 @@
 
   /* ── embedded fallback snapshot (kept in sync with data.json) ── */
   const FALLBACK = {
-    stats: { total_stars: 32, public_repos: 20, languages_count: 5, achievements: 1 },
+    stats: { total_stars: 32, public_repos: 20, languages_count: 5, achievements: 5 },
     lang_stats: [
       { name: "JavaScript", count: 7, pct: 78 },
       { name: "Python", count: 4, pct: 8 },
@@ -34,9 +34,12 @@
     ]
   };
 
-  /* ── curated copy for repos whose auto-description is generic ── */
+  /* ── curated copy for repos whose auto-description is generic or not English ── */
   const DESC_OVERRIDES = {
     "wayhhow.github.io": "My corner of the internet, redesigned as a print-inspired playground — no neon required.",
+    "ai-video-shot-prompt-skill": 'A video prompt-engineering workflow that packages the "atomic-punk zombie sweeper" methodology into a reusable Agent Skill.',
+    "trae-forum-enhancer": "A userscript for the TRAE forum with dark mode, a heat meter, and random wandering built in.",
+    "survey-map": "A map site that visualises accessibility survey routes — line display, type filters, and length stats for real field work.",
     "Socratic-Questioning-Engine-Skill": "An Agent Skill that turns LLMs into better questioners — the Socratic method as a reusable reasoning engine.",
     "mathforkids": "A small, friendly math-practice app for young learners.",
     "CGVST": "为我们的橙光志愿队制作的团队介绍网页。"
@@ -230,6 +233,10 @@
       const el = $(sel);
       if (el && typeof val === "number") countUp(el, val, 900);
     });
+    const achvLbl = $("#stat-achv-lbl");
+    if (achvLbl && typeof stats.achievements === "number") {
+      achvLbl.textContent = stats.achievements === 1 ? "Achievement unlocked" : "Achievements unlocked";
+    }
   }
 
   /* ═══════════ contribution grid ═══════════ */

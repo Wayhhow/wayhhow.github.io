@@ -89,30 +89,59 @@ jobs:
           }
 
           async function fetchAchievementsCount() {
-            // 优先从 achievements-data 镜像读取；不可用时回退 GitHub GraphQL
-            // 公共 API 只能读取自己的成就，第三方用户的成就通过镜像
-            if (!GH_TOKEN) return 1; // 无法查询时保守返回 1
-            try {
-              const res = await fetch('https://api.github.com/graphql', {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${GH_TOKEN}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  query: `query($login: String!) {
-                    user(login: $login) {
-                      achievements(first: 50) { totalCount }
-                    }
-                  }`,
-                  variables: { login: GITHUB_USER },
-                }),
-              });
-              if (!res.ok) return 1;
-              const data = await res.json();
-              const count = data?.data?.user?.achievements?.totalCount;
-              return typeof count === 'number' ? count : 1;
-            } catch (e) {
-              console.warn('Failed to fetch achievements count:', e.message);
-              return 1;
+            // 1) GraphQL（需要 classic PAT；fine-grained PAT 无法访问 GraphQL）
+            if (GH_TOKEN) {
+              try {
+                const res = await fetch('https://api.github.com/graphql', {
+                  method: 'POST',
+                  headers: { Authorization: `Bearer ${GH_TOKEN}`, 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    query: `query($login: String!) {
+                      user(login: $login) {
+                        achievements(first: 50) { totalCount }
+                      }
+                    }`,
+                    variables: { login: GITHUB_USER },
+                  }),
+                });
+                if (res.ok) {
+                  const data = await res.json();
+                  if (data?.errors) {
+                    console.warn('GraphQL achievements errors:', JSON.stringify(data.errors).slice(0, 300));
+                  }
+                  const count = data?.data?.user?.achievements?.totalCount;
+                  if (typeof count === 'number') return count;
+                  console.warn('GraphQL achievements unavailable — falling back to public profile page');
+                } else {
+                  console.warn(`GraphQL achievements HTTP ${res.status} — falling back to public profile page`);
+                }
+              } catch (e) {
+                console.warn('GraphQL achievements failed:', e.message);
+              }
             }
+            // 2) 公开成就页兜底：服务端渲染、无需 token，徽章形如 alt="Achievement: <名称>"。
+            //    高亮区与完整区会重复出现同一成就，用 Set 去重后计数。
+            try {
+              const res = await fetch(`https://github.com/${GITHUB_USER}?tab=achievements`, {
+                headers: { 'User-Agent': 'portfolio-data-updater' },
+                signal: AbortSignal.timeout(15000),
+              });
+              if (res.ok) {
+                const html = await res.text();
+                const names = new Set(Array.from(html.matchAll(/alt="Achievement: ([^"]+)"/g)).map(m => m[1]));
+                if (names.size > 0) {
+                  console.log(`Achievements from public profile: ${names.size} (${Array.from(names).join(', ')})`);
+                  return names.size;
+                }
+                console.warn('Public achievements page contained no badges');
+              } else {
+                console.warn(`Public achievements page HTTP ${res.status}`);
+              }
+            } catch (e) {
+              console.warn('Public achievements page failed:', e.message);
+            }
+            console.warn('Achievements count unavailable — falling back to 1');
+            return 1;
           }
 
           async function fetchContribData() {
@@ -231,14 +260,20 @@ jobs:
             const contribTotal = Object.values(contribData).reduce((s, n) => s + n, 0);
             console.log(`Updated: ${updated} | Stars: ${totalStars} | Repos: ${publicRepos} | Featured: ${featured.length} | Contribs: ${contribTotal}`);
 
-            const projectsArr = featured.map(r => ({
-              name: r.name,
-              desc: r.description || `${r.name} — a ${r.language || 'code'} project by ${GITHUB_USER}`,
-              lang: r.language || 'Code',
-              stars: r.stargazers_count || 0,
-              url: r.html_url,
-              topics: (r.topics || []).slice(0, 3),
-            }));
+            const projectsArr = featured.map(r => {
+              const lang = r.language || 'code';
+              // 冠词按发音：HTML 读 /eɪtʃ/ 用 an；语言名以元音字母开头
+              // （Elm、Objective-C、OCaml 等）也用 an，其余用 a。
+              const art = lang.toLowerCase() === 'html' || /^[aeiou]/i.test(lang) ? 'an' : 'a';
+              return {
+                name: r.name,
+                desc: r.description || `${r.name} — ${art} ${lang} project by ${GITHUB_USER}`,
+                lang: r.language || 'Code',
+                stars: r.stargazers_count || 0,
+                url: r.html_url,
+                topics: (r.topics || []).slice(0, 3),
+              };
+            });
 
             const oneYearAgo = new Date();
             oneYearAgo.setDate(oneYearAgo.getDate() - 365);
