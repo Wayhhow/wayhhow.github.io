@@ -48,27 +48,40 @@ jobs:
           const PORTFOLIO_REPO = 'wayhhow.github.io';
           const GH_TOKEN = process.env.GH_TOKEN;
 
-          async function fetchJSON(url, retries = 2) {
+          async function fetchJSON(url, retries = 3) {
             for (let attempt = 1; attempt <= retries + 1; attempt++) {
+              let waitMs = 0;
               try {
                 const headers = { Accept: 'application/vnd.github+json' };
                 if (GH_TOKEN) headers.Authorization = `Bearer ${GH_TOKEN}`;
-                const res = await fetch(url, { headers });
+                const res = await fetch(url, { headers, signal: AbortSignal.timeout(30000) });
                 if (res.ok) return await res.json();
-                if (res.status === 403 || res.status === 429) {
-                  console.warn(`Rate limited on ${url} (attempt ${attempt}/${retries + 1}), waiting 2s...`);
-                  await new Promise(r => setTimeout(r, 2000));
-                  continue;
+                // 429/403 限流和 5xx 服务端抖动都是瞬时的，退避后重试。
+                // #1469（2026-10-14）：repos 列表首请求收到 5xx 就直接放弃，
+                // 导致整个 run FATAL——5xx 必须参与重试。
+                if (res.status === 403 || res.status === 429 || res.status >= 500) {
+                  if (attempt <= retries) {
+                    // 优先遵循服务端 Retry-After（上限 30s），否则指数退避 2/4/8s
+                    const ra = parseInt(res.headers.get('retry-after'), 10);
+                    waitMs = (Number.isFinite(ra) && ra > 0) ? Math.min(ra * 1000, 30000)
+                                                            : Math.min(2000 * 2 ** (attempt - 1), 20000);
+                    console.warn(`HTTP ${res.status} on ${url} (attempt ${attempt}/${retries + 1}), retrying in ${Math.round(waitMs / 1000)}s...`);
+                    await new Promise(r => setTimeout(r, waitMs));
+                    continue;
+                  }
+                  console.error(`fetch ${url} failed with HTTP ${res.status} after ${retries + 1} attempts`);
+                  return null;
                 }
                 if (attempt > 1) console.warn(`fetch ${url} failed with ${res.status} after ${attempt - 1} retries`);
                 return null;
               } catch (e) {
                 if (attempt <= retries) {
-                  console.warn(`fetch ${url} error (attempt ${attempt}/${retries + 1}): ${e.message}`);
-                  await new Promise(r => setTimeout(r, 1500));
+                  waitMs = Math.min(2000 * 2 ** (attempt - 1), 20000);
+                  console.warn(`fetch ${url} error (attempt ${attempt}/${retries + 1}): ${e.message}, retrying in ${Math.round(waitMs / 1000)}s...`);
+                  await new Promise(r => setTimeout(r, waitMs));
                   continue;
                 }
-                console.error(`fetch ${url} failed after ${retries} retries: ${e.message}`);
+                console.error(`fetch ${url} failed after ${retries + 1} attempts: ${e.message}`);
                 return null;
               }
             }
@@ -375,6 +388,18 @@ jobs:
         with:
           path: '_site'
 
+      # Pages 部署偶发瞬时故障：#1502 服务端 500、#1616 artifact 元数据查询失败。
+      # 首次失败后等 30s 重试一次，两次都失败才判定 job 失败。
       - name: Deploy to GitHub Pages
+        id: deploy
         if: steps.commit.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+
+      - name: Wait before deploy retry
+        if: steps.deploy.outcome == 'failure'
+        run: sleep 30
+
+      - name: Retry deploy on transient failure
+        if: steps.deploy.outcome == 'failure'
         uses: actions/deploy-pages@v4
